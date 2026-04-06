@@ -5,6 +5,7 @@ import Container from "@material-ui/core/Container";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
+import Link from "@material-ui/core/Link";
 import IconButton from "@material-ui/core/IconButton";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Visibility from "@material-ui/icons/Visibility";
@@ -194,22 +195,23 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   logo: {
-    width: 320,
+    width: 286,
     maxWidth: "100%",
     height: "auto",
-    marginBottom: 6,
+    marginBottom: 2,
     "@media (max-height: 760px)": {
-      width: 292,
+      width: 260,
     },
   },
   subHeading: {
     textAlign: "center",
     color: "#0a2f66",
     fontWeight: 700,
-    fontSize: 24,
-    lineHeight: 1.2,
+    fontSize: 18,
+    lineHeight: 1.25,
+    letterSpacing: "0.01em",
     "@media (max-height: 760px)": {
-      fontSize: 22,
+      fontSize: 17,
     },
   },
   formBox: {
@@ -218,14 +220,14 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 22,
     boxShadow: "0 18px 40px rgba(10, 47, 102, 0.12)",
     border: "1px solid #d8e3f4",
-    padding: "28px 24px",
-    minHeight: 338,
+    padding: "26px 24px",
+    minHeight: 312,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     "@media (max-height: 760px)": {
-      minHeight: 308,
-      padding: "24px 22px",
+      minHeight: 292,
+      padding: "22px 20px",
     },
   },
   form: {
@@ -239,31 +241,51 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiOutlinedInput-root": {
       borderRadius: 14,
       backgroundColor: "#f8fbff",
-      minHeight: 60,
+      minHeight: 54,
     },
     "& .MuiInputLabel-root": {
       fontWeight: 600,
       color: "#294370",
       letterSpacing: "0.02em",
+      fontSize: 14,
+    },
+    "& .MuiOutlinedInput-input": {
+      padding: "15px 14px",
+      fontSize: 15,
     },
   },
-  submitWrap: {
+  actionsRow: {
     width: "100%",
     display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 16,
+  },
+  submitWrap: {
+    display: "flex",
     justifyContent: "center",
-    marginTop: 4,
   },
   submitBtn: {
-    minWidth: 132,
+    minWidth: 112,
     borderRadius: 12,
-    padding: "9px 20px",
+    padding: "8px 18px",
     background: "linear-gradient(90deg, #1d5bcc 0%, #18a6e6 100%)",
     color: "#fff",
     fontWeight: 700,
     textTransform: "none",
-    fontSize: 18,
+    fontSize: 15,
     "&:hover": {
       background: "linear-gradient(90deg, #1548ac 0%, #0e8fca 100%)",
+    },
+  },
+  forgotPassword: {
+    color: "#0b4fbc",
+    fontSize: 13,
+    fontWeight: 600,
+    textDecoration: "none",
+    cursor: "pointer",
+    "&:hover": {
+      textDecoration: "underline",
     },
   },
   versionText: {
@@ -312,6 +334,8 @@ const Login = () => {
   const [logoSrc, setLogoSrc] = useState(themeLoginLogo);
   const [systemVersion, setSystemVersion] = useState("2.0.0");
   const currentYear = new Date().getFullYear();
+  const recoverPasswordLink =
+    "mailto:admin@ideianobolso.com?subject=Recupera%C3%A7%C3%A3o%20de%20senha";
 
   useEffect(() => {
     setLogoSrc(themeLoginLogo || logo);
@@ -473,14 +497,23 @@ const Login = () => {
                   }}
                 />
 
-                <div className={classes.submitWrap}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    className={classes.submitBtn}
+                <div className={classes.actionsRow}>
+                  <div className={classes.submitWrap}>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      className={classes.submitBtn}
+                    >
+                      Entrar
+                    </Button>
+                  </div>
+
+                  <Link
+                    href={recoverPasswordLink}
+                    className={classes.forgotPassword}
                   >
-                    Entrar
-                  </Button>
+                    Esqueceu sua senha?
+                  </Link>
                 </div>
               </form>
             </div>
