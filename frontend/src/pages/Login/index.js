@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { makeStyles } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
@@ -172,22 +171,22 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("sm")]: {
       width: "100%",
       minWidth: "100%",
-      padding: "22px 20px 16px",
+      padding: "20px 18px 16px",
     },
     "@media (max-width: 1365px)": {
       width: "100%",
       minWidth: "100%",
       minHeight: "100vh",
-      padding: "28px 24px 18px",
+      padding: "22px 18px 16px",
     },
     "@media (max-height: 760px)": {
       padding: "14px 26px 12px",
     },
   },
   card: {
-    width: "100%",
+    width: "min(100%, 430px)",
     maxWidth: 430,
-    minHeight: "100%",
+    minHeight: "auto",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -195,7 +194,8 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     gap: 12,
     "@media (max-width: 1365px)": {
-      maxWidth: 460,
+      width: "min(100%, 430px)",
+      maxWidth: 430,
     },
   },
   topBar: {
@@ -251,6 +251,7 @@ const useStyles = makeStyles((theme) => ({
   },
   formBox: {
     width: "100%",
+    maxWidth: 430,
     backgroundColor:
       theme.palette.type === "dark" ? "#0f1d32" : "#ffffff",
     borderRadius: 22,
@@ -266,6 +267,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    margin: "0 auto",
     "@media (max-height: 760px)": {
       minHeight: 292,
       padding: "22px 20px",
@@ -376,7 +378,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState({ email: "", password: "" });
   const [logoSrc, setLogoSrc] = useState(themeLoginLogo);
-  const [systemVersion, setSystemVersion] = useState("2.1.1");
+  const [systemVersion, setSystemVersion] = useState("2.1.2");
   const currentYear = new Date().getFullYear();
 
   useEffect(() => {
@@ -485,7 +487,7 @@ const Login = () => {
         </div>
 
         <div className={classes.rightSide}>
-          <Container disableGutters className={classes.card}>
+          <div className={classes.card}>
             <div className={classes.topBar}>
               <IconButton
                 className={classes.modeButton}
@@ -571,7 +573,7 @@ const Login = () => {
               <div>CNPJ 64.016.500/0001-02</div>
               <div>Desenvolvido por Ideia no Bolso LTDA - {currentYear}</div>
             </div>
-          </Container>
+          </div>
         </div>
       </div>
     </>

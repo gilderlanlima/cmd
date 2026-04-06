@@ -41,8 +41,6 @@ import { i18n } from "../translate/i18n";
 import toastError from "../errors/toastError";
 import AnnouncementsPopover from "../components/AnnouncementsPopover";
 import BirthdayModal from "../components/BirthdayModal";
-import logo from "../assets/logo.png";
-import logoDark from "../assets/logo-black.png";
 import ChatPopover from "../pages/Chat/ChatPopover";
 import { useDate } from "../hooks/useDate";
 import ColorModeContext from "../layout/themeContext";
@@ -153,6 +151,10 @@ const useStyles = makeStyles((theme) => ({
 
   drawerPaper: {
     position: "relative",
+    display: "flex",
+    flexDirection: "column",
+    height: "100vh",
+    minHeight: 0,
     whiteSpace: "nowrap",
     width: drawerWidth,
     transition: theme.transitions.create("width", {
@@ -160,7 +162,7 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
     overflowX: "hidden",
-    overflowY: "hidden",
+    overflowY: "auto",
     // Melhorias sutis no drawer
     borderRight: `1px solid ${theme.mode === "light" ? "#e0e0e0" : "#424242"}`,
     boxShadow:
@@ -171,7 +173,7 @@ const useStyles = makeStyles((theme) => ({
 
   drawerPaperClose: {
     overflowX: "hidden",
-    overflowY: "hidden",
+    overflowY: "auto",
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -202,16 +204,33 @@ const useStyles = makeStyles((theme) => ({
 
   containerWithScroll: {
     flex: 1,
-    overflowY: "scroll",
+    minHeight: 0,
+    overflowY: "auto",
     overflowX: "hidden",
     ...theme.scrollbarStyles,
-    borderRadius: "8px",
-    border: "2px solid transparent",
+    borderRadius: 0,
+    border: "none",
     "&::-webkit-scrollbar": {
-      display: "none",
+      width: "8px",
     },
-    "-ms-overflow-style": "none",
-    "scrollbar-width": "none",
+    "&::-webkit-scrollbar-track": {
+      background: "transparent",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background:
+        theme.mode === "light"
+          ? "rgba(15, 23, 42, 0.14)"
+          : "rgba(255, 255, 255, 0.14)",
+      borderRadius: "999px",
+    },
+    "&::-webkit-scrollbar-thumb:hover": {
+      background:
+        theme.mode === "light"
+          ? "rgba(15, 23, 42, 0.24)"
+          : "rgba(255, 255, 255, 0.24)",
+    },
+    "-ms-overflow-style": "auto",
+    "scrollbar-width": "thin",
   },
 
   NotificationsPopOver: {
@@ -463,16 +482,6 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
   const { dateToClient } = useDate();
   const [profileUrl, setProfileUrl] = useState(null);
   const [updateInProgress, setUpdateInProgress] = useState(false);
-
-  const drawerLogoSrc =
-    theme.mode === "light"
-      ? theme.calculatedLogoLight?.() || colorMode?.appLogoLight || logo
-      : theme.calculatedLogoDark?.() ||
-        colorMode?.appLogoDark ||
-        colorMode?.appLogoLight ||
-        logoDark ||
-        logo;
-
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const mainListItems = useMemo(
@@ -758,16 +767,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
           open={drawerOpen}
         >
           <div className={classes.toolbarIcon}>
-            <div className={drawerOpen ? classes.logoContainer : classes.hideLogo}>
-              <img
-                src={drawerLogoSrc}
-                className={classes.logo}
-                alt="Ideia no Bolso"
-                onError={(event) => {
-                  event.currentTarget.src = logo;
-                }}
-              />
-            </div>
+            <div className={drawerOpen ? classes.logoContainer : classes.hideLogo} />
             <IconButton onClick={() => setDrawerOpen(!drawerOpen)}>
               <ChevronLeftIcon />
             </IconButton>
