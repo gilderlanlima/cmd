@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     backgroundColor: "#eef3fb",
     overflow: "hidden",
-    [theme.breakpoints.down("md")]: {
+    "@media (max-width: 1365px)": {
       flexDirection: "column",
     },
   },
@@ -37,9 +37,8 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     padding: "56px",
-    [theme.breakpoints.down("md")]: {
-      minHeight: 330,
-      padding: "40px 28px",
+    "@media (max-width: 1365px)": {
+      display: "none",
     },
     "@media (max-height: 760px)": {
       padding: "36px 42px",
@@ -51,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: 640,
     width: "100%",
     color: "#ffffff",
-    [theme.breakpoints.down("md")]: {
+    "@media (max-width: 1365px)": {
       maxWidth: 760,
       textAlign: "center",
       display: "flex",
@@ -84,7 +83,7 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("lg")]: {
       fontSize: 46,
     },
-    [theme.breakpoints.down("md")]: {
+    "@media (max-width: 1365px)": {
       fontSize: 38,
       maxWidth: 680,
     },
@@ -99,7 +98,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 18,
     lineHeight: 1.65,
     marginBottom: 28,
-    [theme.breakpoints.down("md")]: {
+    "@media (max-width: 1365px)": {
       maxWidth: 680,
     },
     "@media (max-height: 760px)": {
@@ -115,7 +114,7 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("lg")]: {
       gridTemplateColumns: "1fr",
     },
-    [theme.breakpoints.down("md")]: {
+    "@media (max-width: 1365px)": {
       width: "100%",
       maxWidth: 520,
     },
@@ -170,10 +169,11 @@ const useStyles = makeStyles((theme) => ({
       minWidth: "100%",
       padding: "22px 20px 16px",
     },
-    [theme.breakpoints.down("md")]: {
+    "@media (max-width: 1365px)": {
       width: "100%",
       minWidth: "100%",
-      padding: "24px 28px 16px",
+      minHeight: "100vh",
+      padding: "28px 24px 18px",
     },
     "@media (max-height: 760px)": {
       padding: "14px 26px 12px",
@@ -189,6 +189,9 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     textAlign: "center",
     gap: 12,
+    "@media (max-width: 1365px)": {
+      maxWidth: 460,
+    },
   },
   logo: {
     width: 320,
@@ -261,19 +264,20 @@ const useStyles = makeStyles((theme) => ({
   },
   versionText: {
     textAlign: "center",
-    color: "#5f7398",
-    fontWeight: 700,
-    fontSize: 14,
-    letterSpacing: "0.08em",
+    color: "#7081a3",
+    fontWeight: 600,
+    fontSize: 11,
+    letterSpacing: "0.14em",
     textTransform: "uppercase",
-    marginTop: 2,
+    marginTop: 4,
   },
   versionValue: {
     display: "block",
-    marginTop: 6,
-    color: "#0b4fbc",
-    fontSize: 26,
-    letterSpacing: "0.02em",
+    marginTop: 4,
+    color: "#2a5eba",
+    fontSize: 18,
+    fontWeight: 700,
+    letterSpacing: "0.04em",
   },
   footer: {
     marginTop: "auto",
