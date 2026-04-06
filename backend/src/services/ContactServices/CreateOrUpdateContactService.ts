@@ -55,14 +55,16 @@ export const updateContact = async (
 ) => {
   await contact.update(contactData);
 
-  const io = getIO();
-  io.to(`company-${contact.companyId}-mainchannel`).emit(
-    `company-${contact.companyId}-contact`,
-    {
-      action: "update",
-      contact
-    }
-  );
+  if (!contact.isGroup) {
+    const io = getIO();
+    io.to(`company-${contact.companyId}-mainchannel`).emit(
+      `company-${contact.companyId}-contact`,
+      {
+        action: "update",
+        contact
+      }
+    );
+  }
   return contact;
 };
 
@@ -494,16 +496,18 @@ const CreateOrUpdateContactService = async ({
       }
     }
 
-    if (createContact) {
-      io.of(String(companyId)).emit(`company-${companyId}-contact`, {
-        action: "create",
-        contact
-      });
-    } else {
-      io.of(String(companyId)).emit(`company-${companyId}-contact`, {
-        action: "update",
-        contact
-      });
+    if (!contact.isGroup) {
+      if (createContact) {
+        io.of(String(companyId)).emit(`company-${companyId}-contact`, {
+          action: "create",
+          contact
+        });
+      } else {
+        io.of(String(companyId)).emit(`company-${companyId}-contact`, {
+          action: "update",
+          contact
+        });
+      }
     }
 
     if (ENABLE_LID_DEBUG) {

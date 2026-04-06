@@ -5416,6 +5416,16 @@ const wbotMessageListener = (wbot: Session, companyId: number): void => {
       }
 
       const isGroup = contact.id.includes("@g.us");
+      const whatsappConfig = await Whatsapp.findByPk(wbot.id, {
+        attributes: ["allowGroup", "groupAsTicket"]
+      });
+      const shouldPersistGroupContact =
+        whatsappConfig?.allowGroup || whatsappConfig?.groupAsTicket === "enabled";
+
+      if (isGroup && !shouldPersistGroupContact) {
+        return;
+      }
+
       const number = isGroup
         ? contact.id.replace("@g.us", "")
         : contact.id.replace("@s.whatsapp.net", "");
@@ -5493,6 +5503,16 @@ const wbotMessageListener = (wbot: Session, companyId: number): void => {
     if (!groupUpdate[0]?.id) return;
     if (groupUpdate.length === 0) return;
     groupUpdate.forEach(async (group: GroupMetadata) => {
+      const whatsappConfig = await Whatsapp.findByPk(wbot.id, {
+        attributes: ["allowGroup", "groupAsTicket"]
+      });
+      const shouldPersistGroupContact =
+        whatsappConfig?.allowGroup || whatsappConfig?.groupAsTicket === "enabled";
+
+      if (!shouldPersistGroupContact) {
+        return;
+      }
+
       const number = group.id.substr(0, group.id.indexOf("@"));
       const nameGroup = group.subject || number;
 

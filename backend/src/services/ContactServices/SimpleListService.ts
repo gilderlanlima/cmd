@@ -26,7 +26,10 @@ const SimpleListService = async ({ name, companyId, userId }: SearchContactParam
   const settings = await FindCompanySettingsService({ companyId: Number(companyId) });
   const DirectTicketsToWallets = settings.DirectTicketsToWallets;
 
-  let whereCondition: any = { companyId };
+  let whereCondition: any = {
+    companyId,
+    isGroup: false
+  };
 
   if (name) {
     whereCondition.name = {

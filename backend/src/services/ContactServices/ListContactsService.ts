@@ -90,7 +90,7 @@ const buildWhereCondition = async ({
     };
   }
 
-  if (isGroup === "false") {
+  if (isGroup !== "true") {
     whereCondition = {
       ...whereCondition,
       isGroup: false

@@ -269,15 +269,33 @@ const TicketsListCustom = (props) => {
 
     useEffect(() => {
         const shouldUpdateTicket = ticket => {
+            const hasSelectedQueues = Array.isArray(selectedQueueIds) && selectedQueueIds.length > 0;
+            const belongsToVisibleQueue = !ticket?.queueId
+                ? showTicketWithoutQueue
+                : !hasSelectedQueues || selectedQueueIds.indexOf(ticket?.queueId) > -1;
+
             return (!ticket?.userId || ticket?.userId === user?.id || showAll) &&
-                ((!ticket?.queueId && showTicketWithoutQueue) || selectedQueueIds.indexOf(ticket?.queueId) > -1)
-            // (!blockNonDefaultConnections || (ticket.status == 'group' && ignoreUserConnectionForGroups) || !user?.whatsappId || ticket.whatsappId == user?.whatsappId);
-        }
+                belongsToVisibleQueue;
+        };
         // const shouldUpdateTicketUser = (ticket) =>
         //     selectedQueueIds.indexOf(ticket?.queueId) > -1 && (ticket?.userId === user?.id || !ticket?.userId);
 
-        const notBelongsToUserQueues = (ticket) =>
-            ticket.queueId && selectedQueueIds.indexOf(ticket.queueId) === -1;
+        const notBelongsToUserQueues = (ticket) => {
+            const hasSelectedQueues = Array.isArray(selectedQueueIds) && selectedQueueIds.length > 0;
+            return hasSelectedQueues && ticket.queueId && selectedQueueIds.indexOf(ticket.queueId) === -1;
+        };
+
+        const shouldDeleteFromCurrentList = (ticket) => {
+            if (!ticket) {
+                return false;
+            }
+
+            if (status && status !== "search" && ticket.status !== status) {
+                return true;
+            }
+
+            return !shouldUpdateTicket(ticket);
+        };
 
         const onCompanyTicketTicketsList = (data) => {
             // console.log("onCompanyTicketTicketsList", data)
@@ -289,15 +307,23 @@ const TicketsListCustom = (props) => {
                     sortDir: sortTickets
                 });
             }
-            // console.log(shouldUpdateTicket(data.ticket))
-            if (data.action === "update" &&
-                shouldUpdateTicket(data.ticket) && data.ticket.status === status) {
-                dispatch({
-                    type: "UPDATE_TICKET",
-                    payload: data.ticket,
-                    status: status,
-                    sortDir: sortTickets
-                });
+
+            if (data.action === "update") {
+                if (shouldDeleteFromCurrentList(data.ticket)) {
+                    dispatch({
+                        type: "DELETE_TICKET",
+                        payload: data.ticket?.id,
+                        status: status,
+                        sortDir: sortTickets
+                    });
+                } else if (shouldUpdateTicket(data.ticket) && (status === "search" || data.ticket.status === status)) {
+                    dispatch({
+                        type: "UPDATE_TICKET",
+                        payload: data.ticket,
+                        status: status,
+                        sortDir: sortTickets
+                    });
+                }
             }
 
             // else if (data.action === "update" && shouldUpdateTicketUser(data.ticket) && data.ticket.status === status) {
@@ -366,7 +392,7 @@ const TicketsListCustom = (props) => {
 
         return () => {
             if (status) {
-                socket.emit("leaveTickets", status);
+                socket.emit("joinTicketsLeave", status);
             } else {
                 socket.emit("leaveNotification");
             }

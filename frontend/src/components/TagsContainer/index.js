@@ -9,6 +9,7 @@ export function TagsContainer({ contact }) {
 
     const [tags, setTags] = useState([]);
     const [selecteds, setSelecteds] = useState([]);
+    const [loading, setLoading] = useState(false);
     const isMounted = useRef(true);
 
     useEffect(() => {
@@ -19,15 +20,24 @@ export function TagsContainer({ contact }) {
 
     useEffect(() => {
         if (isMounted.current) {
-            loadTags().then(() => {
-                if (Array.isArray(contact.tags)) {
-                    setSelecteds(contact.tags);
-                } else {
-                    setSelecteds([]);
-                }
-            });
+            loadTags();
         }
     }, [contact]);
+
+    useEffect(() => {
+        if (!Array.isArray(contact.tags) || contact.tags.length === 0) {
+            setSelecteds([]);
+            return;
+        }
+
+        if (!Array.isArray(tags) || tags.length === 0) {
+            return;
+        }
+
+        const selectedTagIds = contact.tags.map(tag => tag.id);
+        const matchedTags = tags.filter(tag => selectedTagIds.includes(tag.id));
+        setSelecteds(matchedTags);
+    }, [contact.tags, tags]);
 
     const createTag = async (data) => {
         try {
@@ -40,12 +50,17 @@ export function TagsContainer({ contact }) {
 
     const loadTags = async () => {
         try {
+            setLoading(true);
             const { data } = await api.get(`/tags/list`, 
             {params: { kanban: 0}
         });
-            setTags(data);
+            setTags(Array.isArray(data) ? data : []);
         } catch (err) {
             toastError(err);
+        } finally {
+            if (isMounted.current) {
+                setLoading(false);
+            }
         }
     }
 
@@ -103,8 +118,19 @@ export function TagsContainer({ contact }) {
                 options={tags}
                 value={selecteds}
                 freeSolo
+                openOnFocus
+                disableCloseOnSelect
+                disablePortal
+                loading={loading}
                 onChange={(e, v, r) => onChange(v, r)}
-                getOptionLabel={(option) => option.name}
+                onOpen={loadTags}
+                getOptionLabel={(option) => isString(option) ? option : option?.name || ""}
+                getOptionSelected={(option, value) => {
+                    if (isString(option) || isString(value)) {
+                        return option === value;
+                    }
+                    return option?.id === value?.id;
+                }}
                 renderTags={(value, getTagProps) =>
                     value.map((option, index) => (
                         <Chip
@@ -132,7 +158,7 @@ export function TagsContainer({ contact }) {
                 )}
                 PaperComponent={({ children }) => (
                     <Paper
-                        style={{ width: 400, marginLeft: 6 }}
+                        style={{ width: 400, marginLeft: 6, zIndex: 10010 }}
                     >
                         {children}
                     </Paper>
