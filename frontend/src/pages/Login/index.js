@@ -220,6 +220,9 @@ const useStyles = makeStyles((theme) => ({
     border: "1px solid #d8e3f4",
     padding: "28px 24px",
     minHeight: 338,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     "@media (max-height: 760px)": {
       minHeight: 308,
       padding: "24px 22px",
@@ -227,6 +230,7 @@ const useStyles = makeStyles((theme) => ({
   },
   form: {
     width: "100%",
+    maxWidth: 340,
     display: "flex",
     flexDirection: "column",
     gap: 20,
