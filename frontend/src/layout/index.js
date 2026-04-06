@@ -153,6 +153,10 @@ const useStyles = makeStyles((theme) => ({
 
   drawerPaper: {
     position: "relative",
+    display: "flex",
+    flexDirection: "column",
+    height: "100vh",
+    minHeight: 0,
     whiteSpace: "nowrap",
     width: drawerWidth,
     transition: theme.transitions.create("width", {
@@ -160,7 +164,7 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
     overflowX: "hidden",
-    overflowY: "hidden",
+    overflowY: "auto",
     // Melhorias sutis no drawer
     borderRight: `1px solid ${theme.mode === "light" ? "#e0e0e0" : "#424242"}`,
     boxShadow:
@@ -171,7 +175,7 @@ const useStyles = makeStyles((theme) => ({
 
   drawerPaperClose: {
     overflowX: "hidden",
-    overflowY: "hidden",
+    overflowY: "auto",
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -202,16 +206,33 @@ const useStyles = makeStyles((theme) => ({
 
   containerWithScroll: {
     flex: 1,
-    overflowY: "scroll",
+    minHeight: 0,
+    overflowY: "auto",
     overflowX: "hidden",
     ...theme.scrollbarStyles,
-    borderRadius: "8px",
-    border: "2px solid transparent",
+    borderRadius: 0,
+    border: "none",
     "&::-webkit-scrollbar": {
-      display: "none",
+      width: "8px",
     },
-    "-ms-overflow-style": "none",
-    "scrollbar-width": "none",
+    "&::-webkit-scrollbar-track": {
+      background: "transparent",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background:
+        theme.mode === "light"
+          ? "rgba(15, 23, 42, 0.14)"
+          : "rgba(255, 255, 255, 0.14)",
+      borderRadius: "999px",
+    },
+    "&::-webkit-scrollbar-thumb:hover": {
+      background:
+        theme.mode === "light"
+          ? "rgba(15, 23, 42, 0.24)"
+          : "rgba(255, 255, 255, 0.24)",
+    },
+    "-ms-overflow-style": "auto",
+    "scrollbar-width": "thin",
   },
 
   NotificationsPopOver: {
