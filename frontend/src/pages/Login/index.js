@@ -23,6 +23,9 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     backgroundColor: "#eef3fb",
     overflow: "hidden",
+    [theme.breakpoints.down("md")]: {
+      flexDirection: "column",
+    },
   },
   leftSide: {
     flex: 1,
@@ -35,7 +38,11 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     padding: "56px",
     [theme.breakpoints.down("md")]: {
-      display: "none",
+      minHeight: 330,
+      padding: "40px 28px",
+    },
+    "@media (max-height: 760px)": {
+      padding: "36px 42px",
     },
   },
   leftPanel: {
@@ -44,6 +51,13 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: 640,
     width: "100%",
     color: "#ffffff",
+    [theme.breakpoints.down("md")]: {
+      maxWidth: 760,
+      textAlign: "center",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+    },
   },
   leftBadge: {
     display: "inline-flex",
@@ -67,6 +81,17 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 54,
     letterSpacing: "-0.02em",
     marginBottom: 20,
+    [theme.breakpoints.down("lg")]: {
+      fontSize: 46,
+    },
+    [theme.breakpoints.down("md")]: {
+      fontSize: 38,
+      maxWidth: 680,
+    },
+    "@media (max-height: 760px)": {
+      fontSize: 42,
+      marginBottom: 14,
+    },
   },
   leftDescription: {
     maxWidth: 560,
@@ -74,6 +99,14 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 18,
     lineHeight: 1.65,
     marginBottom: 28,
+    [theme.breakpoints.down("md")]: {
+      maxWidth: 680,
+    },
+    "@media (max-height: 760px)": {
+      fontSize: 16,
+      lineHeight: 1.5,
+      marginBottom: 18,
+    },
   },
   leftHighlights: {
     display: "grid",
@@ -81,6 +114,13 @@ const useStyles = makeStyles((theme) => ({
     gap: 16,
     [theme.breakpoints.down("lg")]: {
       gridTemplateColumns: "1fr",
+    },
+    [theme.breakpoints.down("md")]: {
+      width: "100%",
+      maxWidth: 520,
+    },
+    "@media (max-height: 760px)": {
+      gap: 12,
     },
   },
   highlightCard: {
@@ -91,6 +131,10 @@ const useStyles = makeStyles((theme) => ({
     border: "1px solid rgba(255, 255, 255, 0.14)",
     boxShadow: "0 18px 40px rgba(0, 0, 0, 0.16)",
     backdropFilter: "blur(16px)",
+    "@media (max-height: 760px)": {
+      minHeight: 106,
+      padding: "14px 16px 16px",
+    },
   },
   highlightLabel: {
     color: "#a8d8ff",
@@ -113,32 +157,47 @@ const useStyles = makeStyles((theme) => ({
     lineHeight: 1.55,
   },
   rightSide: {
-    width: 460,
-    minWidth: 460,
+    width: 506,
+    minWidth: 506,
     background:
       "linear-gradient(180deg, #f7faff 0%, #eef3fb 50%, #e8eef9 100%)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "32px 28px",
+    padding: "22px 30px 18px",
     [theme.breakpoints.down("sm")]: {
       width: "100%",
       minWidth: "100%",
+      padding: "22px 20px 16px",
+    },
+    [theme.breakpoints.down("md")]: {
+      width: "100%",
+      minWidth: "100%",
+      padding: "24px 28px 16px",
+    },
+    "@media (max-height: 760px)": {
+      padding: "14px 26px 12px",
     },
   },
   card: {
     width: "100%",
-    maxWidth: 392,
+    maxWidth: 430,
+    minHeight: "100%",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: 14,
+    justifyContent: "center",
+    textAlign: "center",
+    gap: 12,
   },
   logo: {
     width: 320,
     maxWidth: "100%",
     height: "auto",
-    marginBottom: 10,
+    marginBottom: 6,
+    "@media (max-height: 760px)": {
+      width: 292,
+    },
   },
   subHeading: {
     textAlign: "center",
@@ -146,6 +205,9 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 700,
     fontSize: 24,
     lineHeight: 1.2,
+    "@media (max-height: 760px)": {
+      fontSize: 22,
+    },
   },
   formBox: {
     width: "100%",
@@ -153,8 +215,12 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 22,
     boxShadow: "0 18px 40px rgba(10, 47, 102, 0.12)",
     border: "1px solid #d8e3f4",
-    padding: "34px 26px",
-    minHeight: 382,
+    padding: "28px 24px",
+    minHeight: 338,
+    "@media (max-height: 760px)": {
+      minHeight: 308,
+      padding: "24px 22px",
+    },
   },
   form: {
     width: "100%",
@@ -181,14 +247,14 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 4,
   },
   submitBtn: {
-    minWidth: 180,
+    minWidth: 132,
     borderRadius: 12,
-    padding: "12px 28px",
+    padding: "9px 20px",
     background: "linear-gradient(90deg, #1d5bcc 0%, #18a6e6 100%)",
     color: "#fff",
     fontWeight: 700,
     textTransform: "none",
-    fontSize: 22,
+    fontSize: 18,
     "&:hover": {
       background: "linear-gradient(90deg, #1548ac 0%, #0e8fca 100%)",
     },
@@ -210,7 +276,8 @@ const useStyles = makeStyles((theme) => ({
     letterSpacing: "0.02em",
   },
   footer: {
-    marginTop: 8,
+    marginTop: "auto",
+    paddingTop: 6,
     textAlign: "center",
     color: "#5b6f92",
     fontSize: 13,
