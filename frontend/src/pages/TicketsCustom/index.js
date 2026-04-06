@@ -8,7 +8,6 @@ import Ticket from "../../components/Ticket";
 
 import { QueueSelectedProvider } from "../../context/QueuesSelected/QueuesSelectedContext";
 import { TicketsContext } from "../../context/Tickets/TicketsContext";
-import { i18n } from "../../translate/i18n";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import api from "../../services/api";
 import { CircularProgress } from "@material-ui/core";
@@ -175,7 +174,6 @@ const TicketsCustom = () => {
 										<center>
 											<img className={classes.logo} width="50%" alt="" />
 										</center>
-										{i18n.t("chat.noTicketMessage")}
 									</span>
 								</Paper>
 							</Hidden>
