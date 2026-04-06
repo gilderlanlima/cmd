@@ -343,6 +343,49 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 
+  toolbarIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: theme.spacing(1),
+    padding: "10px 12px",
+    minHeight: "68px",
+    backgroundColor:
+      theme.mode === "light" ? "#ffffff" : theme.palette.fancyBackground,
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    transition: "all 0.3s ease",
+    [theme.breakpoints.down("sm")]: {
+      minHeight: "60px",
+      padding: "8px 10px",
+    },
+  },
+
+  logoContainer: {
+    flex: 1,
+    minWidth: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+
+  logo: {
+    display: "block",
+    width: "100%",
+    maxWidth: 156,
+    height: 44,
+    objectFit: "contain",
+    objectPosition: "center",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      transform: "scale(1.02)",
+    },
+    [theme.breakpoints.down("sm")]: {
+      maxWidth: 142,
+      height: 40,
+    },
+  },
+
   // Badge animado
   animatedBadge: {
     "& .MuiBadge-badge": {
@@ -420,6 +463,15 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
   const { dateToClient } = useDate();
   const [profileUrl, setProfileUrl] = useState(null);
   const [updateInProgress, setUpdateInProgress] = useState(false);
+
+  const drawerLogoSrc =
+    theme.mode === "light"
+      ? theme.calculatedLogoLight?.() || colorMode?.appLogoLight || logo
+      : theme.calculatedLogoDark?.() ||
+        colorMode?.appLogoDark ||
+        colorMode?.appLogoLight ||
+        logoDark ||
+        logo;
 
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -706,16 +758,16 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
           open={drawerOpen}
         >
           <div className={classes.toolbarIcon}>
-            <img
-              className={drawerOpen ? classes.logo : classes.hideLogo}
-              style={{
-                display: "block",
-                margin: "0 auto",
-                height: "50px",
-                width: "100%",
-              }}
-              alt="logo"
-            />
+            <div className={drawerOpen ? classes.logoContainer : classes.hideLogo}>
+              <img
+                src={drawerLogoSrc}
+                className={classes.logo}
+                alt="Ideia no Bolso"
+                onError={(event) => {
+                  event.currentTarget.src = logo;
+                }}
+              />
+            </div>
             <IconButton onClick={() => setDrawerOpen(!drawerOpen)}>
               <ChevronLeftIcon />
             </IconButton>
