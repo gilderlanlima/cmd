@@ -376,7 +376,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState({ email: "", password: "" });
   const [logoSrc, setLogoSrc] = useState(themeLoginLogo);
-  const [systemVersion, setSystemVersion] = useState("2.0.0");
+  const [systemVersion, setSystemVersion] = useState("2.1.1");
   const currentYear = new Date().getFullYear();
 
   useEffect(() => {
