@@ -5,11 +5,12 @@ import Container from "@material-ui/core/Container";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import Link from "@material-ui/core/Link";
 import IconButton from "@material-ui/core/IconButton";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
+import Brightness4Icon from "@material-ui/icons/Brightness4";
+import WbSunnyIcon from "@material-ui/icons/WbSunny";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import ColorModeContext from "../../layout/themeContext";
@@ -22,7 +23,8 @@ const useStyles = makeStyles((theme) => ({
     minHeight: "100vh",
     width: "100%",
     display: "flex",
-    backgroundColor: "#eef3fb",
+    backgroundColor:
+      theme.palette.type === "dark" ? "#08111f" : "#eef3fb",
     overflow: "hidden",
     "@media (max-width: 1365px)": {
       flexDirection: "column",
@@ -160,7 +162,9 @@ const useStyles = makeStyles((theme) => ({
     width: 506,
     minWidth: 506,
     background:
-      "linear-gradient(180deg, #f7faff 0%, #eef3fb 50%, #e8eef9 100%)",
+      theme.palette.type === "dark"
+        ? "linear-gradient(180deg, #091425 0%, #0d1d33 52%, #12253f 100%)"
+        : "linear-gradient(180deg, #f7faff 0%, #eef3fb 50%, #e8eef9 100%)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -194,6 +198,37 @@ const useStyles = makeStyles((theme) => ({
       maxWidth: 460,
     },
   },
+  topBar: {
+    width: "100%",
+    display: "flex",
+    justifyContent: "flex-end",
+    marginBottom: 2,
+  },
+  modeButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    border: `1px solid ${
+      theme.palette.type === "dark"
+        ? "rgba(129, 162, 213, 0.24)"
+        : "rgba(11, 79, 188, 0.12)"
+    }`,
+    backgroundColor:
+      theme.palette.type === "dark"
+        ? "rgba(17, 35, 62, 0.92)"
+        : "rgba(255, 255, 255, 0.92)",
+    color: theme.palette.type === "dark" ? "#dbe8ff" : "#0b4fbc",
+    boxShadow:
+      theme.palette.type === "dark"
+        ? "0 10px 30px rgba(0, 0, 0, 0.24)"
+        : "0 10px 24px rgba(10, 47, 102, 0.10)",
+    "&:hover": {
+      backgroundColor:
+        theme.palette.type === "dark"
+          ? "rgba(24, 46, 79, 0.98)"
+          : "rgba(248, 251, 255, 1)",
+    },
+  },
   logo: {
     width: 286,
     maxWidth: "100%",
@@ -205,7 +240,7 @@ const useStyles = makeStyles((theme) => ({
   },
   subHeading: {
     textAlign: "center",
-    color: "#0a2f66",
+    color: theme.palette.type === "dark" ? "#edf4ff" : "#0a2f66",
     fontWeight: 700,
     fontSize: 18,
     lineHeight: 1.25,
@@ -216,10 +251,16 @@ const useStyles = makeStyles((theme) => ({
   },
   formBox: {
     width: "100%",
-    backgroundColor: "#ffffff",
+    backgroundColor:
+      theme.palette.type === "dark" ? "#0f1d32" : "#ffffff",
     borderRadius: 22,
-    boxShadow: "0 18px 40px rgba(10, 47, 102, 0.12)",
-    border: "1px solid #d8e3f4",
+    boxShadow:
+      theme.palette.type === "dark"
+        ? "0 18px 40px rgba(0, 0, 0, 0.32)"
+        : "0 18px 40px rgba(10, 47, 102, 0.12)",
+    border: `1px solid ${
+      theme.palette.type === "dark" ? "#20324f" : "#d8e3f4"
+    }`,
     padding: "26px 24px",
     minHeight: 312,
     display: "flex",
@@ -240,28 +281,36 @@ const useStyles = makeStyles((theme) => ({
   textField: {
     "& .MuiOutlinedInput-root": {
       borderRadius: 14,
-      backgroundColor: "#f8fbff",
+      backgroundColor:
+        theme.palette.type === "dark" ? "#12243d" : "#f8fbff",
       minHeight: 54,
+      color: theme.palette.type === "dark" ? "#eef4ff" : "#11243f",
+      "& fieldset": {
+        borderColor: theme.palette.type === "dark" ? "#294265" : "#d6e2f3",
+      },
+      "&:hover fieldset": {
+        borderColor: theme.palette.type === "dark" ? "#5c83ba" : "#8db4ef",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: theme.palette.type === "dark" ? "#7db3ff" : "#0b4fbc",
+      },
     },
     "& .MuiInputLabel-root": {
       fontWeight: 600,
-      color: "#294370",
+      color: theme.palette.type === "dark" ? "#c6dafc" : "#294370",
       letterSpacing: "0.02em",
       fontSize: 14,
+    },
+    "& .MuiInputLabel-root.Mui-focused": {
+      color: theme.palette.type === "dark" ? "#dce9ff" : "#0b4fbc",
     },
     "& .MuiOutlinedInput-input": {
       padding: "15px 14px",
       fontSize: 15,
     },
   },
-  actionsRow: {
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 16,
-  },
   submitWrap: {
+    width: "100%",
     display: "flex",
     justifyContent: "center",
   },
@@ -278,19 +327,9 @@ const useStyles = makeStyles((theme) => ({
       background: "linear-gradient(90deg, #1548ac 0%, #0e8fca 100%)",
     },
   },
-  forgotPassword: {
-    color: "#0b4fbc",
-    fontSize: 13,
-    fontWeight: 600,
-    textDecoration: "none",
-    cursor: "pointer",
-    "&:hover": {
-      textDecoration: "underline",
-    },
-  },
   versionText: {
     textAlign: "center",
-    color: "#7081a3",
+    color: theme.palette.type === "dark" ? "#93a8cc" : "#7081a3",
     fontWeight: 600,
     fontSize: 11,
     letterSpacing: "0.14em",
@@ -300,7 +339,7 @@ const useStyles = makeStyles((theme) => ({
   versionValue: {
     display: "block",
     marginTop: 4,
-    color: "#2a5eba",
+    color: theme.palette.type === "dark" ? "#dce8ff" : "#2a5eba",
     fontSize: 18,
     fontWeight: 700,
     letterSpacing: "0.04em",
@@ -309,7 +348,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: "auto",
     paddingTop: 6,
     textAlign: "center",
-    color: "#5b6f92",
+    color: theme.palette.type === "dark" ? "#95a9cb" : "#5b6f92",
     fontSize: 13,
     lineHeight: 1.65,
   },
@@ -319,23 +358,26 @@ const Login = () => {
   const classes = useStyles();
   const { handleLogin } = useContext(AuthContext);
   const colorModeContext = useContext(ColorModeContext);
-  const appName = colorModeContext?.colorMode?.appName || "CRM Ideia no Bolso";
+  const colorMode = colorModeContext?.colorMode;
+  const appName = colorMode?.appName || "CRM Ideia no Bolso";
   const appLogoFavicon =
-    colorModeContext?.colorMode?.appLogoFavicon || "/favicon.ico";
+    colorMode?.appLogoFavicon || "/favicon.ico";
+  const isDarkMode = colorMode?.mode === "dark";
   const themeLoginLogo = useMemo(() => {
-    const fromThemeCalculated =
-      colorModeContext?.colorMode?.calculatedLogoLight?.();
-    const fromThemeDirect = colorModeContext?.colorMode?.appLogoLight;
+    const fromThemeCalculated = isDarkMode
+      ? colorMode?.calculatedLogoDark?.()
+      : colorMode?.calculatedLogoLight?.();
+    const fromThemeDirect = isDarkMode
+      ? colorMode?.appLogoDark || colorMode?.appLogoLight
+      : colorMode?.appLogoLight || colorMode?.appLogoDark;
     return fromThemeCalculated || fromThemeDirect || logo;
-  }, [colorModeContext]);
+  }, [colorMode, isDarkMode]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState({ email: "", password: "" });
   const [logoSrc, setLogoSrc] = useState(themeLoginLogo);
   const [systemVersion, setSystemVersion] = useState("2.0.0");
   const currentYear = new Date().getFullYear();
-  const recoverPasswordLink =
-    "mailto:admin@ideianobolso.com?subject=Recupera%C3%A7%C3%A3o%20de%20senha";
 
   useEffect(() => {
     setLogoSrc(themeLoginLogo || logo);
@@ -444,6 +486,17 @@ const Login = () => {
 
         <div className={classes.rightSide}>
           <Container disableGutters className={classes.card}>
+            <div className={classes.topBar}>
+              <IconButton
+                className={classes.modeButton}
+                onClick={() => colorMode?.toggleColorMode?.()}
+                aria-label={
+                  isDarkMode ? "Ativar modo claro" : "Ativar modo escuro"
+                }
+              >
+                {isDarkMode ? <WbSunnyIcon /> : <Brightness4Icon />}
+              </IconButton>
+            </div>
             <img
               src={logoSrc}
               alt="Ideia no Bolso"
@@ -497,23 +550,14 @@ const Login = () => {
                   }}
                 />
 
-                <div className={classes.actionsRow}>
-                  <div className={classes.submitWrap}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      className={classes.submitBtn}
-                    >
-                      Entrar
-                    </Button>
-                  </div>
-
-                  <Link
-                    href={recoverPasswordLink}
-                    className={classes.forgotPassword}
+                <div className={classes.submitWrap}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    className={classes.submitBtn}
                   >
-                    Esqueceu sua senha?
-                  </Link>
+                    Entrar
+                  </Button>
                 </div>
               </form>
             </div>
