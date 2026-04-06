@@ -15,6 +15,7 @@ import Ticket from "./Ticket";
 import Company from "./Company";
 import Queue from "./Queue";
 import TicketTraking from "./TicketTraking";
+import { buildCompanyPublicUrl } from "../utils/buildBackendUrl";
 
 @Table
 class Message extends Model<Message> {
@@ -49,9 +50,7 @@ class Message extends Model<Message> {
   @Column(DataType.STRING)
   get mediaUrl(): string | null {
     if (this.getDataValue("mediaUrl")) {
-      
-      return `${process.env.BACKEND_URL}${process.env.PROXY_PORT ?`:${process.env.PROXY_PORT}`:""}/public/company${this.companyId}/${this.getDataValue("mediaUrl")}`;
-
+      return buildCompanyPublicUrl(this.companyId, this.getDataValue("mediaUrl"));
     }
     return null;
   }

@@ -26,7 +26,7 @@ import {
   Slideshow,
 } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
-import api from "../../services/api";
+import { normalizeBackendAssetUrl } from "../../config";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -86,7 +86,7 @@ const DocumentModal = ({ open, onClose, document }) => {
         name: fileName,
         extension: fileExtension,
         type: document.mediaType,
-        url: document.mediaPath,
+        url: normalizeBackendAssetUrl(document.mediaPath, { ensurePublic: false }),
       });
     }
   }, [document]);
@@ -168,7 +168,13 @@ const DocumentModal = ({ open, onClose, document }) => {
 
   const handleDownload = () => {
     if (fileInfo?.url) {
-      window.open(fileInfo.url, "_blank");
+      const link = document.createElement("a");
+      link.href = fileInfo.url;
+      link.download = fileInfo.name;
+      link.rel = "noopener noreferrer";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 

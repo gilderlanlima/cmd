@@ -49,6 +49,50 @@ export function getBackendUrl() {
     return configuredUrl || `http://localhost:${fallbackPort}`;
 }
 
+export function normalizeBackendAssetUrl(url, options = {}) {
+    if (!url || typeof url !== "string") {
+        return "";
+    }
+
+    const backendUrl = getBackendUrl().replace(/\/$/, "");
+    const ensurePublic = options.ensurePublic !== false;
+
+    try {
+        if (/^https?:\/\//i.test(url)) {
+            const parsedUrl = new URL(url);
+            const backendParsedUrl = new URL(backendUrl);
+            const pathIsPublic = parsedUrl.pathname.startsWith("/public/");
+            const parsedIsLocal = isLocalHostName(parsedUrl.hostname);
+
+            if (
+                pathIsPublic &&
+                (
+                    parsedIsLocal ||
+                    (typeof window !== "undefined" && parsedUrl.origin === window.location.origin)
+                )
+            ) {
+                return `${backendParsedUrl.origin}${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
+            }
+
+            return url;
+        }
+    } catch (error) {
+        console.warn("[config] URL de asset inválida. Aplicando fallback dinâmico.");
+    }
+
+    if (url.startsWith("/public/")) {
+        return `${backendUrl}${url}`;
+    }
+
+    const normalizedPath = url.replace(/^\/+/, "");
+
+    if (!ensurePublic || normalizedPath.startsWith("public/")) {
+        return `${backendUrl}/${normalizedPath}`;
+    }
+
+    return `${backendUrl}/public/${normalizedPath}`;
+}
+
 export function getHoursCloseTicketsAuto() {
     return getConfig('REACT_APP_HOURS_CLOSE_TICKETS_AUTO');
 }

@@ -2,6 +2,10 @@ import { Op } from "sequelize";
 import Message from "../../models/Message";
 import Ticket from "../../models/Ticket";
 import Contact from "../../models/Contact";
+import {
+  buildCompanyPublicUrl,
+  getBackendBaseUrl
+} from "../../utils/buildBackendUrl";
 
 interface Request {
   contactId: number;
@@ -103,15 +107,15 @@ const GetContactMediaService = async ({
     
     // Se a URL não começa com http, significa que é um caminho relativo
     if (fullMediaUrl && !fullMediaUrl.startsWith('http')) {
-      const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
-      const proxyPort = process.env.PROXY_PORT ? `:${process.env.PROXY_PORT}` : '';
-      
       // Se a URL já contém /public/company, não adicionar novamente
       if (fullMediaUrl.startsWith('/public/company')) {
-        fullMediaUrl = `${backendUrl}${proxyPort}${fullMediaUrl}`;
+        fullMediaUrl = `${getBackendBaseUrl()}${fullMediaUrl}`;
       } else {
         // Construir a URL completa com o companyId correto
-        fullMediaUrl = `${backendUrl}${proxyPort}/public/company${message.companyId || companyId}/${fullMediaUrl}`;
+        fullMediaUrl = buildCompanyPublicUrl(
+          message.companyId || companyId,
+          fullMediaUrl
+        );
       }
     }
 

@@ -72,6 +72,7 @@ import { useHistory } from "react-router-dom";
 import ShowTicketOpenModal from "../ShowTicketOpenModal";
 import GetAppIcon from '@material-ui/icons/GetApp';
 import * as XLSX from "xlsx";
+import { normalizeBackendAssetUrl } from "../../config";
 
 const drawerWidth = 320;
 
@@ -609,27 +610,19 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 			const processedData = {
 				images: data.images.map(item => ({
 					...item,
-					mediaUrl: item.mediaUrl && !item.mediaUrl.startsWith('http')
-						? `${process.env.REACT_APP_BACKEND_URL}${item.mediaUrl}`
-						: item.mediaUrl
+					mediaUrl: normalizeBackendAssetUrl(item.mediaUrl)
 				})),
 				videos: data.videos.map(item => ({
 					...item,
-					mediaUrl: item.mediaUrl && !item.mediaUrl.startsWith('http')
-						? `${process.env.REACT_APP_BACKEND_URL}${item.mediaUrl}`
-						: item.mediaUrl
+					mediaUrl: normalizeBackendAssetUrl(item.mediaUrl)
 				})),
 				audios: data.audios.map(item => ({
 					...item,
-					mediaUrl: item.mediaUrl && !item.mediaUrl.startsWith('http')
-						? `${process.env.REACT_APP_BACKEND_URL}${item.mediaUrl}`
-						: item.mediaUrl
+					mediaUrl: normalizeBackendAssetUrl(item.mediaUrl)
 				})),
 				documents: data.documents.map(item => ({
 					...item,
-					mediaUrl: item.mediaUrl && !item.mediaUrl.startsWith('http')
-						? `${process.env.REACT_APP_BACKEND_URL}${item.mediaUrl}`
-						: item.mediaUrl
+					mediaUrl: normalizeBackendAssetUrl(item.mediaUrl)
 				})),
 				links: data.links
 			};
