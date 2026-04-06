@@ -11,6 +11,14 @@ function isLocalHostName(hostName) {
     return hostName === "localhost" || hostName === "127.0.0.1" || hostName === "::1";
 }
 
+function getRemoteBackendUrl(protocol, hostname, fallbackPort) {
+    if (hostname === "app.ideianobolso.com" || hostname === "www.app.ideianobolso.com") {
+        return "https://app-bk.ideianobolso.com";
+    }
+
+    return `${protocol}//${hostname}:${fallbackPort}`;
+}
+
 export function getBackendUrl() {
     const configuredUrl = getConfig("REACT_APP_BACKEND_URL");
     const fallbackPort = getConfig("PROXY_PORT", "8081");
@@ -26,7 +34,7 @@ export function getBackendUrl() {
 
                 if (!appIsLocal && configuredIsLocal) {
                     const port = parsedUrl.port || fallbackPort;
-                    return `${protocol}//${hostname}:${port}`;
+                    return getRemoteBackendUrl(protocol, hostname, port);
                 }
 
                 return configuredUrl;
@@ -35,7 +43,7 @@ export function getBackendUrl() {
             }
         }
 
-        return `${protocol}//${hostname}:${fallbackPort}`;
+        return getRemoteBackendUrl(protocol, hostname, fallbackPort);
     }
 
     return configuredUrl || `http://localhost:${fallbackPort}`;
