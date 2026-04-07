@@ -26,7 +26,7 @@ const ListService = async ({
 
   const tags = await Tag.findAll({
     where: { ...whereCondition, companyId, kanban },
-    order: [["name", "ASC"]],
+    order: [["sortOrder", "ASC"], ["name", "ASC"]],
     include: [
       {
         model: Contact,

@@ -6,6 +6,7 @@ import {
   Model,
   PrimaryKey,
   AutoIncrement,
+  Default,
   BelongsToMany,
   ForeignKey,
   BelongsTo,
@@ -29,6 +30,10 @@ class Tag extends Model<Tag> {
 
   @Column
   color: string;
+
+  @Default(0)
+  @Column
+  sortOrder: number;
 
   @Column
   kanban: number;

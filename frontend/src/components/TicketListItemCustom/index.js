@@ -36,6 +36,7 @@ import { Done, HighlightOff, SwapHoriz, Add } from "@material-ui/icons";
 import VisibilityIcon from "@material-ui/icons/Visibility"; // Ícone de spy
 import useCompanySettings from "../../hooks/useSettings/companySettings";
 import NewTicketModal from "../NewTicketModal";
+import { getBackendUrl } from "../../config";
 import {
   Avatar,
   Badge,
@@ -54,6 +55,8 @@ import {
 const useStyles = makeStyles((theme) => ({
   ticket: {
     position: "relative",
+    overflow: "hidden",
+    paddingLeft: theme.spacing(1.5)
   },
 
   pendingTicket: {
@@ -101,6 +104,26 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     borderRadius: 3,
     fontSize: "0.6em",
+  },
+  userBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: theme.spacing(0.5),
+    backgroundColor: "#111827",
+    color: "#FFF",
+    marginRight: 1,
+    padding: "2px 6px 2px 2px",
+    fontWeight: "bold",
+    borderRadius: 999,
+    fontSize: "0.62em",
+    whiteSpace: "nowrap",
+    minHeight: 20,
+  },
+  userBadgeAvatar: {
+    width: 16,
+    height: 16,
+    fontSize: "0.7rem",
+    border: "1px solid rgba(255,255,255,0.5)"
   },
   noTicketsTitle: {
     textAlign: "center",
@@ -166,12 +189,14 @@ const useStyles = makeStyles((theme) => ({
     right: "1px",
   },
 
-  ticketQueueColor: {
+  ticketConnectionColor: {
     flex: "none",
     height: "100%",
     position: "absolute",
-    top: "0%",
-    left: "0%",
+    top: 0,
+    left: 0,
+    width: 6,
+    borderRadius: "0 6px 6px 0",
   },
 
   ticketInfo: {
@@ -230,6 +255,8 @@ const useStyles = makeStyles((theme) => ({
     },
   }
 }));
+
+const backendUrl = getBackendUrl();
 
 const TicketListItemCustom = ({ setTabOpen, ticket }) => {
   const classes = useStyles();
@@ -523,6 +550,10 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
   // Lógica de permissão para mensagens pending - MOVIDA PARA DEPOIS DE TODAS AS FUNÇÕES
   const shouldBlurMessages = ticket.status === "pending" && user?.allowSeeMessagesInPendingTickets === "disabled";
 
+  const assigneeAvatar = ticket?.user?.profileImage
+    ? `${backendUrl}/public/company${ticket.user.companyId}/user/${ticket.user.profileImage}`
+    : "";
+
   // Função para renderizar a mensagem com base na permissão - MOVIDA PARA DEPOIS DE TODAS AS FUNÇÕES
   const renderLastMessage = () => {
     if (shouldBlurMessages) {
@@ -607,6 +638,18 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
           [classes.pendingTicket]: ticket.status === "pending",
         })}
       >
+        <span
+          className={classes.ticketConnectionColor}
+          style={{
+            backgroundColor:
+              ticket?.whatsapp?.color ||
+              (ticket.channel === "facebook"
+                ? "#4267B2"
+                : ticket.channel === "instagram"
+                ? "#E1306C"
+                : "#25D366")
+          }}
+        />
         <ListItemAvatar style={{ marginLeft: "-15px" }}>
           <Avatar
             style={{
@@ -698,12 +741,15 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
                     </Badge>
                   }
                   {ticket?.user && (
-                    <Badge
-                      style={{ backgroundColor: "#000000" }}
-                      className={classes.connectionTag}
-                    >
+                    <span className={classes.userBadge}>
+                      <Avatar
+                        src={assigneeAvatar}
+                        className={classes.userBadgeAvatar}
+                      >
+                        {ticket.user?.name?.charAt(0)?.toUpperCase()}
+                      </Avatar>
                       {ticket.user?.name.toUpperCase()}
-                    </Badge>
+                    </span>
                   )}
                 </span>
                 <span className={classes.secondaryContentSecond}>

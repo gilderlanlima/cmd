@@ -16,6 +16,7 @@ interface Request {
   profile?: string;
   startWork?: string;
   endWork?: string;
+  workingHours?: Record<string, any> | null;
   whatsappId?: number;
   allTicket?: string;
   defaultTheme?: string;
@@ -52,6 +53,7 @@ const CreateUserService = async ({
   profile = "admin",
   startWork,
   endWork,
+  workingHours,
   whatsappId,
   allTicket,
   defaultTheme,
@@ -153,6 +155,7 @@ const CreateUserService = async ({
       profile,
       startWork,
       endWork,
+      workingHours,
       whatsappId: whatsappId || null,
       allTicket,
       defaultTheme,

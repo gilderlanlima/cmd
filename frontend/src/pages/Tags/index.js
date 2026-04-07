@@ -19,7 +19,7 @@ import IconButton from "@material-ui/core/IconButton";
 import SearchIcon from "@material-ui/icons/Search";
 import TextField from "@material-ui/core/TextField";
 import InputAdornment from "@material-ui/core/InputAdornment";
-import { FormControl, InputLabel, Select, MenuItem } from "@material-ui/core";
+import { FormControl, InputLabel, Select, MenuItem, Typography } from "@material-ui/core";
 
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
@@ -39,6 +39,8 @@ import { Chip } from "@material-ui/core";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { MoreHoriz } from "@material-ui/icons";
 import ContactTagListModal from "../../components/ContactTagListModal";
+import DragIndicatorIcon from "@material-ui/icons/DragIndicator";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -59,6 +61,8 @@ const reducer = (state, action) => {
       return state.filter((tag) => tag.id !== tagId);
     case "RESET":
       return [];
+    case "SET_TAGS":
+      return action.payload;
     default:
       return state;
   }
@@ -71,6 +75,64 @@ const useStyles = makeStyles((theme) => ({
     overflowY: "scroll",
     ...theme.scrollbarStyles,
   },
+  orderingPanel: {
+    marginBottom: theme.spacing(2),
+    padding: theme.spacing(2),
+    borderRadius: 16,
+    border: "1px solid rgba(0,0,0,0.08)",
+    background: theme.palette.background.default,
+  },
+  orderingHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: theme.spacing(2),
+    marginBottom: theme.spacing(1.5),
+  },
+  orderingHint: {
+    color: theme.palette.text.secondary,
+    fontSize: "0.9rem",
+  },
+  orderingList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: theme.spacing(1),
+  },
+  orderingItem: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: theme.spacing(1.5),
+    padding: theme.spacing(1.25, 1.5),
+    borderRadius: 14,
+    background: theme.palette.background.paper,
+    border: "1px solid rgba(0,0,0,0.08)",
+  },
+  orderingItemLeft: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(1.25),
+    minWidth: 0,
+  },
+  dragHandle: {
+    color: theme.palette.text.secondary,
+    cursor: "grab",
+  },
+  orderingIndex: {
+    minWidth: 26,
+    height: 26,
+    borderRadius: 999,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "rgba(37,99,235,0.12)",
+    color: theme.palette.primary.main,
+    fontWeight: 700,
+    fontSize: "0.78rem",
+  },
+  orderingName: {
+    fontWeight: 700,
+  }
 }));
 
 const Tags = () => {
@@ -90,6 +152,7 @@ const Tags = () => {
   const [searchParam, setSearchParam] = useState("");
   const [tags, dispatch] = useReducer(reducer, []);
   const [tagModalOpen, setTagModalOpen] = useState(false);
+  const [savingOrder, setSavingOrder] = useState(false);
   const pageNumberRef = useRef(1);
 
   useEffect(() => {
@@ -123,6 +186,9 @@ const Tags = () => {
 
       if (data.action === "delete") {
         dispatch({ type: "DELETE_TAGS", payload: +data.tagId });
+      }
+      if (data.action === "reorder") {
+        dispatch({ type: "SET_TAGS", payload: data.tags });
       }
     };
     socket.on(`company${user.companyId}-tag`, onCompanyTags);
@@ -187,6 +253,37 @@ const Tags = () => {
 
   const loadMore = () => {
     setPageNumber((prevPageNumber) => prevPageNumber + 1);
+  };
+
+  const reorderTags = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
+
+  const handleDragEnd = async (result) => {
+    if (!result.destination || result.destination.index === result.source.index) {
+      return;
+    }
+
+    const reordered = reorderTags(tags, result.source.index, result.destination.index);
+    dispatch({ type: "SET_TAGS", payload: reordered });
+
+    try {
+      setSavingOrder(true);
+      const { data } = await api.post("/tags/reorder", {
+        orderedIds: reordered.map(tag => tag.id)
+      });
+      dispatch({ type: "SET_TAGS", payload: data.tags });
+      toast.success("Ordem das tags atualizada com sucesso.");
+    } catch (err) {
+      toastError(err);
+      dispatch({ type: "RESET" });
+      setPageNumber(1);
+    } finally {
+      setSavingOrder(false);
+    }
   };
 
   const handleScroll = (e) => {
@@ -259,6 +356,62 @@ const Tags = () => {
           </Button>
         </MainHeaderButtonsWrapper>
       </MainHeader>
+      {!searchParam && tags.length > 0 && (
+        <Paper className={classes.orderingPanel} elevation={0}>
+          <div className={classes.orderingHeader}>
+            <div>
+              <Typography variant="h6">Ordem das tags nos Tickets</Typography>
+              <Typography className={classes.orderingHint}>
+                Arraste para reorganizar. Essa ordem será refletida na separação visual dos tickets.
+              </Typography>
+            </div>
+            {savingOrder && <Typography className={classes.orderingHint}>Salvando ordem...</Typography>}
+          </div>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="tags-order">
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className={classes.orderingList}
+                >
+                  {tags.map((tag, index) => (
+                    <Draggable key={String(tag.id)} draggableId={String(tag.id)} index={index}>
+                      {(dragProvided) => (
+                        <div
+                          ref={dragProvided.innerRef}
+                          {...dragProvided.draggableProps}
+                          className={classes.orderingItem}
+                        >
+                          <div className={classes.orderingItemLeft}>
+                            <div {...dragProvided.dragHandleProps} className={classes.dragHandle}>
+                              <DragIndicatorIcon />
+                            </div>
+                            <span className={classes.orderingIndex}>{index + 1}</span>
+                            <Chip
+                              size="small"
+                              label={tag.name}
+                              style={{
+                                backgroundColor: tag.color || "#94A3B8",
+                                color: "#fff",
+                                fontWeight: 700
+                              }}
+                            />
+                          </div>
+                          <Typography className={classes.orderingName}>
+                            {tag.name}
+                          </Typography>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </Paper>
+      )}
       <Paper
         className={classes.mainPaper}
         variant="outlined"

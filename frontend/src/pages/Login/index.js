@@ -17,6 +17,8 @@ import api from "../../services/api";
 import logo from "../../assets/logo.png";
 import crmBackground from "../../assets/login-crm-bg.jpg";
 
+const packageVersion = require("../../../package.json").version;
+
 const useStyles = makeStyles((theme) => ({
   root: {
     minHeight: "100vh",
@@ -378,7 +380,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState({ email: "", password: "" });
   const [logoSrc, setLogoSrc] = useState(themeLoginLogo);
-  const [systemVersion, setSystemVersion] = useState("2.1.2");
+  const [systemVersion, setSystemVersion] = useState(packageVersion);
   const currentYear = new Date().getFullYear();
 
   useEffect(() => {
@@ -391,21 +393,26 @@ const Login = () => {
     const loadVersion = async () => {
       try {
         const storedVersion = window.localStorage.getItem("frontendVersion");
-        if (storedVersion && isMounted) {
+        if (storedVersion === packageVersion && isMounted) {
           setSystemVersion(storedVersion);
         }
 
         const response = await api.get("/version");
         const version = response?.data?.version;
 
-        if (version && isMounted) {
+        if (version === packageVersion && isMounted) {
           setSystemVersion(version);
+          return;
         }
       } catch (error) {
         const storedVersion = window.localStorage.getItem("frontendVersion");
-        if (storedVersion && isMounted) {
+        if (storedVersion === packageVersion && isMounted) {
           setSystemVersion(storedVersion);
         }
+      }
+
+      if (isMounted) {
+        setSystemVersion(packageVersion);
       }
     };
 

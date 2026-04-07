@@ -32,6 +32,8 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import SearchIcon from "@material-ui/icons/Search";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
+import EventNoteIcon from "@material-ui/icons/EventNote";
+import TodayIcon from "@material-ui/icons/Today";
 
 import "./Schedules.css"; // Importe o arquivo CSS
 
@@ -117,18 +119,83 @@ const reducer = (state, action) => {
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    padding: theme.spacing(1),
-    overflowY: "scroll",
+    padding: theme.spacing(2),
+    overflowY: "auto",
     ...theme.scrollbarStyles,
+    borderRadius: 24,
+    border: "1px solid rgba(37, 99, 235, 0.08)",
+    boxShadow: "0 20px 45px rgba(15, 23, 42, 0.08)",
+    background:
+      theme.mode === "light"
+        ? "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)"
+        : theme.palette.background.paper,
+  },
+  heroPanel: {
+    marginBottom: theme.spacing(2),
+    padding: theme.spacing(2.5),
+    borderRadius: 24,
+    color: theme.mode === "light" ? "#0f172a" : theme.palette.text.primary,
+    background:
+      theme.mode === "light"
+        ? "linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(14,165,233,0.08) 100%)"
+        : theme.palette.background.paper,
+    border: "1px solid rgba(37,99,235,0.08)",
+  },
+  heroTitle: {
+    fontWeight: 800,
+    marginBottom: theme.spacing(0.75),
+  },
+  heroSubtitle: {
+    color: theme.palette.text.secondary,
+    maxWidth: 640,
+    lineHeight: 1.6,
+  },
+  metricsRow: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+    gap: theme.spacing(1.5),
+    marginTop: theme.spacing(2),
+  },
+  metricCard: {
+    padding: theme.spacing(1.5),
+    borderRadius: 18,
+    background: theme.mode === "light" ? "#fff" : "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(148,163,184,0.16)",
+  },
+  metricLabel: {
+    color: theme.palette.text.secondary,
+    fontSize: "0.8rem",
+    marginBottom: theme.spacing(0.5),
+  },
+  metricValue: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(1),
+    fontSize: "1.2rem",
+    fontWeight: 800,
   },
   calendarToolbar: {
+    "& .rbc-toolbar": {
+      marginBottom: theme.spacing(2),
+      gap: theme.spacing(1),
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+    },
     "& .rbc-toolbar-label": {
-      color: theme.mode === "light" ? theme.palette.light : "white",
+      color: theme.mode === "light" ? "#0f172a" : "white",
+      fontWeight: 800,
+      fontSize: "1rem",
     },
     "& .rbc-btn-group button": {
-      color: theme.mode === "light" ? theme.palette.light : "white",
+      color: theme.mode === "light" ? "#0f172a" : "white",
+      borderRadius: 999,
+      border: "1px solid rgba(148,163,184,0.28)",
+      padding: "8px 14px",
+      fontWeight: 700,
+      background: theme.mode === "light" ? "#fff" : "transparent",
       "&:hover": {
         color: theme.palette.mode === "dark" ? "#fff" : "#000",
+        background: "rgba(37,99,235,0.08)",
       },
       "&:active": {
         color: theme.palette.mode === "dark" ? "#fff" : "#000",
@@ -137,8 +204,20 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.mode === "dark" ? "#fff" : "#000",
       },
       "&.rbc-active": {
-        color: theme.palette.mode === "dark" ? "#fff" : "#000",
+        color: "#fff",
+        background: "linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)",
+        borderColor: "transparent",
       },
+    },
+    "& .rbc-event": {
+      borderRadius: 14,
+      border: "none",
+      padding: "4px 8px",
+      background: "linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)",
+      boxShadow: "0 10px 24px rgba(37,99,235,0.25)",
+    },
+    "& .rbc-today": {
+      backgroundColor: "rgba(37,99,235,0.06)",
     },
   },
 }));
@@ -349,6 +428,28 @@ const Schedules = () => {
           </Button>
         </MainHeaderButtonsWrapper>
       </MainHeader>
+      <Paper className={classes.heroPanel} elevation={0}>
+        <div className={classes.heroTitle}>Organize seus agendamentos com mais clareza</div>
+        <div className={classes.heroSubtitle}>
+          Visualize compromissos, acompanhamentos e lembretes em um calendário mais elegante, limpo e prático para o dia a dia da operação.
+        </div>
+        <div className={classes.metricsRow}>
+          <div className={classes.metricCard}>
+            <div className={classes.metricLabel}>Total de agendamentos</div>
+            <div className={classes.metricValue}>
+              <EventNoteIcon color="primary" />
+              {schedules.length}
+            </div>
+          </div>
+          <div className={classes.metricCard}>
+            <div className={classes.metricLabel}>Agendamentos do dia</div>
+            <div className={classes.metricValue}>
+              <TodayIcon color="primary" />
+              {schedules.filter((schedule) => moment(schedule.sendAt).isSame(moment(), "day")).length}
+            </div>
+          </div>
+        </div>
+      </Paper>
       <Paper
         className={classes.mainPaper}
         variant="outlined"

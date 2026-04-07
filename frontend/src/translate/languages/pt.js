@@ -703,7 +703,7 @@ const messages = {
           userClosePendingTicket: "Permitir fechar tickets pendentes",
           allowSeeMessagesInPendingTickets: "Permitir ver tickets pendentes",
           showDashboard: "Ver Dashboard",
-          allowRealTime: "Ver Painel de Atendimentos",
+          allowRealTime: "Ver Painel de Tickets",
           allowConnections: "Permitir ações nas conexões",
           showContacts: "Ver contatos",
           showCampaign: "Ver campanhas",
@@ -712,6 +712,7 @@ const messages = {
         tabs: {
           general: "Geral",
           permissions: "Permissões",
+          workingHours: "Horário de expediente",
         },
         buttons: {
           okAdd: "Adicionar",
@@ -868,7 +869,7 @@ const messages = {
           search: { title: "Busca" },
         },
         search: {
-          placeholder: "Buscar atendimento e mensagens",
+          placeholder: "Buscar tickets e mensagens",
           filterConections: "Filtro por Conexão",
           filterConectionsOptions: {
             open: "Aberto",
@@ -926,7 +927,7 @@ const messages = {
         groupingHeader: "Grupos",
         noTicketsTitle: "Nada aqui!",
         noTicketsMessage:
-          "Nenhum atendimento encontrado com esse status ou termo pesquisado",
+          "Nenhum ticket encontrado com esse status ou termo pesquisado",
         noQueue: "Sem Fila",
         buttons: {
           accept: "Aceitar",
@@ -967,7 +968,7 @@ const messages = {
           dashboard: "Dashboard",
           connections: "Conexões",
           chatsTempoReal: "Painel",
-          tickets: "Atendimentos",
+          tickets: "Tickets",
           quickMessages: "Respostas rápidas",
           contacts: "Contatos",
           wallets: "Carteiras",

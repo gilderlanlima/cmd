@@ -873,6 +873,7 @@ const Contacts = () => {
               <TableCell align="center">
                 {i18n.t("contacts.table.email")}
               </TableCell>
+              <TableCell align="center">TAG</TableCell>
               <TableCell align="center">{"Status"}</TableCell>
               <TableCell align="center">{i18n.t("contacts.table.wallet")}</TableCell>
               <TableCell align="center">
@@ -923,6 +924,40 @@ const Contacts = () => {
                         : formatSerializedId(contact?.number)}
                     </TableCell>
                     <TableCell align="center">{contact.email}</TableCell>
+                    <TableCell align="center">
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          justifyContent: "center",
+                          gap: 4,
+                          minWidth: 120
+                        }}
+                      >
+                        {(contact.tags || []).length > 0 ? (
+                          contact.tags.map((tag) => (
+                            <span
+                              key={`contact-tag-${contact.id}-${tag.id}`}
+                              style={{
+                                backgroundColor: tag.color || "#94A3B8",
+                                color: "#fff",
+                                fontWeight: 700,
+                                fontSize: "0.72rem",
+                                borderRadius: 999,
+                                padding: "3px 8px",
+                                lineHeight: 1.2
+                              }}
+                            >
+                              {tag.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span style={{ color: "#94A3B8", fontSize: "0.8rem" }}>
+                            Sem tag
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell align="center">
                       {contact.active ? (
                         <CheckCircleIcon
@@ -1003,7 +1038,7 @@ const Contacts = () => {
                   </TableRow>
                 );
               })}
-              {loading && <TableRowSkeleton avatar columns={9} />}
+              {loading && <TableRowSkeleton avatar columns={10} />}
             </>
           </TableBody>
         </Table>

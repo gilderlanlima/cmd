@@ -9,6 +9,7 @@ interface TagData {
   name?: string;
   color?: string;
   kanban?: number;
+  sortOrder?: number;
   timeLane?: number;
   nextLaneId?: number;
   greetingMessageLane: string;
@@ -31,7 +32,7 @@ const UpdateUserService = async ({
     name: Yup.string().min(3)
   });
 
-  const { name, color, kanban,
+  const { name, color, kanban, sortOrder,
     timeLane,
     nextLaneId = null,
     greetingMessageLane,
@@ -48,6 +49,7 @@ const UpdateUserService = async ({
     name,
     color,
     kanban,
+    sortOrder,
     timeLane,
     nextLaneId: String(nextLaneId) === "" ? null : nextLaneId,
     greetingMessageLane,

@@ -12,6 +12,7 @@ tagRoutes.get("/tag/kanban", isAuth, TagController.kanban);
 
 tagRoutes.post("/tags", isAuth, TagController.uploadMiddleware, TagController.store);
 tagRoutes.post("/tags/sync", isAuth, TagController.syncTags);
+tagRoutes.post("/tags/reorder", isAuth, TagController.reorder);
 
 tagRoutes.put("/tags/:tagId", isAuth, TagController.uploadMiddleware, TagController.update);
 

@@ -95,6 +95,7 @@ const useStyles = makeStyles((theme) => ({
 
   toolbar: {
     paddingRight: 24,
+    minHeight: 48,
     color: theme.palette.dark.main,
     // Usa a cor primária do tema para o fundo do AppBar
     background: theme.palette.primary.main, // Mudança principal aqui
@@ -365,27 +366,23 @@ const useStyles = makeStyles((theme) => ({
   toolbarIcon: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
-    gap: theme.spacing(1),
-    padding: "10px 12px",
-    minHeight: "68px",
+    justifyContent: "flex-end",
+    padding: "0 12px",
+    minHeight: 48,
+    height: 48,
     backgroundColor:
       theme.mode === "light" ? "#ffffff" : theme.palette.fancyBackground,
     borderBottom: `1px solid ${theme.palette.divider}`,
     transition: "all 0.3s ease",
     [theme.breakpoints.down("sm")]: {
-      minHeight: "60px",
-      padding: "8px 10px",
+      minHeight: 48,
+      height: 48,
+      padding: "0 10px",
     },
   },
 
   logoContainer: {
-    flex: 1,
-    minWidth: 0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
+    display: "none",
   },
 
   logo: {

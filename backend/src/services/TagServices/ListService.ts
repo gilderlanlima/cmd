@@ -75,9 +75,10 @@ const ListService = async ({
         'id',
         'name',
         'color',
+        'sortOrder'
       ],
       ...(offset !== undefined ? { offset } : {}),
-      order: [["name", "ASC"]],
+      order: [["sortOrder", "ASC"], ["name", "ASC"]],
     });
 
     const hasMore = unlimited ? false : count > (offset as number) + tags.length;
@@ -117,7 +118,6 @@ const ListService = async ({
       where: { ...whereCondition, companyId, kanban },
       ...(limit !== undefined ? { limit } : {}),
       ...(offset !== undefined ? { offset } : {}),
-      order: [["name", "ASC"]],
       include: [
         {
           model: TicketTag,
@@ -129,7 +129,9 @@ const ListService = async ({
         'id',
         'name',
         'color',
+        'sortOrder'
       ],
+      order: [["sortOrder", "ASC"], ["name", "ASC"]],
     });
 
     const hasMore = unlimited ? false : count > (offset as number) + tags.length;

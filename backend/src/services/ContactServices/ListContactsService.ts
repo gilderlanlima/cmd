@@ -140,7 +140,7 @@ const ListContactsService = async ({
       {
         model: Tag,
         as: "tags",
-        attributes: ["id", "name"]
+        attributes: ["id", "name", "color", "sortOrder"]
       },
       {
         model: ContactCustomField,

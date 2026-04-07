@@ -3,6 +3,8 @@ import React, { useState, useEffect, useReducer, useContext, useMemo } from "rea
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import Paper from "@material-ui/core/Paper";
+import Chip from "@material-ui/core/Chip";
+import Typography from "@material-ui/core/Typography";
 
 import TicketListItem from "../TicketListItemCustom";
 import TicketsListSkeleton from "../TicketsListSkeleton";
@@ -69,6 +71,40 @@ const useStyles = makeStyles((theme) => ({
         alignItems: "center",
         justifyContent: "center",
     },
+    tagGroupSection: {
+        paddingTop: theme.spacing(1),
+    },
+    tagGroupHeader: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: theme.spacing(1),
+        padding: theme.spacing(0, 1.5, 0.75),
+        position: "sticky",
+        top: 0,
+        zIndex: 2,
+        background: theme.mode === "light" ? "#fff" : theme.palette.background.paper,
+    },
+    tagGroupTitle: {
+        display: "flex",
+        alignItems: "center",
+        gap: theme.spacing(1),
+        minWidth: 0,
+    },
+    tagGroupChip: {
+        fontWeight: 700,
+        color: "#fff",
+        maxWidth: 220,
+    },
+    tagGroupCount: {
+        fontSize: "0.75rem",
+        color: theme.palette.text.secondary,
+        fontWeight: 600,
+    },
+    groupDivider: {
+        margin: theme.spacing(0, 1.5, 0.5),
+        borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
+    }
 }));
 
 const ticketSortAsc = (a, b) => {
@@ -92,6 +128,24 @@ const ticketSortDesc = (a, b) => {
     }
     return 0;
 }
+
+const normalizeTicketTags = (ticket) => {
+    const merged = [...(ticket?.tags || []), ...(ticket?.contact?.tags || [])];
+    const uniqueTags = merged.filter(
+        (tag, index, self) => tag && self.findIndex((item) => item.id === tag.id) === index
+    );
+
+    return uniqueTags.sort((a, b) => {
+        const sortA = a?.sortOrder ?? Number.MAX_SAFE_INTEGER;
+        const sortB = b?.sortOrder ?? Number.MAX_SAFE_INTEGER;
+
+        if (sortA !== sortB) {
+            return sortA - sortB;
+        }
+
+        return (a?.name || "").localeCompare(b?.name || "", "pt-BR", { sensitivity: "base" });
+    });
+};
 
 const reducer = (state, action) => {
     //console.log("action", action, state)
@@ -429,6 +483,40 @@ const TicketsListCustom = (props) => {
         ticketsList = ticketsList.filter(ticket => ticket.status === status)
     }
 
+    const groupedTickets = useMemo(() => {
+        const groupsMap = new Map();
+
+        ticketsList.forEach(ticket => {
+            const primaryTag = normalizeTicketTags(ticket)[0];
+            const groupKey = primaryTag ? `tag-${primaryTag.id}` : "untagged";
+
+            if (!groupsMap.has(groupKey)) {
+                groupsMap.set(groupKey, {
+                    key: groupKey,
+                    tag: primaryTag || null,
+                    tickets: []
+                });
+            }
+
+            groupsMap.get(groupKey).tickets.push(ticket);
+        });
+
+        return Array.from(groupsMap.values()).sort((groupA, groupB) => {
+            if (!groupA.tag && !groupB.tag) return 0;
+            if (!groupA.tag) return 1;
+            if (!groupB.tag) return -1;
+
+            const sortA = groupA.tag.sortOrder ?? Number.MAX_SAFE_INTEGER;
+            const sortB = groupB.tag.sortOrder ?? Number.MAX_SAFE_INTEGER;
+
+            if (sortA !== sortB) {
+                return sortA - sortB;
+            }
+
+            return (groupA.tag.name || "").localeCompare(groupB.tag.name || "", "pt-BR", { sensitivity: "base" });
+        });
+    }, [ticketsList]);
+
     return (
         <Paper className={classes.ticketsListWrapper} style={style}>
             <Paper
@@ -450,15 +538,32 @@ const TicketsListCustom = (props) => {
                         </div>
                     ) : (
                         <>
-                            {ticketsList.map((ticket) => (
-                                // <List key={ticket.id}>
-                                //     {console.log(ticket)}
-                                <TicketListItem
-                                    ticket={ticket}
-                                    key={ticket.id}
-                                    setTabOpen={setTabOpen}
-                                />
-                                // </List>
+                            {groupedTickets.map(group => (
+                                <div key={group.key} className={classes.tagGroupSection}>
+                                    <div className={classes.tagGroupHeader}>
+                                        <div className={classes.tagGroupTitle}>
+                                            <Chip
+                                                label={group.tag?.name || "Sem tag"}
+                                                size="small"
+                                                className={classes.tagGroupChip}
+                                                style={{
+                                                    backgroundColor: group.tag?.color || "#94A3B8"
+                                                }}
+                                            />
+                                        </div>
+                                        <Typography className={classes.tagGroupCount}>
+                                            {group.tickets.length} ticket{group.tickets.length > 1 ? "s" : ""}
+                                        </Typography>
+                                    </div>
+                                    <div className={classes.groupDivider} />
+                                    {group.tickets.map((ticket) => (
+                                        <TicketListItem
+                                            ticket={ticket}
+                                            key={ticket.id}
+                                            setTabOpen={setTabOpen}
+                                        />
+                                    ))}
+                                </div>
                             ))}
                         </>
                     )}

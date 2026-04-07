@@ -14,6 +14,7 @@ interface SerializedUser {
   queues: Queue[];
   startWork: string;
   endWork: string;
+  workingHours?: Record<string, any> | null;
   allTicket: string;
   whatsappId: number;
   profileImage: string;
@@ -56,6 +57,7 @@ export const SerializeUser = async (user: User): Promise<SerializedUser> => {
     queues: user.queues,
     startWork: user.startWork,
     endWork: user.endWork,
+    workingHours: user.workingHours,
     allTicket: user.allTicket,
     whatsappId: user.whatsappId,
     profileImage: user.profileImage,

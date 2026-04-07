@@ -15,6 +15,7 @@ import SimpleListService from "../services/TagServices/SimpleListService";
 import SyncTagService from "../services/TagServices/SyncTagsService";
 import KanbanListService from "../services/TagServices/KanbanListService";
 import ContactTag from "../models/ContactTag";
+import Tag from "../models/Tag";
 
 // Configuração do multer para upload de mídia
 const storage = multer.diskStorage({
@@ -86,6 +87,7 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const { name, color, kanban,
+    sortOrder,
     timeLane,
     nextLaneId,
     greetingMessageLane,
@@ -110,6 +112,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     color,
     kanban,
     companyId,
+    sortOrder,
     timeLane,
     nextLaneId,
     greetingMessageLane,
@@ -270,6 +273,7 @@ export const update = async (
 
   const tagData = {
     ...req.body,
+    sortOrder: req.body.sortOrder,
     mediaFiles: mediaFilesData
   };
 
@@ -283,6 +287,50 @@ export const update = async (
     });
 
   return res.status(200).json(tag);
+};
+
+export const reorder = async (req: Request, res: Response): Promise<Response> => {
+  const { orderedIds } = req.body as { orderedIds: number[] };
+  const { companyId } = req.user;
+
+  if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
+    throw new AppError("ERR_INVALID_TAG_ORDER", 400);
+  }
+
+  const tags = await Tag.findAll({
+    where: {
+      id: orderedIds,
+      companyId,
+      kanban: 0
+    }
+  });
+
+  const availableIds = new Set(tags.map(tag => tag.id));
+  const validOrderedIds = orderedIds.filter(id => availableIds.has(id));
+
+  await Promise.all(
+    validOrderedIds.map((id, index) =>
+      Tag.update(
+        { sortOrder: index + 1 },
+        { where: { id, companyId, kanban: 0 } }
+      )
+    )
+  );
+
+  const { tags: reorderedTags } = await ListService({
+    companyId,
+    kanban: 0,
+    pageNumber: 1,
+    limit: "all"
+  });
+
+  const io = getIO();
+  io.of(String(companyId)).emit(`company${companyId}-tag`, {
+    action: "reorder",
+    tags: reorderedTags
+  });
+
+  return res.status(200).json({ tags: reorderedTags });
 };
 
 export const remove = async (

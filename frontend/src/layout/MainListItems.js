@@ -65,6 +65,8 @@ import { Campaign, ShapeLine, Webhook } from "@mui/icons-material";
 
 import useCompanySettings from "../hooks/useSettings/companySettings";
 
+const packageVersion = require("../../package.json").version;
+
 const useStyles = makeStyles((theme) => ({
   listItem: {
     height: "44px",
@@ -384,7 +386,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
   const [pageNumber, setPageNumber] = useState(1);
   const [searchParam] = useState("");
   const [chats, dispatch] = useReducer(reducer, []);
-  const [version, setVersion] = useState(false);
+  const [version, setVersion] = useState(packageVersion);
   const [managementHover, setManagementHover] = useState(false);
   const [campaignHover, setCampaignHover] = useState(false);
   const { list } = useHelps(); // INSERIR
@@ -452,8 +454,17 @@ const MainListItems = ({ collapsed, drawerClose }) => {
 
   useEffect(() => {
     async function fetchVersion() {
-      const _version = await getVersion();
-      setVersion(_version.version);
+      try {
+        const _version = await getVersion();
+        if (_version?.version === packageVersion) {
+          setVersion(_version.version);
+          return;
+        }
+      } catch (error) {
+        // Mantem a versao da build do frontend quando o backend estiver em outra versao.
+      }
+
+      setVersion(packageVersion);
     }
     fetchVersion();
     // eslint-disable-next-line react-hooks/exhaustive-deps

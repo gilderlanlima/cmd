@@ -8,6 +8,7 @@ interface Request {
   color: string;
   kanban: string;
   companyId: number;
+  sortOrder?: number;
   timeLane?: number;
   nextLaneId?: number;
   greetingMessageLane?: string;
@@ -20,6 +21,7 @@ const CreateService = async ({
   color = "#A4CCCC",
   kanban,
   companyId,
+  sortOrder,
   timeLane = null,
   nextLaneId = null,
   greetingMessageLane = "",
@@ -36,10 +38,22 @@ const CreateService = async ({
     throw new AppError(err.message);
   }
 
+  let resolvedSortOrder = sortOrder;
+
+  if (resolvedSortOrder === undefined || resolvedSortOrder === null) {
+    const lastTag = await Tag.findOne({
+      where: { companyId, kanban },
+      order: [["sortOrder", "DESC"], ["id", "DESC"]]
+    });
+
+    resolvedSortOrder = (lastTag?.sortOrder || 0) + 1;
+  }
+
   const [tag] = await Tag.findOrCreate({
     where: { name, color, kanban, companyId },
     defaults: {
       name, color, kanban, companyId,
+      sortOrder: resolvedSortOrder,
       timeLane,
       nextLaneId: String(nextLaneId) === "" ? null : nextLaneId,
       greetingMessageLane,

@@ -88,6 +88,9 @@ class User extends Model<User> {
   @Column
   endWork: string;
 
+  @Column(DataType.JSONB)
+  workingHours: Record<string, any> | null;
+
   @Default("")
   @Column
   color: string;

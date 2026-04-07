@@ -95,7 +95,12 @@ const ListTicketsService = async ({
       model: Contact,
       as: "contact",
       attributes: ["id", "name", "number", "email", "profilePicUrl", "acceptAudioMessage", "active", "urlPicture", "companyId", "isGroup", "remoteJid"],
-      include: ["extraInfo", "tags",
+      include: ["extraInfo",
+        {
+          model: Tag,
+          as: "tags",
+          attributes: ["id", "name", "color", "sortOrder"]
+        },
         {
           model: ContactWallet,
           include: [
@@ -118,12 +123,12 @@ const ListTicketsService = async ({
     {
       model: User,
       as: "user",
-      attributes: ["id", "name"]
+      attributes: ["id", "name", "profileImage", "companyId"]
     },
     {
       model: Tag,
       as: "tags",
-      attributes: ["id", "name", "color"]
+      attributes: ["id", "name", "color", "sortOrder"]
     },
     {
       model: Whatsapp,

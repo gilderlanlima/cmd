@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 import * as Yup from "yup";
 import { Formik, Form, Field } from "formik";
@@ -27,12 +27,9 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 import useWhatsApps from "../../hooks/useWhatsApps";
 
 import { Can } from "../Can";
-import { Avatar, Grid, Input, Paper, Tab, Tabs } from "@material-ui/core";
-import { getBackendUrl } from "../../config";
+import { Grid, Paper, Tab, Tabs, Typography, Switch, FormControlLabel } from "@material-ui/core";
 import TabPanel from "../TabPanel";
 import AvatarUploader from "../AvatarUpload";
-
-const backendUrl = getBackendUrl();
 
 const formatDateForInput = (date) => {
   if (!date) return '';
@@ -68,6 +65,54 @@ const parseDateFromInput = (dateString) => {
   }
   
   return dateString;
+};
+
+const WORKING_DAYS = [
+  { key: "monday", label: "Segunda-feira" },
+  { key: "tuesday", label: "Terça-feira" },
+  { key: "wednesday", label: "Quarta-feira" },
+  { key: "thursday", label: "Quinta-feira" },
+  { key: "friday", label: "Sexta-feira" },
+  { key: "saturday", label: "Sábado" },
+  { key: "sunday", label: "Domingo" }
+];
+
+const createDefaultWorkingHours = (startWork = "00:00", endWork = "23:59") =>
+  WORKING_DAYS.reduce((acc, day, index) => {
+    acc[day.key] = {
+      enabled: index < 5,
+      start: startWork,
+      end: endWork
+    };
+    return acc;
+  }, {});
+
+const normalizeWorkingHours = (workingHours, startWork = "00:00", endWork = "23:59") => {
+  const defaults = createDefaultWorkingHours(startWork, endWork);
+
+  if (!workingHours || typeof workingHours !== "object") {
+    return defaults;
+  }
+
+  return WORKING_DAYS.reduce((acc, day) => {
+    acc[day.key] = {
+      enabled: workingHours?.[day.key]?.enabled ?? defaults[day.key].enabled,
+      start: workingHours?.[day.key]?.start || defaults[day.key].start,
+      end: workingHours?.[day.key]?.end || defaults[day.key].end,
+    };
+    return acc;
+  }, {});
+};
+
+const deriveLegacyWorkingRange = (workingHours) => {
+  const firstEnabledDay = WORKING_DAYS
+    .map(day => workingHours?.[day.key])
+    .find(day => day?.enabled);
+
+  return {
+    startWork: firstEnabledDay?.start || "00:00",
+    endWork: firstEnabledDay?.end || "23:59"
+  };
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -162,6 +207,7 @@ const UserModal = ({ open, onClose, userId }) => {
     email: "",
     password: "",
     birthDate: "",
+    workingHours: createDefaultWorkingHours(),
     profile: "user",
     startWork: "00:00",
     endWork: "23:59",
@@ -190,11 +236,8 @@ const UserModal = ({ open, onClose, userId }) => {
   const [whatsappId, setWhatsappId] = useState(false);
   // const [allTicket, setAllTicket] = useState("disable");
   const { loading, whatsApps } = useWhatsApps();
-  const [profileUrl, setProfileUrl] = useState(null);
   const [tab, setTab] = useState("general");
   const [avatar, setAvatar] = useState(null);
-  const startWorkRef = useRef();
-  const endWorkRef = useRef();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -214,14 +257,9 @@ const UserModal = ({ open, onClose, userId }) => {
           allowSeeMessagesInPendingTickets: data.allowSeeMessagesInPendingTickets === "enabled" ? "enabled" : "disabled",
           farewellMessage: data.farewellMessage || "",
           // Formatar a data corretamente
-          birthDate: formatDateForInput(data.birthDate)
+          birthDate: formatDateForInput(data.birthDate),
+          workingHours: normalizeWorkingHours(data.workingHours, data.startWork, data.endWork)
         }));
-
-        const { profileImage } = data;
-        setProfileUrl(
-          `${backendUrl}/public/company${data.companyId}/user/${profileImage}`
-        );
-
         const userQueueIds = data.queues?.map((queue) => queue.id);
         setSelectedQueueIds(userQueueIds);
         setWhatsappId(data.whatsappId ? data.whatsappId : "");
@@ -287,6 +325,11 @@ const UserModal = ({ open, onClose, userId }) => {
       birthDate: parseDateFromInput(values.birthDate),
       allowSeeMessagesInPendingTickets: values.allowSeeMessagesInPendingTickets === "enabled" ? "enabled" : "disabled"
     };
+
+    const legacyRange = deriveLegacyWorkingRange(values.workingHours);
+    userData.workingHours = values.workingHours;
+    userData.startWork = legacyRange.startWork;
+    userData.endWork = legacyRange.endWork;
 
     try {
       let responseData;
@@ -361,7 +404,7 @@ const UserModal = ({ open, onClose, userId }) => {
             }, 400);
           }}
         >
-          {({ touched, errors, isSubmitting, setFieldValue }) => (
+          {({ touched, errors, isSubmitting, setFieldValue, values }) => (
             <Form>
               <Paper className={classes.mainPaper} elevation={1}>
                 <Tabs
@@ -380,6 +423,10 @@ const UserModal = ({ open, onClose, userId }) => {
                   <Tab
                     label={i18n.t("userModal.tabs.permissions")}
                     value={"permissions"}
+                  />
+                  <Tab
+                    label={i18n.t("userModal.tabs.workingHours")}
+                    value={"workingHours"}
                   />
                 </Tabs>
               </Paper>
@@ -543,61 +590,6 @@ const UserModal = ({ open, onClose, userId }) => {
                         />
                       </Grid>
                     </Grid>
-                    <Can
-                      role={loggedInUser.profile}
-                      perform="user-modal:editProfile"
-                      yes={() => (
-                        <Grid container spacing={1}>
-                          <Grid item xs={12} md={6} xl={6}>
-                            <Field
-                              as={TextField}
-                              label={i18n.t("userModal.form.startWork")}
-                              type="time"
-                              ampm={"false"}
-                              inputRef={startWorkRef}
-                              InputLabelProps={{
-                                shrink: true,
-                              }}
-                              inputProps={{
-                                step: 600, // 5 min
-                              }}
-                              fullWidth
-                              name="startWork"
-                              error={
-                                touched.startWork && Boolean(errors.startWork)
-                              }
-                              helperText={touched.startWork && errors.startWork}
-                              variant="outlined"
-                              margin="dense"
-                              className={classes.textField}
-                            />
-                          </Grid>
-                          <Grid item xs={12} md={6} xl={6}>
-                            <Field
-                              as={TextField}
-                              label={i18n.t("userModal.form.endWork")}
-                              type="time"
-                              ampm={"false"}
-                              inputRef={endWorkRef}
-                              InputLabelProps={{
-                                shrink: true,
-                              }}
-                              inputProps={{
-                                step: 600, // 5 min
-                              }}
-                              fullWidth
-                              name="endWork"
-                              error={touched.endWork && Boolean(errors.endWork)}
-                              helperText={touched.endWork && errors.endWork}
-                              variant="outlined"
-                              margin="dense"
-                              className={classes.textField}
-                            />
-                          </Grid>
-                        </Grid>
-                      )}
-                    />
-
                     <Grid container spacing={1}>
                       <Grid item xs={12} md={6} xl={6}>
                         <Field
@@ -699,6 +691,70 @@ const UserModal = ({ open, onClose, userId }) => {
                           </>
                         </FormControl>
                       </Grid>
+                    </Grid>
+                  </TabPanel>
+                  <TabPanel
+                    className={classes.container}
+                    value={tab}
+                    name={"workingHours"}
+                  >
+                    <Typography variant="subtitle1" style={{ fontWeight: 700, marginBottom: 8 }}>
+                      Horário de expediente por dia
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" style={{ marginBottom: 16 }}>
+                      Organize os dias e horários de trabalho do usuário. Esse horário também servirá de referência para o sistema.
+                    </Typography>
+                    <Grid container spacing={2}>
+                      {WORKING_DAYS.map((day) => (
+                        <Grid item xs={12} key={day.key}>
+                          <Paper style={{ padding: 16, borderRadius: 14 }}>
+                            <Grid container spacing={2} alignItems="center">
+                              <Grid item xs={12} md={4}>
+                                <FormControlLabel
+                                  control={
+                                    <Switch
+                                      color="primary"
+                                      checked={Boolean(values.workingHours?.[day.key]?.enabled)}
+                                      onChange={(event) =>
+                                        setFieldValue(`workingHours.${day.key}.enabled`, event.target.checked)
+                                      }
+                                    />
+                                  }
+                                  label={day.label}
+                                />
+                              </Grid>
+                              <Grid item xs={6} md={4}>
+                                <Field
+                                  as={TextField}
+                                  label="Início"
+                                  type="time"
+                                  name={`workingHours.${day.key}.start`}
+                                  InputLabelProps={{ shrink: true }}
+                                  inputProps={{ step: 600 }}
+                                  fullWidth
+                                  variant="outlined"
+                                  margin="dense"
+                                  disabled={!values.workingHours?.[day.key]?.enabled}
+                                />
+                              </Grid>
+                              <Grid item xs={6} md={4}>
+                                <Field
+                                  as={TextField}
+                                  label="Fim"
+                                  type="time"
+                                  name={`workingHours.${day.key}.end`}
+                                  InputLabelProps={{ shrink: true }}
+                                  inputProps={{ step: 600 }}
+                                  fullWidth
+                                  variant="outlined"
+                                  margin="dense"
+                                  disabled={!values.workingHours?.[day.key]?.enabled}
+                                />
+                              </Grid>
+                            </Grid>
+                          </Paper>
+                        </Grid>
+                      ))}
                     </Grid>
                   </TabPanel>
                   <TabPanel

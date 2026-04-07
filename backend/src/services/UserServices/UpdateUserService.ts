@@ -15,6 +15,7 @@ interface UserData {
   queueIds?: number[];
   startWork?: string;
   endWork?: string;
+  workingHours?: Record<string, any> | null;
   farewellMessage?: string;
   whatsappId?: number;
   allTicket?: string;
@@ -84,6 +85,7 @@ const UpdateUserService = async ({
     queueIds = [],
     startWork,
     endWork,
+    workingHours,
     farewellMessage,
     whatsappId,
     allTicket,
@@ -141,6 +143,7 @@ const UpdateUserService = async ({
     name,
     startWork,
     endWork,
+    workingHours,
     farewellMessage,
     whatsappId: whatsappId || null,
     allTicket,
@@ -186,6 +189,7 @@ const UpdateUserService = async ({
     queues: user.queues,
     startWork: user.startWork,
     endWork: user.endWork,
+    workingHours: user.workingHours,
     greetingMessage: user.farewellMessage,
     allTicket: user.allTicket,
     defaultMenu: user.defaultMenu,
