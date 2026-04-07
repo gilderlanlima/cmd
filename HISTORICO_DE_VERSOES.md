@@ -2,6 +2,10 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.0.0
+
+- `24c63aa` - `feat: reorganiza tickets por tags e expande gestao operacional`
+
 ## 2.1.6
 
 - `4220fb9` - `chore: prepara release 2.1.6`
