@@ -54,14 +54,18 @@ import { FaGlobe } from "react-icons/fa";
 
 const backendUrl = getBackendUrl();
 const drawerWidth = 240;
+const compactDrawerWidth = 216;
 
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     height: "100vh",
+    height: "100dvh",
+    minHeight: 0,
     [theme.breakpoints.down("sm")]: {
       height: "calc(100vh - 56px)",
+      height: "calc(100dvh - 56px)",
     },
     backgroundColor: theme.palette.fancyBackground,
     "& .MuiButton-outlinedPrimary": {
@@ -101,6 +105,10 @@ const useStyles = makeStyles((theme) => ({
     background: theme.palette.primary.main, // Mudança principal aqui
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Sombra sutil
     transition: "all 0.3s ease",
+    "@media (max-width: 1366px)": {
+      paddingRight: 12,
+      paddingLeft: 4,
+    },
   },
 
   toolbarIcon: {
@@ -136,6 +144,10 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("sm")]: {
       display: "none",
     },
+    "@media (max-width: 1366px)": {
+      marginLeft: compactDrawerWidth,
+      width: `calc(100% - ${compactDrawerWidth}px)`,
+    },
   },
 
   menuButtonHidden: {
@@ -148,6 +160,9 @@ const useStyles = makeStyles((theme) => ({
     color: "white",
     fontWeight: 600,
     letterSpacing: "0.025em",
+    "@media (max-width: 1366px)": {
+      fontSize: 12,
+    },
   },
 
   drawerPaper: {
@@ -155,6 +170,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     height: "100vh",
+    height: "100dvh",
     minHeight: 0,
     whiteSpace: "nowrap",
     width: drawerWidth,
@@ -170,6 +186,9 @@ const useStyles = makeStyles((theme) => ({
       theme.mode === "light"
         ? "2px 0 8px rgba(0, 0, 0, 0.1)"
         : "2px 0 8px rgba(0, 0, 0, 0.3)",
+    "@media (max-width: 1366px)": {
+      width: compactDrawerWidth,
+    },
   },
 
   drawerPaperClose: {
@@ -194,6 +213,8 @@ const useStyles = makeStyles((theme) => ({
     overflow: "auto",
     padding: 0,
     margin: 0,
+    minWidth: 0,
+    minHeight: 0,
   },
 
   container: {

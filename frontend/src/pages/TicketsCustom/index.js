@@ -1,188 +1,211 @@
 import React, { useState, useCallback, useContext, useEffect, useRef } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Paper from "@material-ui/core/Paper";
 import Hidden from "@material-ui/core/Hidden";
 import { makeStyles } from "@material-ui/core/styles";
+import { useMediaQuery } from "@material-ui/core";
+
 import TicketsManagerTabs from "../../components/TicketsManagerTabs";
 import Ticket from "../../components/Ticket";
-
 import { QueueSelectedProvider } from "../../context/QueuesSelected/QueuesSelectedContext";
-import { TicketsContext } from "../../context/Tickets/TicketsContext";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import api from "../../services/api";
-import { CircularProgress } from "@material-ui/core";
-import { getBackendUrl } from "../../config";
-import logo from "../../assets/logo.png";
-import logoDark from "../../assets/logo-black.png";
 
 const defaultTicketsManagerWidth = 550;
 const minTicketsManagerWidth = 404;
 const maxTicketsManagerWidth = 700;
+const compactMinTicketsManagerWidth = 360;
+const compactDefaultTicketsManagerWidth = 420;
+const compactMaxTicketsManagerWidth = 460;
 
 const useStyles = makeStyles((theme) => ({
-	chatContainer: {
-		flex: 1,
-		padding: "2px",
-		height: `calc(100% - 48px)`,
-		overflowY: "hidden",
-	},
-	chatPapper: {
-		display: "flex",
-		height: "100%",
-	},
-	contactsWrapper: {
-		display: "flex",
-		height: "100%",
-		flexDirection: "column",
-		overflowY: "hidden",
-		position: "relative",
-		// Adicionar largura mínima como fallback
-		minWidth: `${minTicketsManagerWidth}px`,
-	},
-	messagesWrapper: {
-		display: "flex",
-		height: "100%",
-		flexDirection: "column",
-		flexGrow: 1,
-	},
-	welcomeMsg: {
-		background: theme.palette.tabHeaderBackground,
-		display: "flex",
-		justifyContent: "space-evenly",
-		alignItems: "center",
-		height: "100%",
-		textAlign: "center",
-	},
-	dragger: {
-		width: "5px",
-		cursor: "ew-resize",
-		padding: "4px 0 0",
-		borderTop: "1px solid #ddd",
-		position: "absolute",
-		top: 0,
-		right: 0,
-		bottom: 0,
-		zIndex: 100,
-		backgroundColor: "#f4f7f9",
-		userSelect: "none",
-	},
-	logo: {
-		logo: theme.logo,
-		content: "url(" + (theme.mode === "light" 
-			? theme.calculatedLogoLight() 
-			: theme.calculatedLogoDark()) + ")"
-	},
+  chatContainer: {
+    flex: 1,
+    padding: 2,
+    height: "100%",
+    minHeight: 0,
+    overflowY: "hidden",
+  },
+  chatPapper: {
+    display: "flex",
+    height: "100%",
+    minHeight: 0,
+  },
+  contactsWrapper: {
+    display: "flex",
+    height: "100%",
+    flexDirection: "column",
+    overflowY: "hidden",
+    position: "relative",
+    minWidth: `${minTicketsManagerWidth}px`,
+    "@media (max-width: 1366px)": {
+      minWidth: `${compactMinTicketsManagerWidth}px`,
+    },
+  },
+  messagesWrapper: {
+    display: "flex",
+    height: "100%",
+    minHeight: 0,
+    minWidth: 0,
+    flexDirection: "column",
+    flexGrow: 1,
+  },
+  welcomeMsg: {
+    background: theme.palette.tabHeaderBackground,
+    display: "flex",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    height: "100%",
+    textAlign: "center",
+  },
+  dragger: {
+    width: 5,
+    cursor: "ew-resize",
+    padding: "4px 0 0",
+    borderTop: "1px solid #ddd",
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 100,
+    backgroundColor: "#f4f7f9",
+    userSelect: "none",
+    "@media (max-width: 1366px)": {
+      width: 4,
+    },
+  },
+  logo: {
+    logo: theme.logo,
+    content:
+      "url(" +
+      (theme.mode === "light"
+        ? theme.calculatedLogoLight()
+        : theme.calculatedLogoDark()) +
+      ")",
+  },
 }));
 
 const TicketsCustom = () => {
-	const { user } = useContext(AuthContext);
-	
-	// ⚠️ CORREÇÃO PRINCIPAL: Inicializar com largura padrão adequada
-	const [ticketsManagerWidth, setTicketsManagerWidth] = useState(
-		user?.defaultTicketsManagerWidth || defaultTicketsManagerWidth
-	);
-	
-	const classes = useStyles({ ticketsManagerWidth });
-	const { ticketId } = useParams();
-	const ticketsManagerWidthRef = useRef(ticketsManagerWidth);
+  const { user } = useContext(AuthContext);
+  const { ticketId } = useParams();
+  const compactLaptop = useMediaQuery("(max-width:1366px)");
+  const [ticketsManagerWidth, setTicketsManagerWidth] = useState(
+    compactLaptop
+      ? compactDefaultTicketsManagerWidth
+      : user?.defaultTicketsManagerWidth || defaultTicketsManagerWidth
+  );
+  const classes = useStyles();
+  const ticketsManagerWidthRef = useRef(ticketsManagerWidth);
 
-	// ⚠️ CORREÇÃO: useEffect mais robusto para inicialização
-	useEffect(() => {
-		// Definir largura baseada no usuário ou padrão
-		const initialWidth = user?.defaultTicketsManagerWidth || defaultTicketsManagerWidth;
-		
-		// Garantir que a largura esteja dentro dos limites
-		const validWidth = Math.max(
-			minTicketsManagerWidth,
-			Math.min(maxTicketsManagerWidth, initialWidth)
-		);
-		
-		setTicketsManagerWidth(validWidth);
-		ticketsManagerWidthRef.current = validWidth;
-	}, [user]);
+  const getWidthBounds = useCallback(() => {
+    if (compactLaptop) {
+      return {
+        min: compactMinTicketsManagerWidth,
+        max: compactMaxTicketsManagerWidth,
+        preferred: Math.min(
+          user?.defaultTicketsManagerWidth || compactDefaultTicketsManagerWidth,
+          compactDefaultTicketsManagerWidth
+        ),
+      };
+    }
 
-	const handleMouseDown = (e) => {
-		document.addEventListener("mouseup", handleMouseUp, true);
-		document.addEventListener("mousemove", handleMouseMove, true);
-	};
+    return {
+      min: minTicketsManagerWidth,
+      max: maxTicketsManagerWidth,
+      preferred: user?.defaultTicketsManagerWidth || defaultTicketsManagerWidth,
+    };
+  }, [compactLaptop, user?.defaultTicketsManagerWidth]);
 
-	const handleSaveContact = async (value) => {
-		// Garantir largura mínima antes de salvar
-		const validValue = Math.max(minTicketsManagerWidth, value);
-		
-		try {
-			await api.put(`/users/toggleChangeWidht/${user.id}`, { 
-				defaultTicketsManagerWidth: validValue 
-			});
-		} catch (error) {
-			console.error("Erro ao salvar largura:", error);
-		}
-	};
+  useEffect(() => {
+    const { min, max, preferred } = getWidthBounds();
+    const validWidth = Math.max(min, Math.min(max, preferred));
 
-	const handleMouseMove = useCallback((e) => {
-		const newWidth = e.clientX - document.body.offsetLeft;
-		
-		if (newWidth >= minTicketsManagerWidth && newWidth <= maxTicketsManagerWidth) {
-			ticketsManagerWidthRef.current = newWidth;
-			setTicketsManagerWidth(newWidth);
-		}
-	}, []);
+    setTicketsManagerWidth(validWidth);
+    ticketsManagerWidthRef.current = validWidth;
+  }, [getWidthBounds]);
 
-	const handleMouseUp = async () => {
-		document.removeEventListener("mouseup", handleMouseUp, true);
-		document.removeEventListener("mousemove", handleMouseMove, true);
+  const handleMouseDown = () => {
+    document.addEventListener("mouseup", handleMouseUp, true);
+    document.addEventListener("mousemove", handleMouseMove, true);
+  };
 
-		const newWidth = ticketsManagerWidthRef.current;
+  const handleSaveContact = async (value) => {
+    const { min } = getWidthBounds();
+    const validValue = Math.max(min, value);
 
-		if (newWidth !== ticketsManagerWidth) {
-			await handleSaveContact(newWidth);
-		}
-	};
+    try {
+      await api.put(`/users/toggleChangeWidht/${user.id}`, {
+        defaultTicketsManagerWidth: validValue,
+      });
+    } catch (error) {
+      console.error("Erro ao salvar largura:", error);
+    }
+  };
 
-	// ⚠️ CORREÇÃO: Garantir que a largura nunca seja 0 ou inválida
-	const effectiveWidth = Math.max(minTicketsManagerWidth, ticketsManagerWidth);
+  const handleMouseMove = useCallback(
+    (e) => {
+      const { min, max } = getWidthBounds();
+      const newWidth = e.clientX - document.body.offsetLeft;
 
-	return (
-		<QueueSelectedProvider>
-			<div className={classes.chatContainer}>
-				<div className={classes.chatPapper}>
-					<div
-						className={classes.contactsWrapper}
-						style={{ 
-							width: `${effectiveWidth}px`,
-							// Adicionar fallbacks importantes
-							minWidth: `${minTicketsManagerWidth}px`,
-							maxWidth: `${maxTicketsManagerWidth}px`,
-							// Garantir visibilidade
-							opacity: effectiveWidth > 0 ? 1 : 0,
-							visibility: effectiveWidth > 0 ? 'visible' : 'hidden'
-						}}
-					>
-						<TicketsManagerTabs />
-						<div 
-							onMouseDown={handleMouseDown} 
-							className={classes.dragger} 
-						/>
-					</div>
-					<div className={classes.messagesWrapper}>
-						{ticketId ? (
-							<Ticket />
-						) : (
-							<Hidden only={["sm", "xs"]}>
-								<Paper square variant="outlined" className={classes.welcomeMsg}>
-									<span>
-										<center>
-											<img className={classes.logo} width="50%" alt="" />
-										</center>
-									</span>
-								</Paper>
-							</Hidden>
-						)}
-					</div>
-				</div>
-			</div>
-		</QueueSelectedProvider>
-	);
+      if (newWidth >= min && newWidth <= max) {
+        ticketsManagerWidthRef.current = newWidth;
+        setTicketsManagerWidth(newWidth);
+      }
+    },
+    [getWidthBounds]
+  );
+
+  const handleMouseUp = async () => {
+    document.removeEventListener("mouseup", handleMouseUp, true);
+    document.removeEventListener("mousemove", handleMouseMove, true);
+
+    const newWidth = ticketsManagerWidthRef.current;
+
+    if (newWidth !== ticketsManagerWidth) {
+      await handleSaveContact(newWidth);
+    }
+  };
+
+  const { min, max } = getWidthBounds();
+  const effectiveWidth = Math.max(min, Math.min(max, ticketsManagerWidth));
+
+  return (
+    <QueueSelectedProvider>
+      <div className={classes.chatContainer}>
+        <div className={classes.chatPapper}>
+          <div
+            className={classes.contactsWrapper}
+            style={{
+              width: `${effectiveWidth}px`,
+              minWidth: `${min}px`,
+              maxWidth: `${max}px`,
+              opacity: effectiveWidth > 0 ? 1 : 0,
+              visibility: effectiveWidth > 0 ? "visible" : "hidden",
+            }}
+          >
+            <TicketsManagerTabs />
+            <div onMouseDown={handleMouseDown} className={classes.dragger} />
+          </div>
+
+          <div className={classes.messagesWrapper}>
+            {ticketId ? (
+              <Ticket />
+            ) : (
+              <Hidden only={["sm", "xs"]}>
+                <Paper square variant="outlined" className={classes.welcomeMsg}>
+                  <span>
+                    <center>
+                      <img className={classes.logo} width={compactLaptop ? "42%" : "50%"} alt="" />
+                    </center>
+                  </span>
+                </Paper>
+              </Hidden>
+            )}
+          </div>
+        </div>
+      </div>
+    </QueueSelectedProvider>
+  );
 };
 
 export default TicketsCustom;

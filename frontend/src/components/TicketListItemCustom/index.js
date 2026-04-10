@@ -24,7 +24,6 @@ import toastError from "../../errors/toastError";
 import { v4 as uuidv4 } from "uuid";
 
 import GroupIcon from "@material-ui/icons/Group";
-import ContactTag from "../ContactTag";
 import ConnectionIcon from "../ConnectionIcon";
 import AcceptTicketWithouSelectQueue from "../AcceptTicketWithoutQueueModal";
 import TransferTicketModalCustom from "../TransferTicketModalCustom";
@@ -56,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
   ticket: {
     position: "relative",
     overflow: "hidden",
-    paddingLeft: theme.spacing(1.5)
+    paddingLeft: theme.spacing(3.5)
   },
 
   pendingTicket: {
@@ -195,8 +194,24 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     top: 0,
     left: 0,
-    width: 6,
-    borderRadius: "0 6px 6px 0",
+    width: 22,
+    borderRadius: "0 8px 8px 0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  ticketConnectionLabel: {
+    writingMode: "vertical-rl",
+    transform: "rotate(180deg)",
+    color: "#fff",
+    fontSize: "0.54rem",
+    fontWeight: 800,
+    letterSpacing: "0.04em",
+    textTransform: "uppercase",
+    lineHeight: 1,
+    maxHeight: "92%",
+    whiteSpace: "nowrap",
   },
 
   ticketInfo: {
@@ -257,6 +272,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const backendUrl = getBackendUrl();
+
+const truncateVerticalLabel = (value = "", max = 12) => {
+  if (!value) return "";
+  return value.length > max ? `${value.slice(0, max)}` : value;
+};
 
 const TicketListItemCustom = ({ setTabOpen, ticket }) => {
   const classes = useStyles();
@@ -553,6 +573,7 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
   const assigneeAvatar = ticket?.user?.profileImage
     ? `${backendUrl}/public/company${ticket.user.companyId}/user/${ticket.user.profileImage}`
     : "";
+  const connectionLabel = truncateVerticalLabel(ticket?.whatsapp?.name || ticket?.channel || "");
 
   // Função para renderizar a mensagem com base na permissão - MOVIDA PARA DEPOIS DE TODAS AS FUNÇÕES
   const renderLastMessage = () => {
@@ -649,8 +670,12 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
                 ? "#E1306C"
                 : "#25D366")
           }}
-        />
-        <ListItemAvatar style={{ marginLeft: "-15px" }}>
+        >
+          <span className={classes.ticketConnectionLabel}>
+            {connectionLabel}
+          </span>
+        </span>
+        <ListItemAvatar style={{ marginLeft: 8, marginRight: 6 }}>
           <Avatar
             style={{
               width: "50px",
@@ -709,23 +734,6 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
               >
                 {renderLastMessage()}
                 <span className={classes.secondaryContentSecond}>
-                  {ticket?.whatsapp ? (
-                    <Badge
-                      className={classes.connectionTag}
-                      style={{
-                        backgroundColor:
-                          ticket.channel === "whatsapp"
-                            ? ticket.whatsapp?.color || "#25D366"
-                            : ticket.channel === "facebook"
-                            ? "#4267B2"
-                            : "#E1306C",
-                      }}
-                    >
-                      {ticket.whatsapp?.name.toUpperCase()}
-                    </Badge>
-                  ) : (
-                    <br></br>
-                  )}
                   {
                     <Badge
                       style={{
@@ -751,26 +759,6 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
                       {ticket.user?.name.toUpperCase()}
                     </span>
                   )}
-                </span>
-                <span className={classes.secondaryContentSecond}>
-                  {ticket?.contact?.tags?.map((tag) => {
-                    return (
-                      <ContactTag
-                        tag={tag}
-                        key={`ticket-contact-tag-${ticket.id}-${tag.id}`}
-                      />
-                    );
-                  })}
-                </span>
-                <span className={classes.secondaryContentSecond}>
-                  {ticket.tags?.map((tag) => {
-                    return (
-                      <ContactTag
-                        tag={tag}
-                        key={`ticket-contact-tag-${ticket.id}-${tag.id}`}
-                      />
-                    );
-                  })}
                 </span>
               </Typography>
 

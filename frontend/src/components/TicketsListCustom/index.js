@@ -3,7 +3,6 @@ import React, { useState, useEffect, useReducer, useContext, useMemo } from "rea
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import Paper from "@material-ui/core/Paper";
-import Chip from "@material-ui/core/Chip";
 import Typography from "@material-ui/core/Typography";
 
 import TicketListItem from "../TicketListItemCustom";
@@ -79,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
         alignItems: "center",
         justifyContent: "space-between",
         gap: theme.spacing(1),
-        padding: theme.spacing(0, 1.5, 0.75),
+        padding: theme.spacing(1, 1.5),
         position: "sticky",
         top: 0,
         zIndex: 2,
@@ -90,19 +89,36 @@ const useStyles = makeStyles((theme) => ({
         alignItems: "center",
         gap: theme.spacing(1),
         minWidth: 0,
+        flex: 1,
     },
-    tagGroupChip: {
+    tagGroupBar: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: theme.spacing(1),
+        width: "100%",
+        minHeight: 38,
+        padding: theme.spacing(0.75, 1.25),
+        borderRadius: 12,
         fontWeight: 700,
         color: "#fff",
-        maxWidth: 220,
+        boxShadow: "0 10px 24px rgba(15, 23, 42, 0.12)",
+    },
+    tagGroupLabel: {
+        fontWeight: 800,
+        fontSize: "0.9rem",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
     },
     tagGroupCount: {
         fontSize: "0.75rem",
-        color: theme.palette.text.secondary,
-        fontWeight: 600,
+        color: "rgba(255,255,255,0.92)",
+        fontWeight: 700,
+        whiteSpace: "nowrap",
     },
     groupDivider: {
-        margin: theme.spacing(0, 1.5, 0.5),
+        margin: theme.spacing(0, 1.5, 0.75),
         borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
     }
 }));
@@ -542,18 +558,20 @@ const TicketsListCustom = (props) => {
                                 <div key={group.key} className={classes.tagGroupSection}>
                                     <div className={classes.tagGroupHeader}>
                                         <div className={classes.tagGroupTitle}>
-                                            <Chip
-                                                label={group.tag?.name || "Sem tag"}
-                                                size="small"
-                                                className={classes.tagGroupChip}
+                                            <div
+                                                className={classes.tagGroupBar}
                                                 style={{
                                                     backgroundColor: group.tag?.color || "#94A3B8"
                                                 }}
-                                            />
+                                            >
+                                                <Typography className={classes.tagGroupLabel}>
+                                                    {group.tag?.name || "Sem tag"}
+                                                </Typography>
+                                                <Typography className={classes.tagGroupCount}>
+                                                    {group.tickets.length} ticket{group.tickets.length > 1 ? "s" : ""}
+                                                </Typography>
+                                            </div>
                                         </div>
-                                        <Typography className={classes.tagGroupCount}>
-                                            {group.tickets.length} ticket{group.tickets.length > 1 ? "s" : ""}
-                                        </Typography>
                                     </div>
                                     <div className={classes.groupDivider} />
                                     {group.tickets.map((ticket) => (

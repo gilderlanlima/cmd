@@ -7,21 +7,28 @@ const useStyles = makeStyles(theme => ({
 	mainContainer: {
 		flex: 1,
 		padding: 0,
-		height: `calc(100% - 48px)`,
+		height: "100%",
 		width: "100%",
 		maxWidth: "none",
 		minWidth: 0,
+		minHeight: 0,
 	},
 
 	contentWrapper: {
 		height: "100%",
-		overflowY: "hidden",
+		overflowY: "auto",
 		display: "flex",
 		flexDirection: "column",
 		padding: theme.spacing(2.5),
 		gap: theme.spacing(2),
 		boxSizing: "border-box",
 		minWidth: 0,
+		minHeight: 0,
+		...theme.scrollbarStyles,
+		[theme.breakpoints.down("md")]: {
+			padding: theme.spacing(2),
+			gap: theme.spacing(1.5),
+		},
 		[theme.breakpoints.down("sm")]: {
 			padding: theme.spacing(1.5),
 			gap: theme.spacing(1.5),
