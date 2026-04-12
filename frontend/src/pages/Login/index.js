@@ -21,19 +21,14 @@ const packageVersion = require("../../../package.json").version;
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    height: "100vh",
-    minHeight: "100dvh",
+    minHeight: "100vh",
     width: "100%",
-    maxWidth: "100vw",
-    minWidth: 0,
     display: "flex",
     backgroundColor:
       theme.palette.type === "dark" ? "#08111f" : "#eef3fb",
     overflow: "hidden",
-    overflowX: "hidden",
-    "@media (max-width: 1100px)": {
+    "@media (max-width: 1365px)": {
       flexDirection: "column",
-      overflow: "auto",
     },
   },
   leftSide: {
@@ -46,15 +41,11 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     padding: "56px",
-    "@media (max-width: 1100px)": {
+    "@media (max-width: 1365px)": {
       display: "none",
     },
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      padding: "34px 30px",
-      alignItems: "stretch",
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      padding: "20px 18px",
+    "@media (max-height: 760px)": {
+      padding: "36px 42px",
     },
   },
   leftPanel: {
@@ -63,11 +54,12 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: 640,
     width: "100%",
     color: "#ffffff",
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      maxWidth: 540,
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      maxWidth: 430,
+    "@media (max-width: 1365px)": {
+      maxWidth: 760,
+      textAlign: "center",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
     },
   },
   leftBadge: {
@@ -95,15 +87,13 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("lg")]: {
       fontSize: 46,
     },
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      fontSize: 28,
-      maxWidth: 420,
-      marginBottom: 14,
+    "@media (max-width: 1365px)": {
+      fontSize: 38,
+      maxWidth: 680,
     },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      fontSize: 22,
-      maxWidth: 330,
-      marginBottom: 8,
+    "@media (max-height: 760px)": {
+      fontSize: 42,
+      marginBottom: 14,
     },
   },
   leftDescription: {
@@ -112,17 +102,13 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 18,
     lineHeight: 1.65,
     marginBottom: 28,
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      maxWidth: 430,
-      fontSize: 14,
-      lineHeight: 1.45,
-      marginBottom: 16,
+    "@media (max-width: 1365px)": {
+      maxWidth: 680,
     },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      maxWidth: 330,
-      fontSize: 11,
-      lineHeight: 1.25,
-      marginBottom: 10,
+    "@media (max-height: 760px)": {
+      fontSize: 16,
+      lineHeight: 1.5,
+      marginBottom: 18,
     },
   },
   leftHighlights: {
@@ -132,13 +118,12 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("lg")]: {
       gridTemplateColumns: "1fr",
     },
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      gap: 10,
-      maxWidth: 430,
+    "@media (max-width: 1365px)": {
+      width: "100%",
+      maxWidth: 520,
     },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      gap: 8,
-      maxWidth: 330,
+    "@media (max-height: 760px)": {
+      gap: 12,
     },
   },
   highlightCard: {
@@ -149,14 +134,9 @@ const useStyles = makeStyles((theme) => ({
     border: "1px solid rgba(255, 255, 255, 0.14)",
     boxShadow: "0 18px 40px rgba(0, 0, 0, 0.16)",
     backdropFilter: "blur(16px)",
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      minHeight: 0,
-      padding: "12px 12px 14px",
-      borderRadius: 16,
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      padding: "9px 9px 11px",
-      borderRadius: 13,
+    "@media (max-height: 760px)": {
+      minHeight: 106,
+      padding: "14px 16px 16px",
     },
   },
   highlightLabel: {
@@ -173,35 +153,15 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 700,
     lineHeight: 1.25,
     marginBottom: 8,
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      fontSize: 15,
-      lineHeight: 1.2,
-      marginBottom: 6,
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      fontSize: 12,
-      lineHeight: 1.12,
-      marginBottom: 3,
-    },
   },
   highlightText: {
     color: "rgba(255, 255, 255, 0.8)",
     fontSize: 14,
     lineHeight: 1.55,
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      fontSize: 12,
-      lineHeight: 1.35,
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      fontSize: 10,
-      lineHeight: 1.2,
-    },
   },
   rightSide: {
     width: 506,
     minWidth: 506,
-    maxWidth: "100%",
-    minHeight: 0,
     background:
       theme.palette.type === "dark"
         ? "linear-gradient(180deg, #091425 0%, #0d1d33 52%, #12253f 100%)"
@@ -216,32 +176,19 @@ const useStyles = makeStyles((theme) => ({
       minWidth: "100%",
       padding: "20px 18px 16px",
     },
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      width: 336,
-      minWidth: 336,
-      padding: "14px 14px 10px",
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      width: 286,
-      minWidth: 286,
-      padding: "10px 10px 8px",
-    },
-    "@media (max-width: 1100px)": {
+    "@media (max-width: 1365px)": {
       width: "100%",
       minWidth: "100%",
-      height: "100vh",
-      minHeight: "100dvh",
-      alignItems: "flex-start",
-      justifyContent: "flex-start",
-      padding: "12px 18px 10px",
-      overflowX: "hidden",
+      minHeight: "100vh",
+      padding: "22px 18px 16px",
+    },
+    "@media (max-height: 760px)": {
+      padding: "14px 26px 12px",
     },
   },
   card: {
     width: "min(100%, 430px)",
     maxWidth: 430,
-    minWidth: 0,
-    overflow: "hidden",
     minHeight: "auto",
     display: "flex",
     flexDirection: "column",
@@ -249,23 +196,9 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     textAlign: "center",
     gap: 12,
-    margin: "auto",
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      width: "100%",
-      maxWidth: 308,
-      gap: 8,
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      maxWidth: 260,
-      gap: 4,
-    },
-    "@media (max-width: 1100px)": {
-      width: "min(100%, 420px)",
-      maxWidth: 420,
-      minHeight: "100%",
-      justifyContent: "flex-start",
-      gap: 8,
-      margin: 0,
+    "@media (max-width: 1365px)": {
+      width: "min(100%, 430px)",
+      maxWidth: 430,
     },
   },
   topBar: {
@@ -273,9 +206,6 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "flex-end",
     marginBottom: 2,
-    "@media (max-width: 1100px)": {
-      marginBottom: 0,
-    },
   },
   modeButton: {
     width: 42,
@@ -307,14 +237,8 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "100%",
     height: "auto",
     marginBottom: 2,
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      width: 168,
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      width: 132,
-    },
-    "@media (max-width: 1100px)": {
-      width: 214,
+    "@media (max-height: 760px)": {
+      width: 260,
     },
   },
   subHeading: {
@@ -324,21 +248,13 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 18,
     lineHeight: 1.25,
     letterSpacing: "0.01em",
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      fontSize: 13,
-      lineHeight: 1.2,
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      fontSize: 11,
-    },
-    "@media (max-width: 1100px)": {
-      fontSize: 14,
+    "@media (max-height: 760px)": {
+      fontSize: 17,
     },
   },
   formBox: {
     width: "100%",
     maxWidth: 430,
-    minWidth: 0,
     backgroundColor:
       theme.palette.type === "dark" ? "#0f1d32" : "#ffffff",
     borderRadius: 22,
@@ -355,37 +271,17 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     margin: "0 auto",
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      maxWidth: 286,
-      padding: "14px 14px",
-      minHeight: 202,
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      maxWidth: 244,
-      minHeight: 164,
-      padding: "10px 10px",
-      borderRadius: 16,
-    },
-    "@media (max-width: 1100px)": {
-      minHeight: 212,
-      padding: "14px 16px",
+    "@media (max-height: 760px)": {
+      minHeight: 292,
+      padding: "22px 20px",
     },
   },
   form: {
     width: "100%",
     maxWidth: 340,
-    minWidth: 0,
     display: "flex",
     flexDirection: "column",
     gap: 20,
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      maxWidth: 250,
-      gap: 10,
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      maxWidth: 214,
-      gap: 7,
-    },
   },
   textField: {
     "& .MuiOutlinedInput-root": {
@@ -417,30 +313,6 @@ const useStyles = makeStyles((theme) => ({
       padding: "15px 14px",
       fontSize: 15,
     },
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      "& .MuiOutlinedInput-root": {
-        minHeight: 40,
-      },
-      "& .MuiOutlinedInput-input": {
-        padding: "8px 12px",
-        fontSize: 12,
-      },
-      "& .MuiInputLabel-root": {
-        fontSize: 12,
-      },
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      "& .MuiOutlinedInput-root": {
-        minHeight: 34,
-      },
-      "& .MuiOutlinedInput-input": {
-        padding: "6px 10px",
-        fontSize: 10,
-      },
-      "& .MuiInputLabel-root": {
-        fontSize: 10,
-      },
-    },
   },
   submitWrap: {
     width: "100%",
@@ -456,17 +328,6 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 700,
     textTransform: "none",
     fontSize: 15,
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      minWidth: 82,
-      padding: "5px 12px",
-      fontSize: 12,
-      borderRadius: 10,
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      minWidth: 68,
-      padding: "4px 10px",
-      fontSize: 10,
-    },
     "&:hover": {
       background: "linear-gradient(90deg, #1548ac 0%, #0e8fca 100%)",
     },
@@ -479,13 +340,6 @@ const useStyles = makeStyles((theme) => ({
     letterSpacing: "0.14em",
     textTransform: "uppercase",
     marginTop: 4,
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      fontSize: 9,
-      marginTop: 0,
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      fontSize: 7,
-    },
   },
   versionValue: {
     display: "block",
@@ -494,13 +348,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 18,
     fontWeight: 700,
     letterSpacing: "0.04em",
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      fontSize: 13,
-      marginTop: 2,
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      fontSize: 11,
-    },
   },
   footer: {
     marginTop: "auto",
@@ -509,15 +356,6 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.type === "dark" ? "#95a9cb" : "#5b6f92",
     fontSize: 13,
     lineHeight: 1.65,
-    "@media (max-width: 1440px), (max-height: 820px)": {
-      marginTop: 2,
-      paddingTop: 2,
-      fontSize: 10,
-      lineHeight: 1.2,
-    },
-    "@media (max-width: 1366px), (max-height: 700px)": {
-      fontSize: 8,
-    },
   },
 }));
 
