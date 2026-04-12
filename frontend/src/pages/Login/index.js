@@ -24,10 +24,13 @@ const useStyles = makeStyles((theme) => ({
     height: "100vh",
     minHeight: "100dvh",
     width: "100%",
+    maxWidth: "100vw",
+    minWidth: 0,
     display: "flex",
     backgroundColor:
       theme.palette.type === "dark" ? "#08111f" : "#eef3fb",
     overflow: "hidden",
+    overflowX: "hidden",
     "@media (max-width: 1100px)": {
       flexDirection: "column",
       overflow: "auto",
@@ -197,6 +200,8 @@ const useStyles = makeStyles((theme) => ({
   rightSide: {
     width: 506,
     minWidth: 506,
+    maxWidth: "100%",
+    minHeight: 0,
     background:
       theme.palette.type === "dark"
         ? "linear-gradient(180deg, #091425 0%, #0d1d33 52%, #12253f 100%)"
@@ -229,11 +234,14 @@ const useStyles = makeStyles((theme) => ({
       alignItems: "flex-start",
       justifyContent: "flex-start",
       padding: "12px 18px 10px",
+      overflowX: "hidden",
     },
   },
   card: {
     width: "min(100%, 430px)",
     maxWidth: 430,
+    minWidth: 0,
+    overflow: "hidden",
     minHeight: "auto",
     display: "flex",
     flexDirection: "column",
@@ -330,6 +338,7 @@ const useStyles = makeStyles((theme) => ({
   formBox: {
     width: "100%",
     maxWidth: 430,
+    minWidth: 0,
     backgroundColor:
       theme.palette.type === "dark" ? "#0f1d32" : "#ffffff",
     borderRadius: 22,
@@ -365,6 +374,7 @@ const useStyles = makeStyles((theme) => ({
   form: {
     width: "100%",
     maxWidth: 340,
+    minWidth: 0,
     display: "flex",
     flexDirection: "column",
     gap: 20,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { makeStyles, Paper, Typography, Modal, IconButton } from "@material-ui/core";
+import { makeStyles, Paper, Typography, Modal, Button } from "@material-ui/core";
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
@@ -95,6 +95,10 @@ const Helps = () => {
     setSelectedVideo(null);
   };
 
+  const openHelpCenter = () => {
+    window.open("/help-center/index.html", "_blank", "noopener,noreferrer");
+  };
+
   const handleModalClose = useCallback((event) => {
     if (event.key === "Escape") {
       closeVideoModal();
@@ -159,7 +163,11 @@ const Helps = () => {
     <MainContainer>
       <MainHeader>
         <Title>{i18n.t("helps.title")} ({records.length})</Title>
-        <MainHeaderButtonsWrapper></MainHeaderButtonsWrapper>
+        <MainHeaderButtonsWrapper>
+          <Button variant="contained" color="primary" onClick={openHelpCenter}>
+            Central de ajuda
+          </Button>
+        </MainHeaderButtonsWrapper>
       </MainHeader>
       <div className={classes.mainPaper}>
         {renderHelps()}

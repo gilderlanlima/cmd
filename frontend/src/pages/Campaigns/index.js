@@ -39,7 +39,7 @@ import TableRowSkeleton from "../../components/TableRowSkeleton";
 import CampaignModal from "../../components/CampaignModal";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import toastError from "../../errors/toastError";
-import { Grid, FormControl, InputLabel, Select, MenuItem, TablePagination, Pagination, Box } from "@material-ui/core";
+import { Grid, FormControl, InputLabel, Select, MenuItem, TablePagination, Pagination, Box, Typography } from "@material-ui/core";
 import { isArray } from "lodash";
 import { useDate } from "../../hooks/useDate";
 import ForbiddenPage from "../../components/ForbiddenPage";
@@ -120,9 +120,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Campaigns = () => {
+const Campaigns = ({ variant = "campaigns" }) => {
   const classes = useStyles();
   const history = useHistory();
+  const isBroadcastMode = variant === "broadcast";
+  const pageTitle = isBroadcastMode ? "Disparos em Massa" : i18n.t("campaigns.title");
+  const addButtonLabel = isBroadcastMode ? "Novo disparo" : i18n.t("campaigns.buttons.add");
+  const searchPlaceholder = isBroadcastMode ? "Buscar disparos..." : i18n.t("campaigns.searchPlaceholder");
 
   const [loading, setLoading] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
@@ -388,6 +392,7 @@ const Campaigns = () => {
           onClose={handleCloseCampaignModal}
           aria-labelledby="form-dialog-title"
           campaignId={selectedCampaign && selectedCampaign.id}
+          variant={variant}
         />
       )}
       {
@@ -398,14 +403,14 @@ const Campaigns = () => {
             <MainHeader>
               <Grid style={{ width: "99.6%" }} container>
                 <Grid xs={12} sm={8} item>
-                  <Title>{i18n.t("campaigns.title")}</Title>
+                  <Title>{pageTitle}</Title>
                 </Grid>
                 <Grid xs={12} sm={4} item>
                   <Grid spacing={2} container>
                     <Grid xs={6} sm={6} item>
                       <TextField
                         fullWidth
-                        placeholder={i18n.t("campaigns.searchPlaceholder")}
+                        placeholder={searchPlaceholder}
                         type="search"
                         value={searchParam}
                         onChange={handleSearch}
@@ -425,13 +430,24 @@ const Campaigns = () => {
                         onClick={handleOpenCampaignModal}
                         color="primary"
                       >
-                        {i18n.t("campaigns.buttons.add")}
+                        {addButtonLabel}
                       </Button>
                     </Grid>
                   </Grid>
                 </Grid>
               </Grid>
             </MainHeader>
+
+            {isBroadcastMode && (
+              <Paper style={{ padding: 16, marginBottom: 16, borderRadius: 16 }} variant="outlined">
+                <Typography variant="subtitle1" style={{ fontWeight: 700, marginBottom: 4 }}>
+                  Central de disparos da operação
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Organize transmissões com nome, agendamento, filtros por contatos ou tags e acompanhe o status das execuções em um único lugar.
+                </Typography>
+              </Paper>
+            )}
 
             {/* Filtros */}
             <Paper className={classes.filterContainer} style={{ padding: 16, marginBottom: 16 }}>

@@ -63,6 +63,9 @@ const useStyles = makeStyles((theme) => ({
     height: "100vh",
     height: "100dvh",
     minHeight: 0,
+    width: "100%",
+    maxWidth: "100vw",
+    overflowX: "hidden",
     [theme.breakpoints.down("sm")]: {
       height: "calc(100vh - 56px)",
       height: "calc(100dvh - 56px)",
@@ -128,6 +131,8 @@ const useStyles = makeStyles((theme) => ({
 
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
+    maxWidth: "100vw",
+    overflowX: "hidden",
     transition: theme.transitions.create(["width", "margin"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -135,18 +140,22 @@ const useStyles = makeStyles((theme) => ({
   },
 
   appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: 0,
+    left: drawerWidth,
+    right: 0,
+    width: "auto",
     transition: theme.transitions.create(["width", "margin"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
     [theme.breakpoints.down("sm")]: {
-      display: "none",
+      left: 0,
+      width: "100%",
     },
     "@media (max-width: 1366px)": {
-      marginLeft: compactDrawerWidth,
-      width: `calc(100% - ${compactDrawerWidth}px)`,
+      left: compactDrawerWidth,
+      right: 0,
+      width: "auto",
     },
   },
 
@@ -211,8 +220,12 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flex: 1,
     overflow: "auto",
+    overflowX: "hidden",
     padding: 0,
     margin: 0,
+    width: "100%",
+    maxWidth: "100%",
+    boxSizing: "border-box",
     minWidth: 0,
     minHeight: 0,
   },
@@ -229,6 +242,8 @@ const useStyles = makeStyles((theme) => ({
     minHeight: 0,
     overflowY: "auto",
     overflowX: "hidden",
+    width: "100%",
+    maxWidth: "100%",
     ...theme.scrollbarStyles,
     borderRadius: 0,
     border: "none",

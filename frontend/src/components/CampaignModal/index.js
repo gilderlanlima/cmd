@@ -144,8 +144,10 @@ const CampaignModal = ({
   initialValues,
   onSave,
   resetPagination,
+  variant = "campaigns",
 }) => {
   const classes = useStyles();
+  const isBroadcastMode = variant === "broadcast";
   const isMounted = useRef(true);
   const { user, socket } = useContext(AuthContext);
   const { companyId } = user;
@@ -572,11 +574,15 @@ const handleSaveCampaign = async (values) => {
           {campaignEditable ? (
             <>
               {campaignId
-                ? `${i18n.t("campaigns.dialog.update")}`
-                : `${i18n.t("campaigns.dialog.new")}`}
+                ? isBroadcastMode
+                  ? "Editar disparo em massa"
+                  : `${i18n.t("campaigns.dialog.update")}`
+                : isBroadcastMode
+                  ? "Novo disparo em massa"
+                  : `${i18n.t("campaigns.dialog.new")}`}
             </>
           ) : (
-            <>{`${i18n.t("campaigns.dialog.readonly")}`}</>
+            <>{isBroadcastMode ? "Visualizar disparo em massa" : `${i18n.t("campaigns.dialog.readonly")}`}</>
           )}
         </DialogTitle>
         <div style={{ display: "none" }}>

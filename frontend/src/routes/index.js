@@ -12,6 +12,7 @@ import Connections from "../pages/Connections/";
 import Settings from "../pages/Settings/";
 import Financeiro from "../pages/Financeiro/";
 import Users from "../pages/Users";
+import OnCallSettings from "../pages/OnCallSettings";
 import Contacts from "../pages/Contacts/";
 import ContactImportPage from "../pages/Contacts/import";
 import ChatMoments from "../pages/Moments";
@@ -30,6 +31,7 @@ import { WhatsAppsProvider } from "../context/WhatsApp/WhatsAppsContext";
 import Route from "./Route";
 import Schedules from "../pages/Schedules";
 import Campaigns from "../pages/Campaigns";
+import Broadcasts from "../pages/Broadcasts";
 import CampaignsConfig from "../pages/CampaignsConfig";
 import CampaignReport from "../pages/CampaignReport";
 import Annoucements from "../pages/Annoucements";
@@ -154,6 +156,12 @@ const RoutesContent = () => {
                 <Route exact path="/users" component={Users} isPrivate />
                 <Route
                   exact
+                  path="/on-call-settings"
+                  component={OnCallSettings}
+                  isPrivate
+                />
+                <Route
+                  exact
                   path="/messages-api"
                   component={MessagesAPI}
                   isPrivate
@@ -257,6 +265,12 @@ const RoutesContent = () => {
                       exact
                       path="/campaigns"
                       component={Campaigns}
+                      isPrivate
+                    />
+                    <Route
+                      exact
+                      path="/broadcasts"
+                      component={Broadcasts}
                       isPrivate
                     />
                     <Route

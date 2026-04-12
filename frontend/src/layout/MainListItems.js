@@ -39,6 +39,7 @@ import AnnouncementIcon from "@material-ui/icons/Announcement";
 import ForumIcon from "@material-ui/icons/Forum";
 import LocalAtmIcon from "@material-ui/icons/LocalAtm";
 import BusinessIcon from "@material-ui/icons/Business";
+import AlarmOnIcon from "@material-ui/icons/AlarmOn";
 import {
   AllInclusive,
   AttachFile,
@@ -763,6 +764,15 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         tooltip={collapsed}
       />
 
+      {user?.showCampaign === "enabled" && showCampaigns && (
+        <ListItemLink
+          to="/broadcasts"
+          primary={"Nova transmissão"}
+          icon={<Campaign />}
+          tooltip={collapsed}
+        />
+      )}
+
       {showInternalChat && (
         <>
           <ListItemLink
@@ -984,6 +994,19 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                   to="/users"
                   primary={i18n.t("mainDrawer.listItems.users")}
                   icon={<PeopleAltOutlinedIcon />}
+                  tooltip={collapsed}
+                />
+              )}
+            />
+
+            <Can
+              role={user.profile}
+              perform="dashboard:view"
+              yes={() => (
+                <ListItemLink
+                  to="/on-call-settings"
+                  primary="Plantão"
+                  icon={<AlarmOnIcon />}
                   tooltip={collapsed}
                 />
               )}

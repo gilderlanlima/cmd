@@ -63,6 +63,7 @@ import CallHistory from "../models/CallHistory";
 import CompanyKanbanConfig from "../models/CompanyKanbanConfig";
 import Floup from "../models/Floup";
 import FloupSchedule from "../models/FloupSchedule";
+import OnCallSetting from "../models/OnCallSetting";
 
 // eslint-disable-next-line
 const dbConfig = require("../config/database");
@@ -131,7 +132,8 @@ const models = [
   BirthdaySettings,
   WhatsappLidMap,
   CallHistory,
-  CompanyKanbanConfig
+  CompanyKanbanConfig,
+  OnCallSetting
   , Floup
   , FloupSchedule
 ];

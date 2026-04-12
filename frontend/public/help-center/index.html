@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Central de Ajuda | CRM Ideia no Bolso</title>
+    <style>
+      :root {
+        --blue-900: #123a89;
+        --blue-700: #2563eb;
+        --blue-500: #38bdf8;
+        --slate-900: #0f172a;
+        --slate-700: #334155;
+        --slate-500: #64748b;
+        --slate-100: #f1f5f9;
+        --white: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(180deg, #eef5ff 0%, #ffffff 100%);
+        color: var(--slate-900);
+      }
+
+      .hero {
+        background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-700) 55%, var(--blue-500) 100%);
+        color: var(--white);
+        padding: 48px 24px 120px;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 800;
+        font-size: 28px;
+      }
+
+      .brand small {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        opacity: 0.85;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 5vw, 3.4rem);
+        line-height: 1.05;
+        margin: 32px 0 16px;
+        max-width: 760px;
+      }
+
+      .hero p {
+        max-width: 760px;
+        font-size: 1.08rem;
+        line-height: 1.8;
+        opacity: 0.92;
+      }
+
+      .search {
+        margin-top: 28px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        padding: 18px 22px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        backdrop-filter: blur(10px);
+      }
+
+      .search input {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: var(--white);
+        font-size: 1rem;
+      }
+
+      .search input::placeholder {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .content {
+        margin-top: -84px;
+        padding-bottom: 48px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 24px;
+      }
+
+      .card {
+        background: var(--white);
+        border-radius: 26px;
+        padding: 24px;
+        box-shadow: 0 24px 50px rgba(15, 23, 42, 0.08);
+        border: 1px solid rgba(37, 99, 235, 0.08);
+      }
+
+      .icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        background: rgba(37, 99, 235, 0.12);
+        color: var(--blue-700);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 18px;
+      }
+
+      .card h2 {
+        margin: 0 0 10px;
+        font-size: 1.25rem;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--slate-500);
+        line-height: 1.7;
+      }
+
+      .footer {
+        margin-top: 32px;
+        text-align: center;
+        color: var(--slate-500);
+      }
+
+      @media (max-width: 768px) {
+        .hero {
+          padding: 32px 18px 108px;
+        }
+
+        .shell {
+          width: min(100% - 24px, 1180px);
+        }
+
+        .search {
+          padding: 14px 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <section class="hero">
+      <div class="shell">
+        <div class="brand">
+          <span>CRM Ideia no Bolso</span>
+          <small>Central de Ajuda</small>
+        </div>
+        <h1>Documentação, onboarding e suporte operacional em um só lugar.</h1>
+        <p>
+          Esta central foi desenhada para orientar clientes, equipe interna e desenvolvedores com uma navegação clara, linguagem objetiva e visual profissional.
+        </p>
+        <div class="search">
+          <span>🔎</span>
+          <input type="text" placeholder="Buscar artigos, integrações ou fluxos..." />
+        </div>
+      </div>
+    </section>
+
+    <main class="shell content">
+      <div class="grid">
+        <article class="card">
+          <div class="icon">⚙️</div>
+          <h2>Configuração inicial</h2>
+          <p>Conexões, filas, usuários, tags e parâmetros essenciais para deixar o CRM pronto para operar.</p>
+        </article>
+        <article class="card">
+          <div class="icon">💬</div>
+          <h2>Tickets e atendimento</h2>
+          <p>Entenda o fluxo de entrada, distribuição, aceites, transferências e encerramentos dentro do painel.</p>
+        </article>
+        <article class="card">
+          <div class="icon">🔗</div>
+          <h2>Integrações e canais</h2>
+          <p>Guia para WhatsApp, Instagram, Facebook, Web Chat e futuros canais conectados ao CRM.</p>
+        </article>
+        <article class="card">
+          <div class="icon">📚</div>
+          <h2>Manual de uso</h2>
+          <p>Orientações práticas para a equipe comercial, atendimento e operação diária do sistema.</p>
+        </article>
+        <article class="card">
+          <div class="icon">🧪</div>
+          <h2>API e automações</h2>
+          <p>Material técnico para DEV com exemplos, payloads, autenticação e pontos de integração.</p>
+        </article>
+        <article class="card">
+          <div class="icon">🆘</div>
+          <h2>Dúvidas frequentes</h2>
+          <p>Respostas rápidas para dúvidas comuns sobre login, canais, conexões, contatos e configurações.</p>
+        </article>
+      </div>
+
+      <p class="footer">
+        CRM Ideia no Bolso • Base externa de ajuda em evolução contínua
+      </p>
+    </main>
+  </body>
+</html>

@@ -23,6 +23,7 @@ import {
   Box,
   Card,
   CardContent,
+  Chip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -67,6 +68,8 @@ import usePlans from "../../hooks/usePlans";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import ForbiddenPage from "../../components/ForbiddenPage";
 import { Can } from "../../components/Can";
+import ConnectionIcon from "../../components/ConnectionIcon";
+import { getChannelMeta } from "../../utils/channelCatalog";
 
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
@@ -142,21 +145,6 @@ const CustomToolTip = ({ title, content, children }) => {
       {children}
     </Tooltip>
   );
-};
-
-const IconChannel = (channel) => {
-  switch (channel) {
-    case "facebook":
-      return <Facebook style={{ color: "#3b5998" }} />;
-    case "instagram":
-      return <Instagram style={{ color: "#e1306c" }} />;
-    case "whatsapp":
-      return <WhatsApp style={{ color: "#25d366" }} />;
-    case "whatsapp_oficial":
-      return <WhatsApp style={{ color: "#25d366" }} />;
-    default:
-      return "error";
-  }
 };
 
 const Connections = () => {
@@ -521,6 +509,24 @@ const Connections = () => {
             {i18n.t("connections.buttons.connecting")}
           </Button>
         )}
+        {["telegram", "tiktok", "webchat"].includes(whatsApp.channel) && (
+          <Button
+            size="small"
+            variant="outlined"
+            color="primary"
+            onClick={() => handleEditWhatsApp(whatsApp)}
+          >
+            Configurar canal
+          </Button>
+        )}
+        {(whatsApp.channel === "facebook" || whatsApp.channel === "instagram") &&
+          whatsApp.status === "CONNECTED" && (
+            <Chip
+              size="small"
+              label="Canal ativo"
+              style={{ backgroundColor: "#E2F7E8", color: "#166534", fontWeight: 700 }}
+            />
+          )}
       </>
     );
   };
@@ -918,6 +924,45 @@ const Connections = () => {
                                 </MenuItem>
                               )}
                             />
+                            <MenuItem
+                              onClick={() => {
+                                handleOpenWhatsAppModal("telegram");
+                                popupState.close();
+                              }}
+                            >
+                              <ConnectionIcon
+                                connectionType="telegram"
+                                size={16}
+                                style={{ marginRight: 10, marginBottom: 0 }}
+                              />
+                              Telegram
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() => {
+                                handleOpenWhatsAppModal("tiktok");
+                                popupState.close();
+                              }}
+                            >
+                              <ConnectionIcon
+                                connectionType="tiktok"
+                                size={16}
+                                style={{ marginRight: 10, marginBottom: 0 }}
+                              />
+                              TikTok
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() => {
+                                handleOpenWhatsAppModal("webchat");
+                                popupState.close();
+                              }}
+                            >
+                              <ConnectionIcon
+                                connectionType="webchat"
+                                size={16}
+                                style={{ marginRight: 10, marginBottom: 0 }}
+                              />
+                              Web Chat
+                            </MenuItem>
                           </Menu>
                         </>
                       )}
@@ -996,7 +1041,11 @@ const Connections = () => {
                     {whatsApps?.length > 0 &&
                       whatsApps.map((whatsApp) => (
                         <TableRow key={whatsApp.id}>
-                          <TableCell align="center">{IconChannel(whatsApp.channel)}</TableCell>
+                          <TableCell align="center">
+                            <Tooltip title={getChannelMeta(whatsApp.channel).label}>
+                              <span>{getChannelMeta(whatsApp.channel).render({ size: 18, fontSize: "small" })}</span>
+                            </Tooltip>
+                          </TableCell>
                           <TableCell align="center">
                             <div className={classes.customTableCell}>
                               <span

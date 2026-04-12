@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ptBR } from "@material-ui/core/locale";
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
-import { useMediaQuery } from "@material-ui/core";
+import { CssBaseline, useMediaQuery } from "@material-ui/core";
 import ColorModeContext from "./layout/themeContext";
 import { ActiveMenuProvider } from "./context/ActiveMenuContext";
 import Favicon from "react-favicon";
@@ -178,6 +178,35 @@ const App = () => {
             borderRadius: 8, // Bordas arredondadas mas não excessivas
           },
           overrides: {
+            MuiCssBaseline: {
+              "@global": {
+                "html, body, #root": {
+                  margin: 0,
+                  padding: 0,
+                  width: "100%",
+                  maxWidth: "100%",
+                  overflowX: "hidden",
+                  boxSizing: "border-box",
+                },
+                "*, *::before, *::after": {
+                  boxSizing: "inherit",
+                },
+                body: {
+                  overflowX: "hidden",
+                  position: "relative",
+                },
+                ".logged-in-layout": {
+                  width: "100%",
+                  maxWidth: "100%",
+                  overflowX: "hidden",
+                },
+                ".logged-in-layout main": {
+                  width: "100%",
+                  maxWidth: "100%",
+                  overflowX: "hidden",
+                },
+              },
+            },
             // Botões usando cor do tema
             MuiButton: {
               root: {
@@ -447,6 +476,7 @@ const App = () => {
       />
       <ColorModeContext.Provider value={{ colorMode }}>
         <ThemeProvider theme={theme}>
+          <CssBaseline />
           <QueryClientProvider client={queryClient}>
             <ActiveMenuProvider>
               <Routes />

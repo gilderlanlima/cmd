@@ -6,6 +6,8 @@ import Tag from "../../models/Tag";
 import Ticket from "../../models/Ticket";
 import User from "../../models/User";
 import Whatsapp from "../../models/Whatsapp";
+import NotifyOnCallSettingsService from "../OnCallServices/NotifyOnCallSettingsService";
+import logger from "../../utils/logger";
 
 export interface MessageData {
   wid: string;
@@ -148,6 +150,16 @@ const CreateMessageService = async ({
         ticket: message.ticket,
         contact: message.ticket.contact
       });
+  }
+
+  if (!correctedMessageData.fromMe && !messageData?.ticketImported) {
+    NotifyOnCallSettingsService({
+      messageBody: correctedMessageData.body,
+      companyId,
+      ticket: message.ticket as any
+    }).catch(error => {
+      logger.error(`[OnCall] Erro ao processar notificação de plantão: ${error}`);
+    });
   }
 
   return message;
