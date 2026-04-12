@@ -6,6 +6,10 @@ Este arquivo registra as versoes publicadas do projeto e os commits relacionados
 
 - `24c63aa` - `feat: reorganiza tickets por tags e expande gestao operacional`
 
+## 3.1.1
+
+- `c8bcd7e` - `feat: entrega pacote 3.1.1 com plantao e melhorias operacionais`
+
 ## 2.1.6
 
 - `4220fb9` - `chore: prepara release 2.1.6`
