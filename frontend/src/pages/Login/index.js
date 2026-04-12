@@ -1,6 +1,7 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Helmet } from "react-helmet";
 import { makeStyles } from "@material-ui/core/styles";
+import Container from "@material-ui/core/Container";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
@@ -13,11 +14,8 @@ import WbSunnyIcon from "@material-ui/icons/WbSunny";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import ColorModeContext from "../../layout/themeContext";
-import api from "../../services/api";
 import logo from "../../assets/logo.png";
 import crmBackground from "../../assets/login-crm-bg.jpg";
-
-const packageVersion = require("../../../package.json").version;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -332,23 +330,6 @@ const useStyles = makeStyles((theme) => ({
       background: "linear-gradient(90deg, #1548ac 0%, #0e8fca 100%)",
     },
   },
-  versionText: {
-    textAlign: "center",
-    color: theme.palette.type === "dark" ? "#93a8cc" : "#7081a3",
-    fontWeight: 600,
-    fontSize: 11,
-    letterSpacing: "0.14em",
-    textTransform: "uppercase",
-    marginTop: 4,
-  },
-  versionValue: {
-    display: "block",
-    marginTop: 4,
-    color: theme.palette.type === "dark" ? "#dce8ff" : "#2a5eba",
-    fontSize: 18,
-    fontWeight: 700,
-    letterSpacing: "0.04em",
-  },
   footer: {
     marginTop: "auto",
     paddingTop: 6,
@@ -365,64 +346,15 @@ const Login = () => {
   const colorModeContext = useContext(ColorModeContext);
   const colorMode = colorModeContext?.colorMode;
   const appName = colorMode?.appName || "CRM Ideia no Bolso";
-  const appLogoFavicon =
-    colorMode?.appLogoFavicon || "/favicon.ico";
+  const appLogoFavicon = colorMode?.appLogoFavicon || "/favicon.ico";
   const isDarkMode = colorMode?.mode === "dark";
-  const themeLoginLogo = useMemo(() => {
-    const fromThemeCalculated = isDarkMode
-      ? colorMode?.calculatedLogoDark?.()
-      : colorMode?.calculatedLogoLight?.();
-    const fromThemeDirect = isDarkMode
-      ? colorMode?.appLogoDark || colorMode?.appLogoLight
-      : colorMode?.appLogoLight || colorMode?.appLogoDark;
-    return fromThemeCalculated || fromThemeDirect || logo;
-  }, [colorMode, isDarkMode]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState({ email: "", password: "" });
-  const [logoSrc, setLogoSrc] = useState(themeLoginLogo);
-  const [systemVersion, setSystemVersion] = useState(packageVersion);
+  const [logoSrc, setLogoSrc] = useState(
+    (isDarkMode ? colorMode?.appLogoDark : colorMode?.appLogoLight) || logo
+  );
   const currentYear = new Date().getFullYear();
-
-  useEffect(() => {
-    setLogoSrc(themeLoginLogo || logo);
-  }, [themeLoginLogo]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadVersion = async () => {
-      try {
-        const storedVersion = window.localStorage.getItem("frontendVersion");
-        if (storedVersion === packageVersion && isMounted) {
-          setSystemVersion(storedVersion);
-        }
-
-        const response = await api.get("/version");
-        const version = response?.data?.version;
-
-        if (version === packageVersion && isMounted) {
-          setSystemVersion(version);
-          return;
-        }
-      } catch (error) {
-        const storedVersion = window.localStorage.getItem("frontendVersion");
-        if (storedVersion === packageVersion && isMounted) {
-          setSystemVersion(storedVersion);
-        }
-      }
-
-      if (isMounted) {
-        setSystemVersion(packageVersion);
-      }
-    };
-
-    loadVersion();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const handleChangeInput = (e) => {
     const target = e?.target;
@@ -448,12 +380,12 @@ const Login = () => {
           <div className={classes.leftPanel}>
             <div className={classes.leftBadge}>CRM Ideia no Bolso</div>
             <Typography className={classes.leftOverlayText}>
-              Centralize atendimento, relacionamento e oportunidades em um só
+              Centralize atendimento, relacionamento e oportunidades em um so
               lugar.
             </Typography>
             <Typography className={classes.leftDescription}>
               Um painel pensado para equipes que precisam acompanhar tickets,
-              contatos, filas, conexões e desempenho comercial com mais clareza
+              contatos, filas, conexoes e desempenho comercial com mais clareza
               e velocidade.
             </Typography>
 
@@ -461,10 +393,10 @@ const Login = () => {
               <div className={classes.highlightCard}>
                 <div className={classes.highlightLabel}>Relacionamento</div>
                 <div className={classes.highlightTitle}>
-                  Histórico completo do cliente
+                  Historico completo do cliente
                 </div>
                 <div className={classes.highlightText}>
-                  Reúna conversas, contatos e contexto do atendimento no mesmo
+                  Reuna conversas, contatos e contexto do atendimento no mesmo
                   fluxo operacional.
                 </div>
               </div>
@@ -472,7 +404,7 @@ const Login = () => {
               <div className={classes.highlightCard}>
                 <div className={classes.highlightLabel}>Produtividade</div>
                 <div className={classes.highlightTitle}>
-                  Operação organizada em tempo real
+                  Operacao organizada em tempo real
                 </div>
                 <div className={classes.highlightText}>
                   Distribua tickets, acompanhe filas e mantenha a equipe focada
@@ -481,13 +413,13 @@ const Login = () => {
               </div>
 
               <div className={classes.highlightCard}>
-                <div className={classes.highlightLabel}>Gestão</div>
+                <div className={classes.highlightLabel}>Gestao</div>
                 <div className={classes.highlightTitle}>
-                  Visão comercial mais estratégica
+                  Visao comercial mais estrategica
                 </div>
                 <div className={classes.highlightText}>
-                  Transforme dados do CRM em acompanhamento prático para vender
-                  melhor e atender com consistência.
+                  Transforme dados do CRM em acompanhamento pratico para vender
+                  melhor e atender com consistencia.
                 </div>
               </div>
             </div>
@@ -495,7 +427,7 @@ const Login = () => {
         </div>
 
         <div className={classes.rightSide}>
-          <div className={classes.card}>
+          <Container disableGutters className={classes.card}>
             <div className={classes.topBar}>
               <IconButton
                 className={classes.modeButton}
@@ -572,16 +504,11 @@ const Login = () => {
               </form>
             </div>
 
-            <Typography className={classes.versionText}>
-              Versão atual do sistema
-              <span className={classes.versionValue}>{systemVersion}</span>
-            </Typography>
-
             <div className={classes.footer}>
               <div>CNPJ 64.016.500/0001-02</div>
               <div>Desenvolvido por Ideia no Bolso LTDA - {currentYear}</div>
             </div>
-          </div>
+          </Container>
         </div>
       </div>
     </>
