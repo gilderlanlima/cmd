@@ -12,6 +12,7 @@ import {
 } from "sequelize-typescript";
 import Company from "./Company";
 import User from "./User";
+import Whatsapp from "./Whatsapp";
 
 @Table({ tableName: "Stories" })
 class Story extends Model<Story> {
@@ -28,11 +29,33 @@ class Story extends Model<Story> {
   company: Company;
 
   @ForeignKey(() => User)
-  @Column
+  @Column({ allowNull: true })
   userId: number;
 
   @BelongsTo(() => User)
   user: User;
+
+  @ForeignKey(() => Whatsapp)
+  @Column({ allowNull: true })
+  whatsappId: number;
+
+  @BelongsTo(() => Whatsapp)
+  whatsapp: Whatsapp;
+
+  @Column({ allowNull: false, defaultValue: "panel" })
+  sourceType: string;
+
+  @Column(DataType.TEXT)
+  sourceJid: string;
+
+  @Column(DataType.TEXT)
+  sourceMessageId: string;
+
+  @Column(DataType.TEXT)
+  authorName: string;
+
+  @Column(DataType.TEXT)
+  authorAvatar: string;
 
   @Column(DataType.TEXT)
   caption: string;

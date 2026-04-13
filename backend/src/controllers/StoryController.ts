@@ -8,10 +8,32 @@ import AppError from "../errors/AppError";
 import Story from "../models/Story";
 import User from "../models/User";
 
-const serializeStory = (story: Story) => ({
-  ...story.toJSON(),
-  mediaUrl: `/public/${String(story.mediaPath || "").replace(/^\/+/, "")}`
-});
+const serializeStory = (story: Story) => {
+  const payload = story.toJSON() as Story & {
+    user?: User;
+    authorName?: string;
+    authorAvatar?: string;
+    sourceJid?: string;
+    whatsappId?: number;
+  };
+
+  const authorName = payload.user?.name || payload.authorName || "Story";
+  const authorAvatar = payload.user?.profileImage || payload.authorAvatar || null;
+  const authorKey =
+    payload.user?.id ||
+    payload.sourceJid ||
+    (payload.whatsappId ? `whatsapp-${payload.whatsappId}` : `story-${payload.id}`);
+
+  return {
+    ...payload,
+    mediaUrl: `/public/${String(payload.mediaPath || "").replace(/^\/+/, "")}`,
+    author: {
+      key: String(authorKey),
+      name: authorName,
+      avatar: authorAvatar
+    }
+  };
+};
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const { companyId } = req.user;
@@ -70,6 +92,10 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 
   await schema.validate(payload);
 
+  const currentUser = await User.findByPk(userId, {
+    attributes: ["id", "name", "profileImage"]
+  });
+
   const relativePath = path
     .relative(path.resolve(__dirname, "..", "..", "public"), file.path)
     .replace(/\\/g, "/");
@@ -81,6 +107,11 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     mediaPath: relativePath,
     mediaName: file.filename,
     mediaType: file.mimetype || "application/octet-stream",
+    sourceType: "panel",
+    sourceMessageId: null,
+    sourceJid: null,
+    authorName: currentUser?.name || null,
+    authorAvatar: currentUser?.profileImage || null,
     expiresAt: new Date(payload.expiresAt),
     isActive: true
   });

@@ -56,7 +56,17 @@ const useStyles = makeStyles((theme) => ({
   ticket: {
     position: "relative",
     overflow: "hidden",
-    paddingLeft: theme.spacing(1.5)
+    paddingLeft: theme.spacing(3),
+    paddingTop: theme.spacing(0.35),
+    paddingBottom: theme.spacing(0.35),
+    paddingRight: theme.spacing(0.6),
+    marginBottom: theme.spacing(0.35),
+    borderRadius: "0 0 6px 6px",
+    border: theme.mode === "light"
+      ? "1px solid rgba(148, 163, 184, 0.35)"
+      : "1px solid rgba(15, 23, 42, 0.14)",
+    background: theme.mode === "light" ? "#f8fafc" : "#2f3542",
+    minHeight: 64,
   },
 
   pendingTicket: {
@@ -87,7 +97,7 @@ const useStyles = makeStyles((theme) => ({
     top: 0,
     color: "green",
     fontWeight: "bold",
-    marginRight: "10px",
+    marginRight: 0,
     borderRadius: 0,
   },
   noTicketsText: {
@@ -97,32 +107,33 @@ const useStyles = makeStyles((theme) => ({
     lineHeight: "1.4",
   },
   connectionTag: {
-    background: "green",
-    color: "#FFF",
+    background: theme.mode === "light" ? "rgba(15, 23, 42, 0.08)" : "rgba(255,255,255,0.16)",
+    color: theme.mode === "light" ? "#334155" : "#FFF",
     marginRight: 1,
-    padding: 1,
+    padding: "1px 4px",
     fontWeight: "bold",
     borderRadius: 3,
-    fontSize: "0.6em",
+    fontSize: "0.46em",
+    lineHeight: 1.2,
   },
   userBadge: {
     display: "inline-flex",
     alignItems: "center",
     gap: theme.spacing(0.5),
-    backgroundColor: "#111827",
-    color: "#FFF",
+    backgroundColor: theme.mode === "light" ? "rgba(15,23,42,0.08)" : "rgba(255,255,255,0.12)",
+    color: theme.mode === "light" ? "#0f172a" : "#FFF",
     marginRight: 1,
-    padding: "2px 6px 2px 2px",
+    padding: "1px 5px 1px 1px",
     fontWeight: "bold",
-    borderRadius: 999,
-    fontSize: "0.62em",
+    borderRadius: 6,
+    fontSize: "0.56em",
     whiteSpace: "nowrap",
-    minHeight: 20,
+    minHeight: 16,
   },
   userBadgeAvatar: {
-    width: 16,
-    height: 16,
-    fontSize: "0.7rem",
+    width: 14,
+    height: 14,
+    fontSize: "0.62rem",
     border: "1px solid rgba(255,255,255,0.5)"
   },
   noTicketsTitle: {
@@ -134,10 +145,24 @@ const useStyles = makeStyles((theme) => ({
 
   contactNameWrapper: {
     display: "flex",
-    justifyContent: "space-between",
-    marginLeft: "5px",
+    flexDirection: "column",
+    gap: theme.spacing(0.18),
+    marginLeft: 0,
     fontWeight: "bold",
-    color: theme.mode === "light" ? "black" : "white",
+    color: theme.mode === "light" ? "#0f172a" : "#fff",
+    width: "100%",
+  },
+  titleRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(0.4),
+    minWidth: 0,
+  },
+  contactName: {
+    fontWeight: 800,
+    color: theme.mode === "light" ? "#111827" : "#fff",
+    lineHeight: 1.15,
+    fontSize: "0.82rem",
   },
 
   lastMessageTime: {
@@ -167,21 +192,27 @@ const useStyles = makeStyles((theme) => ({
   },
 
   contactLastMessage: {
-    paddingRight: "0%",
-    marginLeft: "5px",
-    color: theme.mode === "light" ? "black" : grey[400],
+    paddingRight: 0,
+    marginLeft: 0,
+    color: theme.mode === "light" ? "#1f2937" : "rgba(255,255,255,0.9)",
+    fontSize: "0.7rem",
   },
 
   contactLastMessageUnread: {
-    paddingRight: 20,
+    paddingRight: 0,
     fontWeight: "bold",
-    color: theme.mode === "light" ? "black" : grey[400],
-    // width: "50%",
+    color: theme.mode === "light" ? "#111827" : "#fff",
+    marginLeft: 0,
+    fontSize: "0.7rem",
   },
 
   badgeStyle: {
     color: "white",
     backgroundColor: green[500],
+    fontSize: "0.72rem",
+    height: 24,
+    minWidth: 24,
+    borderRadius: 12,
   },
 
   acceptButton: {
@@ -190,13 +221,27 @@ const useStyles = makeStyles((theme) => ({
   },
 
   ticketConnectionColor: {
-    flex: "none",
-    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "calc(100% - 2px)",
     position: "absolute",
-    top: 0,
+    top: 1,
     left: 0,
-    width: 6,
-    borderRadius: "0 6px 6px 0",
+    width: 14,
+    borderRadius: "0 2px 2px 0",
+    overflow: "hidden",
+  },
+  ticketConnectionLabel: {
+    color: "#fff",
+    fontSize: "0.4rem",
+    fontWeight: 800,
+    letterSpacing: "0.08em",
+    lineHeight: 1,
+    textTransform: "uppercase",
+    writingMode: "vertical-rl",
+    transform: "rotate(180deg)",
+    whiteSpace: "nowrap",
   },
 
   ticketInfo: {
@@ -206,9 +251,10 @@ const useStyles = makeStyles((theme) => ({
   secondaryContentSecond: {
     display: "flex",
     alignItems: "flex-start",
-    flexWrap: "nowrap",
+    flexWrap: "wrap",
     flexDirection: "row",
     alignContent: "flex-start",
+    gap: theme.spacing(0.2),
   },
   ticketInfo1: {
     position: "relative",
@@ -228,7 +274,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   connectionIcon: {
-    marginRight: theme.spacing(1),
+    marginRight: theme.spacing(0.5),
   },
 
   // Estilos para o modal da imagem
@@ -253,8 +299,96 @@ const useStyles = makeStyles((theme) => ({
     "&:hover": {
       opacity: 0.8,
     },
-  }
-}));
+  },
+  avatarWrapper: {
+    marginLeft: theme.spacing(0.2),
+    marginRight: theme.spacing(0.7),
+    alignSelf: "center",
+    paddingTop: 0,
+  },
+  ticketBody: {
+    display: "flex",
+    alignItems: "stretch",
+    width: "100%",
+    minWidth: 0,
+  },
+  ticketMainColumn: {
+    display: "flex",
+    alignItems: "center",
+    flex: 1,
+    minWidth: 0,
+    paddingRight: theme.spacing(0.55),
+  },
+  ticketTextBlock: {
+    display: "flex",
+    flexDirection: "column",
+    minWidth: 0,
+    gap: theme.spacing(0.08),
+    flex: 1,
+  },
+  ticketMetaColumn: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+    minWidth: 92,
+    padding: theme.spacing(0.1, 0.7, 0.1, 0),
+    gap: theme.spacing(0.28),
+  },
+  ticketTime: {
+    color: theme.mode === "light" ? "#7c5a46" : "rgba(255,255,255,0.72)",
+    fontWeight: 500,
+    fontSize: "0.68rem",
+  },
+  ticketTimeUnread: {
+    color: theme.mode === "light" ? "#7c5a46" : "rgba(255,255,255,0.8)",
+    fontWeight: 700,
+    fontSize: "0.68rem",
+  },
+  ticketIndicators: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: theme.spacing(0.32),
+    minHeight: 24,
+  },
+  actionIconButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 20,
+    height: 20,
+    borderRadius: 3,
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+  },
+  pendingAcceptPanel: {
+    flex: "none",
+    width: 88,
+    marginTop: -theme.spacing(0.45),
+    marginBottom: -theme.spacing(0.45),
+    marginRight: -theme.spacing(0.6),
+    marginLeft: theme.spacing(0.8),
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: theme.spacing(0.18),
+    background: theme.mode === "light" ? "#3b5bfd" : "#93c5fd",
+    color: theme.mode === "light" ? "#fff" : "#111827",
+    borderRadius: "0 4px 4px 0",
+    cursor: "pointer",
+    borderLeft: theme.mode === "light"
+      ? "1px solid rgba(59, 91, 253, 0.35)"
+      : "1px solid rgba(255,255,255,0.2)",
+  },
+  pendingAcceptLabel: {
+    fontSize: "0.52rem",
+    fontWeight: 800,
+    letterSpacing: "0.03em",
+  },
+})); 
 
 const backendUrl = getBackendUrl();
 
@@ -523,6 +657,21 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
     setCurrentTicket({ id, uuid, code });
   };
 
+  const renderActionIcon = (title, icon, color, onClick) => (
+    <Tooltip title={title}>
+      <span
+        className={classes.actionIconButton}
+        style={{ color }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick(e);
+        }}
+      >
+        {icon}
+      </span>
+    </Tooltip>
+  );
+
   const handleUpdateTicketStatusWithData = async (
     ticketData,
     sendFarewellMessage,
@@ -649,12 +798,16 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
                 ? "#E1306C"
                 : "#25D366")
           }}
-        />
-        <ListItemAvatar style={{ marginLeft: "-15px" }}>
+        >
+          <span className={classes.ticketConnectionLabel}>
+            {ticket?.whatsapp?.name || ticket.channel || ""}
+          </span>
+        </span>
+        <ListItemAvatar className={classes.avatarWrapper}>
           <Avatar
             style={{
-              width: "50px",
-              height: "50px",
+              width: "40px",
+              height: "40px",
               borderRadius: "50%",
             }}
             src={`${ticket?.contact?.urlPicture}`}
@@ -662,71 +815,57 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
             onClick={handleImageClick}
           />
         </ListItemAvatar>
-        <ListItemText
-          disableTypography
-          primary={
-            <span className={classes.contactNameWrapper}>
-              <Typography
-                noWrap
-                component="span"
-                variant="body2"
-              >
-                {ticket.isGroup && ticket.channel === "whatsapp" && (
-                  <GroupIcon
-                    fontSize="small"
-                    style={{
-                      color: grey[700],
-                      marginBottom: "-1px",
-                      marginLeft: "5px",
-                    }}
-                  />
-                )}{" "}
-                &nbsp;
-                {ticket.channel && (
-                  <ConnectionIcon
-                    width="20"
-                    height="20"
-                    className={classes.connectionIcon}
-                    connectionType={ticket.channel}
-                  />
-                )}{" "}
-                &nbsp;
-                {truncate(ticket.contact?.name, 60)}
-              </Typography>
-            </span>
-          }
-          secondary={
-            <span className={classes.contactNameWrapper}>
-              <Typography
-                className={
-                  Number(ticket.unreadMessages) > 0
-                    ? classes.contactLastMessageUnread
-                    : classes.contactLastMessage
-                }
-                noWrap
-                component="span"
-                variant="body2"
-              >
-                {renderLastMessage()}
-                <span className={classes.secondaryContentSecond}>
-                  {ticket?.whatsapp ? (
-                    <Badge
-                      className={classes.connectionTag}
-                      style={{
-                        backgroundColor:
-                          ticket.channel === "whatsapp"
-                            ? ticket.whatsapp?.color || "#25D366"
-                            : ticket.channel === "facebook"
-                            ? "#4267B2"
-                            : "#E1306C",
-                      }}
+        <div className={classes.ticketBody}>
+          <div className={classes.ticketMainColumn}>
+            <ListItemText
+              disableTypography
+              primary={
+                <span className={classes.contactNameWrapper}>
+                  <span className={classes.titleRow}>
+                    {ticket.isGroup && ticket.channel === "whatsapp" && (
+                      <GroupIcon
+                        fontSize="small"
+                        style={{
+                          color: grey[700],
+                          marginBottom: "-1px",
+                        }}
+                      />
+                    )}
+                    {!ticket?.whatsapp?.name && ticket.channel && (
+                      <ConnectionIcon
+                        width="20"
+                        height="20"
+                        className={classes.connectionIcon}
+                        connectionType={ticket.channel}
+                      />
+                    )}
+                    <Typography
+                      noWrap
+                      component="span"
+                      variant="body2"
+                      className={classes.contactName}
                     >
-                      {ticket.whatsapp?.name.toUpperCase()}
-                    </Badge>
-                  ) : (
-                    <br></br>
-                  )}
-                  {
+                      {truncate(ticket.contact?.name, 60)}
+                    </Typography>
+                  </span>
+                </span>
+              }
+              secondary={
+                <div className={classes.ticketTextBlock}>
+                  <Typography
+                    className={
+                      Number(ticket.unreadMessages) > 0
+                        ? classes.contactLastMessageUnread
+                        : classes.contactLastMessage
+                    }
+                    noWrap
+                    component="span"
+                    variant="body2"
+                  >
+                    {renderLastMessage()}
+                  </Typography>
+
+                  <span className={classes.secondaryContentSecond}>
                     <Badge
                       style={{
                         backgroundColor: ticket.queue?.color || "#7c7c7c",
@@ -739,59 +878,30 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
                         ? "LGPD"
                         : `${i18n.t("momentsUser.noqueue")}`}
                     </Badge>
-                  }
-                  {ticket?.user && (
-                    <span className={classes.userBadge}>
-                      <Avatar
-                        src={assigneeAvatar}
-                        className={classes.userBadgeAvatar}
-                      >
-                        {ticket.user?.name?.charAt(0)?.toUpperCase()}
-                      </Avatar>
-                      {ticket.user?.name.toUpperCase()}
-                    </span>
-                  )}
-                </span>
-                <span className={classes.secondaryContentSecond}>
-                  {ticket?.contact?.tags?.map((tag) => {
-                    return (
-                      <ContactTag
-                        tag={tag}
-                        key={`ticket-contact-tag-${ticket.id}-${tag.id}`}
-                      />
-                    );
-                  })}
-                </span>
-                <span className={classes.secondaryContentSecond}>
-                  {ticket.tags?.map((tag) => {
-                    return (
-                      <ContactTag
-                        tag={tag}
-                        key={`ticket-contact-tag-${ticket.id}-${tag.id}`}
-                      />
-                    );
-                  })}
-                </span>
-              </Typography>
+                    {ticket?.user && (
+                      <span className={classes.userBadge}>
+                        <Avatar
+                          src={assigneeAvatar}
+                          className={classes.userBadgeAvatar}
+                        >
+                          {ticket.user?.name?.charAt(0)?.toUpperCase()}
+                        </Avatar>
+                        {ticket.user?.name.toUpperCase()}
+                      </span>
+                    )}
+                  </span>
 
-              <Badge
-                className={classes.newMessagesCount}
-                badgeContent={shouldBlurMessages ? "?" : ticket.unreadMessages}
-                classes={{
-                  badge: classes.badgeStyle,
-                }}
-              />
-            </span>
-          }
-        />
-        <ListItemSecondaryAction>
-          {ticket.lastMessage && (
-            <>
+                </div>
+              }
+            />
+          </div>
+          <div className={classes.ticketMetaColumn}>
+            {ticket.lastMessage && (
               <Typography
                 className={
                   Number(ticket.unreadMessages) > 0
-                    ? classes.lastMessageTimeUnread
-                    : classes.lastMessageTime
+                    ? classes.ticketTimeUnread
+                    : classes.ticketTime
                 }
                 component="span"
                 variant="body2"
@@ -802,12 +912,80 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
                   <>{format(parseISO(ticket.updatedAt), "dd/MM/yyyy")}</>
                 )}
               </Typography>
+            )}
+            <div className={classes.ticketIndicators}>
+              {ticket.status === "chatbot" &&
+                renderActionIcon(
+                  "Espiar conversa do chatbot",
+                  <VisibilityIcon />,
+                  theme.mode === "light" ? "#475569" : "#FFF",
+                  handleSpyTicket
+                )}
 
-              <br />
-            </>
+              {(ticket.status === "pending" ||
+                ticket.status === "open" ||
+                ticket.status === "group") &&
+                renderActionIcon(
+                  `${i18n.t("ticketsList.buttons.transfer")}`,
+                  <SwapHoriz />,
+                  "#7e22ce",
+                  handleOpenTransferModal
+                )}
+
+              {(ticket.status === "open" || ticket.status === "group") &&
+                renderActionIcon(
+                  `${i18n.t("ticketsList.buttons.closed")}`,
+                  <HighlightOff />,
+                  "#dc2626",
+                  () => handleCloseTicket(ticket.id)
+                )}
+
+              {(ticket.status === "pending" || ticket.status === "lgpd") &&
+                (user.userClosePendingTicket === "enabled" ||
+                  user.profile === "admin") &&
+                renderActionIcon(
+                  `${i18n.t("ticketsList.buttons.ignore")}`,
+                  <HighlightOff />,
+                  "#dc2626",
+                  () => handleCloseIgnoreTicket(ticket.id)
+                )}
+
+              {ticket.status === "closed" &&
+                renderActionIcon(
+                  "Criar Novo Ticket",
+                  <Add />,
+                  "#15803d",
+                  (e) => {
+                    e.stopPropagation();
+                    handleOpenNewTicketModal();
+                  }
+                )}
+
+            </div>
+          </div>
+
+          {ticket.status === "pending" && (
+            <div
+              className={classes.pendingAcceptPanel}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (ticket.queueId === null || ticket.queueId === undefined) {
+                  handleOpenAcceptTicketWithouSelectQueue();
+                } else {
+                  handleAcepptTicket(ticket.id);
+                }
+              }}
+            >
+              <Done style={{ fontSize: 24 }} />
+              <span className={classes.pendingAcceptLabel}>
+                {i18n.t("ticketsList.buttons.accept")}
+              </span>
+            </div>
           )}
-        </ListItemSecondaryAction>
-        <ListItemSecondaryAction>
+        </div>
+
+        {false && (
+          <ListItemSecondaryAction>
           {/* Para tickets com status chatbot, mostrar apenas o ícone de spy */}
           {ticket.status === "chatbot" && (
             <span className={classes.secondaryContentSecond}>
@@ -1026,7 +1204,8 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
               </span>
             </>
           )}
-        </ListItemSecondaryAction>
+          </ListItemSecondaryAction>
+        )}
       </ListItem>
 
       {/* Modal de Finalização de Venda */}

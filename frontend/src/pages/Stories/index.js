@@ -20,6 +20,7 @@ import {
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
 import MainHeader from "../../components/MainHeader";
+import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
 import MainContainer from "../../components/MainContainer";
 import Title from "../../components/Title";
 import api from "../../services/api";
@@ -32,12 +33,32 @@ const useStyles = makeStyles(theme => ({
   mainPaper: {
     flex: 1,
     padding: theme.spacing(2),
-    overflow: "hidden"
+    overflow: "hidden",
+    minHeight: 680,
+    backgroundColor: theme.palette.background.paper
   },
   sidebar: {
     height: "100%",
     overflowY: "auto",
-    borderRight: `1px solid ${theme.palette.divider}`
+    borderRight: `1px solid ${theme.palette.divider}`,
+    paddingRight: theme.spacing(1)
+  },
+  sidebarEmpty: {
+    minHeight: 220,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    padding: theme.spacing(3),
+    color: theme.palette.text.secondary,
+    textAlign: "left"
+  },
+  previewColumn: {
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: theme.spacing(3),
+    background: "linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)"
   },
   phoneFrame: {
     width: 320,
@@ -91,6 +112,20 @@ const useStyles = makeStyles(theme => ({
     color: "#fff",
     textAlign: "center",
     padding: theme.spacing(3)
+  },
+  textStory: {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+    color: "#fff",
+    padding: theme.spacing(4),
+    background: "linear-gradient(180deg, #1d4ed8 0%, #312e81 100%)"
+  },
+  storyStepper: {
+    marginTop: theme.spacing(2)
   }
 }));
 
@@ -98,14 +133,17 @@ const groupStories = stories => {
   const groups = new Map();
 
   stories.forEach(story => {
-    const key = story.user?.id || story.userId;
+    const key = story.author?.key || story.user?.id || story.userId || `story-${story.id}`;
     const current = groups.get(key);
     if (current) {
       current.items.push(story);
     } else {
       groups.set(key, {
         key,
-        user: story.user,
+        author: story.author || {
+          name: story.user?.name || "Story",
+          avatar: story.user?.profileImage || null
+        },
         items: [story]
       });
     }
@@ -180,7 +218,7 @@ const Stories = () => {
 
   const handleSubmit = async () => {
     if (!file || !expiresAt) {
-      toast.error("Selecione o arquivo e a data de expiração");
+      toast.error("Selecione o arquivo e a data de expiracao");
       return;
     }
 
@@ -263,126 +301,154 @@ const Stories = () => {
 
       <MainHeader>
         <Title>Stories</Title>
-        <Button
-          color="primary"
-          variant="contained"
-          startIcon={<AddCircleOutlineIcon />}
-          onClick={() => setDialogOpen(true)}
-        >
-          Novo story
-        </Button>
+        <MainHeaderButtonsWrapper>
+          <Button
+            color="primary"
+            variant="contained"
+            startIcon={<AddCircleOutlineIcon />}
+            onClick={() => setDialogOpen(true)}
+          >
+            Novo story
+          </Button>
+        </MainHeaderButtonsWrapper>
       </MainHeader>
 
       <Paper className={classes.mainPaper} variant="outlined">
-        <Grid container spacing={2} style={{ height: "100%" }}>
+        <Grid container style={{ height: "100%" }}>
           <Grid item xs={12} md={4} lg={3}>
             <div className={classes.sidebar}>
-              <List>
-                {storyGroups.map(group => (
-                  <ListItem
-                    button
-                    key={group.key}
-                    selected={selectedGroup?.key === group.key}
-                    onClick={() => {
-                      setSelectedGroupKey(group.key);
-                      setSelectedIndex(0);
-                    }}
-                  >
-                    <ListItemAvatar>
-                      <Avatar src={normalizeBackendAssetUrl(group.user?.profileImage)}>
-                        {(group.user?.name || "?").charAt(0)}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={group.user?.name || "Usuário"}
-                      secondary={`${group.items.length} story${group.items.length > 1 ? "s" : ""}`}
-                    />
-                  </ListItem>
-                ))}
-              </List>
+              {storyGroups.length ? (
+                <List>
+                  {storyGroups.map(group => (
+                    <ListItem
+                      button
+                      key={group.key}
+                      selected={selectedGroup?.key === group.key}
+                      onClick={() => {
+                        setSelectedGroupKey(group.key);
+                        setSelectedIndex(0);
+                      }}
+                    >
+                      <ListItemAvatar>
+                        <Avatar src={normalizeBackendAssetUrl(group.author?.avatar)}>
+                          {(group.author?.name || "?").charAt(0)}
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={group.author?.name || "Story"}
+                        secondary={`${group.items.length} story${group.items.length > 1 ? "s" : ""}`}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              ) : (
+                <div className={classes.sidebarEmpty}>
+                  <Typography variant="h6" gutterBottom>
+                    Nenhum story no painel
+                  </Typography>
+                  <Typography variant="body2">
+                    Quando um story for publicado por aqui, ele aparece nesta lista para visualizacao.
+                  </Typography>
+                </div>
+              )}
             </div>
           </Grid>
 
           <Grid item xs={12} md={8} lg={9}>
-            <div className={classes.phoneFrame}>
-              <div className={classes.phoneScreen}>
-                {currentStory ? (
-                  <>
-                    <div className={classes.storyHeader}>
-                      <Grid container alignItems="center" spacing={1}>
-                        <Grid item>
-                          <Avatar src={normalizeBackendAssetUrl(currentStory.user?.profileImage)}>
-                            {(currentStory.user?.name || "?").charAt(0)}
-                          </Avatar>
-                        </Grid>
-                        <Grid item xs>
-                          <Typography variant="subtitle2">
-                            {currentStory.user?.name || "Usuário"}
-                          </Typography>
-                          <Typography variant="caption">
-                            {new Date(currentStory.createdAt).toLocaleString("pt-BR")}
-                          </Typography>
-                        </Grid>
-                        {(user.profile === "admin" || currentStory.userId === user.id) && (
-                          <Grid item>
-                            <IconButton
-                              style={{ color: "#fff" }}
-                              onClick={() => handleDelete(currentStory.id)}
-                            >
-                              <DeleteOutlineIcon />
-                            </IconButton>
+            <div className={classes.previewColumn}>
+              <div>
+                <div className={classes.phoneFrame}>
+                  <div className={classes.phoneScreen}>
+                    {currentStory ? (
+                      <>
+                        <div className={classes.storyHeader}>
+                          <Grid container alignItems="center" spacing={1}>
+                            <Grid item>
+                              <Avatar src={normalizeBackendAssetUrl(currentStory.author?.avatar)}>
+                                {(currentStory.author?.name || "?").charAt(0)}
+                              </Avatar>
+                            </Grid>
+                            <Grid item xs>
+                              <Typography variant="subtitle2">
+                                {currentStory.author?.name || "Story"}
+                              </Typography>
+                              <Typography variant="caption">
+                                {new Date(currentStory.createdAt).toLocaleString("pt-BR")}
+                              </Typography>
+                            </Grid>
+                            {(user.profile === "admin" || currentStory.userId === user.id) && (
+                              <Grid item>
+                                <IconButton
+                                  style={{ color: "#fff" }}
+                                  onClick={() => handleDelete(currentStory.id)}
+                                >
+                                  <DeleteOutlineIcon />
+                                </IconButton>
+                              </Grid>
+                            )}
                           </Grid>
+                        </div>
+
+                        {!currentStory.mediaUrl ? (
+                          <div className={classes.textStory}>
+                            <Typography variant="h5">
+                              {currentStory.caption || "Story sem midia"}
+                            </Typography>
+                          </div>
+                        ) : String(currentStory.mediaType || "").startsWith("video/") ? (
+                          <video
+                            className={classes.storyMedia}
+                            src={normalizeBackendAssetUrl(currentStory.mediaUrl || currentStory.mediaPath)}
+                            controls
+                          />
+                        ) : (
+                          <img
+                            className={classes.storyMedia}
+                            src={normalizeBackendAssetUrl(currentStory.mediaUrl || currentStory.mediaPath)}
+                            alt={currentStory.caption || "Story"}
+                          />
                         )}
-                      </Grid>
-                    </div>
 
-                    {String(currentStory.mediaType || "").startsWith("video/") ? (
-                      <video
-                        className={classes.storyMedia}
-                        src={normalizeBackendAssetUrl(currentStory.mediaUrl || currentStory.mediaPath)}
-                        controls
-                      />
+                        <div className={classes.storyFooter}>
+                          <Typography variant="body2">
+                            {currentStory.caption || "Sem legenda"}
+                          </Typography>
+                        </div>
+                      </>
                     ) : (
-                      <img
-                        className={classes.storyMedia}
-                        src={normalizeBackendAssetUrl(currentStory.mediaUrl || currentStory.mediaPath)}
-                        alt={currentStory.caption || "Story"}
-                      />
+                      <div className={classes.emptyState}>
+                        <Typography variant="h6">Nenhum story publicado</Typography>
+                        <Typography variant="body2">
+                          Publique o primeiro story para visualizar no formato de celular.
+                        </Typography>
+                      </div>
                     )}
-
-                    <div className={classes.storyFooter}>
-                      <Typography variant="body2">
-                        {currentStory.caption || "Sem legenda"}
-                      </Typography>
-                    </div>
-                  </>
-                ) : (
-                  <div className={classes.emptyState}>
-                    <Typography variant="h6">Nenhum story publicado</Typography>
-                    <Typography variant="body2">
-                      Publique o primeiro story para visualizar no formato de celular.
-                    </Typography>
                   </div>
+                </div>
+
+                {selectedGroup && selectedGroup.items.length > 1 && (
+                  <Grid
+                    container
+                    spacing={1}
+                    justifyContent="center"
+                    className={classes.storyStepper}
+                  >
+                    {selectedGroup.items.map((story, index) => (
+                      <Grid item key={story.id}>
+                        <Button
+                          size="small"
+                          variant={index === selectedIndex ? "contained" : "outlined"}
+                          color="primary"
+                          onClick={() => setSelectedIndex(index)}
+                        >
+                          {index + 1}
+                        </Button>
+                      </Grid>
+                    ))}
+                  </Grid>
                 )}
               </div>
             </div>
-
-            {selectedGroup && selectedGroup.items.length > 1 && (
-              <Grid container spacing={1} justifyContent="center" style={{ marginTop: 16 }}>
-                {selectedGroup.items.map((story, index) => (
-                  <Grid item key={story.id}>
-                    <Button
-                      size="small"
-                      variant={index === selectedIndex ? "contained" : "outlined"}
-                      color="primary"
-                      onClick={() => setSelectedIndex(index)}
-                    >
-                      {index + 1}
-                    </Button>
-                  </Grid>
-                ))}
-              </Grid>
-            )}
           </Grid>
         </Grid>
       </Paper>

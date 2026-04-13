@@ -12,7 +12,6 @@ import makeWASocket, {
   isJidGroup,
   // isJidMetaIa,
   isJidNewsletter,
-  isJidStatusBroadcast,
   jidNormalizedUser,
   makeCacheableSignalKeyStore,
   proto,
@@ -302,8 +301,7 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
           shouldIgnoreJid: jid => {
             const ignoreJid = (!allowGroup && isJidGroup(jid)) ||
               isJidBroadcast(jid) ||
-              isJidNewsletter(jid) ||
-              isJidStatusBroadcast(jid)
+              isJidNewsletter(jid)
             // || isJidMetaIa(jid)
             return ignoreJid
           },

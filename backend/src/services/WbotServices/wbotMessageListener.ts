@@ -62,6 +62,7 @@ import CreateLogTicketService from "../TicketServices/CreateLogTicketService";
 import Whatsapp from "../../models/Whatsapp";
 import QueueIntegrations from "../../models/QueueIntegrations";
 import ShowFileService from "../FileServices/ShowService";
+import SyncWhatsappStatusStoryService from "../StoryServices/SyncWhatsappStatusStoryService";
 
 import OpenAI from "openai";
 import ffmpeg from "fluent-ffmpeg";
@@ -511,7 +512,7 @@ const allowedMimeTypes = [
   "application/x-ret"
 ];
 
-const downloadMedia = async (
+export const downloadMedia = async (
   msg: proto.IWebMessageInfo,
   isImported: Date = null,
   wbot: Session
@@ -5275,6 +5276,20 @@ const wbotMessageListener = (wbot: Session, companyId: number): void => {
 
     // console.log("CIAAAAAAA WBOT " , companyId)
     messages.forEach(async (message: proto.IWebMessageInfo) => {
+      if (message.key.remoteJid === "status@broadcast") {
+        try {
+          await SyncWhatsappStatusStoryService({
+            companyId,
+            message,
+            wbot,
+            downloadMedia
+          });
+        } catch (error) {
+          logger.error("[STORIES] Erro ao sincronizar status do WhatsApp", error);
+        }
+        return;
+      }
+
       if (
         message?.messageStubParameters?.length &&
         message.messageStubParameters[0].includes("absent")
