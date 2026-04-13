@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
@@ -12,6 +12,8 @@ import VisibilityOff from "@material-ui/icons/VisibilityOff";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import ColorModeContext from "../../layout/themeContext";
+import useSettings from "../../hooks/useSettings";
+import { getBackendUrl } from "../../config";
 import logo from "../../assets/logo.png";
 
 const useStyles = makeStyles((theme) => ({
@@ -132,13 +134,99 @@ const useStyles = makeStyles((theme) => ({
 const Login = () => {
   const classes = useStyles();
   const { handleLogin } = useContext(AuthContext);
+  const { getPublicSetting } = useSettings();
   const colorModeContext = useContext(ColorModeContext);
-  const appName = colorModeContext?.colorMode?.appName || "CRM Ideia no Bolso";
-  const appLogoFavicon =
-    colorModeContext?.colorMode?.appLogoFavicon || "/favicon.ico";
+  const colorMode = colorModeContext?.colorMode;
+  const isDarkMode = colorMode?.mode === "dark";
+  const [dynamicAppName, setDynamicAppName] = useState(
+    colorMode?.appName || "CRM Ideia no Bolso"
+  );
+  const [dynamicAppLogoFavicon, setDynamicAppLogoFavicon] = useState(
+    colorMode?.appLogoFavicon || "/favicon.ico"
+  );
+  const themeLoginLogo = useMemo(() => {
+    const fromThemeCalculated = isDarkMode
+      ? colorMode?.calculatedLogoDark?.()
+      : colorMode?.calculatedLogoLight?.();
+    const fromThemeDirect = isDarkMode
+      ? colorMode?.appLogoDark || colorMode?.appLogoLight
+      : colorMode?.appLogoLight || colorMode?.appLogoDark;
+
+    return fromThemeCalculated || fromThemeDirect || logo;
+  }, [colorMode, isDarkMode]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState({ email: "", password: "" });
+  const [logoSrc, setLogoSrc] = useState(themeLoginLogo);
+
+  useEffect(() => {
+    setLogoSrc(themeLoginLogo || logo);
+  }, [themeLoginLogo]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const resolveAssetUrl = (fileName, fallbackValue) => {
+      if (!fileName) {
+        return fallbackValue;
+      }
+
+      return `${getBackendUrl().replace(/\/$/, "")}/public/${fileName}`;
+    };
+
+    const loadBranding = async () => {
+      try {
+        const [
+          appNameSetting,
+          appLogoLightSetting,
+          appLogoDarkSetting,
+          appLogoFaviconSetting,
+        ] = await Promise.all([
+          getPublicSetting("appName"),
+          getPublicSetting("appLogoLight"),
+          getPublicSetting("appLogoDark"),
+          getPublicSetting("appLogoFavicon"),
+        ]);
+
+        if (!isMounted) {
+          return;
+        }
+
+        const preferredLogoSetting = isDarkMode
+          ? appLogoDarkSetting || appLogoLightSetting
+          : appLogoLightSetting || appLogoDarkSetting;
+
+        setDynamicAppName(appNameSetting || colorMode?.appName || "CRM Ideia no Bolso");
+        setDynamicAppLogoFavicon(
+          resolveAssetUrl(
+            appLogoFaviconSetting,
+            colorMode?.appLogoFavicon || "/favicon.ico"
+          )
+        );
+        setLogoSrc(resolveAssetUrl(preferredLogoSetting, themeLoginLogo || logo));
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setDynamicAppName(colorMode?.appName || "CRM Ideia no Bolso");
+        setDynamicAppLogoFavicon(colorMode?.appLogoFavicon || "/favicon.ico");
+        setLogoSrc(themeLoginLogo || logo);
+      }
+    };
+
+    loadBranding();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    colorMode?.appLogoFavicon,
+    colorMode?.appName,
+    getPublicSetting,
+    isDarkMode,
+    themeLoginLogo,
+  ]);
 
   const handleChangeInput = (e) => {
     setUser((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -152,8 +240,8 @@ const Login = () => {
   return (
     <>
       <Helmet>
-        <title>{appName}</title>
-        <link rel="icon" href={appLogoFavicon} />
+        <title>{dynamicAppName}</title>
+        <link rel="icon" href={dynamicAppLogoFavicon} />
       </Helmet>
 
       <div className={classes.root}>
@@ -165,7 +253,12 @@ const Login = () => {
 
         <div className={classes.rightSide}>
           <Container disableGutters className={classes.card}>
-            <img src={logo} alt="Ideia no Bolso" className={classes.logo} />
+            <img
+              src={logoSrc}
+              alt={dynamicAppName}
+              className={classes.logo}
+              onError={() => setLogoSrc(logo)}
+            />
             <Typography className={classes.subHeading}>
               Bem-vindo ao CRM Ideia no Bolso!
             </Typography>
