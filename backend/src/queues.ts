@@ -97,6 +97,58 @@ interface LidRetryData {
   maxRetries?: number;
 }
 
+const findOrCreateCampaignHistoryContext = async (
+  campaign: Campaign,
+  campaignShipping: CampaignShipping
+) => {
+  const [contact] = await Contact.findOrCreate({
+    where: {
+      number: campaignShipping.number,
+      companyId: campaign.companyId
+    },
+    defaults: {
+      companyId: campaign.companyId,
+      name: campaignShipping.contact ? campaignShipping.contact.name : "Contato da Campanha",
+      number: campaignShipping.number,
+      email: campaignShipping.contact ? campaignShipping.contact.email : "",
+      whatsappId: campaign.whatsappId,
+      profilePicUrl: ""
+    }
+  });
+
+  const whatsapp = await Whatsapp.findByPk(campaign.whatsappId);
+
+  if (!whatsapp) {
+    throw new Error(`WhatsApp ${campaign.whatsappId} não encontrado para histórico da campanha`);
+  }
+
+  let ticket = await Ticket.findOne({
+    where: {
+      contactId: contact.id,
+      companyId: campaign.companyId,
+      whatsappId: whatsapp.id,
+      status: "closed"
+    },
+    order: [["updatedAt", "DESC"]]
+  });
+
+  if (!ticket) {
+    ticket = await Ticket.create({
+      companyId: campaign.companyId,
+      contactId: contact.id,
+      whatsappId: whatsapp.id,
+      status: "closed",
+      unreadMessages: 0,
+      isBot: false,
+      isGroup: Boolean(campaignShipping.contact?.isGroup)
+    });
+  }
+
+  const historyTicket = await ShowTicketService(ticket.id, campaign.companyId);
+
+  return { contact, historyTicket };
+};
+
 export const userMonitor = new BullQueue("UserMonitor", connection);
 export const scheduleMonitor = new BullQueue("ScheduleMonitor", connection);
 export const sendScheduledMessages = new BullQueue("SendSacheduledMessages", connection);
@@ -1906,10 +1958,25 @@ async function handleDispatchCampaign(job) {
         await campaignShipping.update({ deliveredAt: moment() });
       }
     } else {
+      const { contact, historyTicket } = await findOrCreateCampaignHistoryContext(
+        campaign,
+        campaignShipping
+      );
+
       if (campaign.confirmation && campaignShipping.confirmation === null) {
-        await wbot.sendMessage(getJidOf(chatId), {
+        const confirmationMessage = await wbot.sendMessage(getJidOf(chatId), {
           text: campaignShipping.confirmationMessage
         });
+
+        await verifyMessage(
+          confirmationMessage,
+          historyTicket,
+          contact,
+          null,
+          true,
+          false
+        );
+
         await campaignShipping.update({ confirmationRequestedAt: moment() });
       } else {
         if (!campaign.mediaPath) {
@@ -1921,6 +1988,15 @@ async function handleDispatchCampaign(job) {
           });
 
           console.log(`[DISPATCH-CAMPAIGN] Mensagem enviada com sucesso (sem ticket): ${sentMessage ? 'SIM' : 'NÃO'}`);
+
+          await verifyMessage(
+            sentMessage,
+            historyTicket,
+            contact,
+            null,
+            true,
+            false
+          );
         }
 
         if (campaign.mediaPath) {
@@ -1939,11 +2015,30 @@ async function handleDispatchCampaign(job) {
           );
           if (Object.keys(options).length) {
             if (options.mimetype === "audio/mp4") {
-              await wbot.sendMessage(getJidOf(chatId), {
+              const audioMessage = await wbot.sendMessage(getJidOf(chatId), {
                 text: campaignShipping.message
               });
+
+              await verifyMessage(
+                audioMessage,
+                historyTicket,
+                contact,
+                null,
+                true,
+                false
+              );
             }
-            await wbot.sendMessage(getJidOf(chatId), { ...options });
+            const sentMessage = await wbot.sendMessage(getJidOf(chatId), { ...options });
+
+            await verifyMediaMessage(
+              sentMessage,
+              historyTicket,
+              historyTicket.contact,
+              null,
+              false,
+              true,
+              wbot
+            );
           }
         }
       }

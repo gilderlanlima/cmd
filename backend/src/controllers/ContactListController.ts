@@ -137,8 +137,8 @@ export const findList = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const params = req.query as FindParams;
-  const records: ContactList[] = await FindService(params);
+  const { companyId } = req.user;
+  const records: ContactList[] = await FindService({ companyId: String(companyId) });
 
   return res.status(200).json(records);
 };
