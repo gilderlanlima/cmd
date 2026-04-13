@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import Wavoip from 'wavoip-api';
 import SoundCalling from './calling.mp3';
 import SoundRinging from './ring.mp3';
 
@@ -26,6 +25,7 @@ const WavoipPhoneWidget = ({
   const [callerName, setCallerName] = useState(''); // Nome de quem está ligando
   
   const wavoipInstanceRef = useRef(null);
+  const wavoipModuleRef = useRef(null);
   const durationIntervalRef = useRef(null);
   const widgetRef = useRef(null);
   const audioRef = useRef(null);
@@ -108,6 +108,29 @@ const WavoipPhoneWidget = ({
     ['7', '8', '9'],
     ['*', '0', '#']
   ];
+
+  const canUseWavoip = useCallback(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return false;
+    }
+
+    return !!(
+      navigator?.mediaDevices &&
+      typeof navigator.mediaDevices.getUserMedia === 'function' &&
+      typeof navigator.mediaDevices.addEventListener === 'function'
+    );
+  }, []);
+
+  const loadWavoipModule = useCallback(async () => {
+    if (wavoipModuleRef.current) {
+      return wavoipModuleRef.current;
+    }
+
+    const module = await import('wavoip-api');
+    const WavoipModule = module?.default || module;
+    wavoipModuleRef.current = WavoipModule;
+    return WavoipModule;
+  }, []);
 
   // CSS inline
   const styles = {
@@ -395,6 +418,11 @@ const WavoipPhoneWidget = ({
   // Conectar ao Wavoip
   const connectToWavoip = useCallback(async () => {
     try {
+      if (!token || !canUseWavoip()) {
+        return;
+      }
+
+      const Wavoip = await loadWavoipModule();
       const WAV = new Wavoip();
       const instance = WAV.connect(token);
       wavoipInstanceRef.current = instance;
@@ -486,7 +514,7 @@ const WavoipPhoneWidget = ({
     } catch (error) {
       if (onError) onError(error);
     }
-  }, [token, isMinimized, onCallStart, onCallEnd, onConnectionStatus, onError]);
+  }, [token, canUseWavoip, loadWavoipModule, isMinimized, onCallStart, onCallEnd, onConnectionStatus, onError]);
 
   // Fazer chamada
   const makeCall = useCallback(() => {
