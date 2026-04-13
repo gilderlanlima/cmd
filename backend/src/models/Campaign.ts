@@ -157,6 +157,8 @@ class Campaign extends Model<Campaign> {
 
   @Column
   tagListId: string; // ID da tag para seleção de contatos
+  @Column({ defaultValue: "campaign" })
+  dispatchMode: string;
 }
 
 export default Campaign;

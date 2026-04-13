@@ -39,6 +39,8 @@ import AnnouncementIcon from "@material-ui/icons/Announcement";
 import ForumIcon from "@material-ui/icons/Forum";
 import LocalAtmIcon from "@material-ui/icons/LocalAtm";
 import BusinessIcon from "@material-ui/icons/Business";
+import SendIcon from "@material-ui/icons/Send";
+import RadioButtonUncheckedIcon from "@material-ui/icons/RadioButtonUnchecked";
 import {
   AllInclusive,
   AttachFile,
@@ -437,6 +439,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
 
   const isCampaignRouteActive =
     location.pathname === "/campaigns" ||
+    location.pathname === "/broadcasts" ||
     location.pathname.startsWith("/contact-lists") ||
     location.pathname.startsWith("/campaigns-config");
 
@@ -671,12 +674,20 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 }
                 perform={"drawer-admin-items:view"}
                 yes={() => (
-                  <ListItemLink
-                    to="/moments"
-                    primary={i18n.t("mainDrawer.listItems.chatsTempoReal")}
-                    icon={<GridOn />}
-                    tooltip={collapsed}
-                  />
+                  <>
+                    <ListItemLink
+                      to="/moments"
+                      primary={i18n.t("mainDrawer.listItems.chatsTempoReal")}
+                      icon={<GridOn />}
+                      tooltip={collapsed}
+                    />
+                    <ListItemLink
+                      to="/stories"
+                      primary="Stories"
+                      icon={<RadioButtonUncheckedIcon />}
+                      tooltip={collapsed}
+                    />
+                  </>
                 )}
               />
               {user.profile === "admin" && (
@@ -841,6 +852,12 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 to="/campaigns"
                 primary={i18n.t("campaigns.subMenus.list")}
                 icon={<ListIcon />}
+                tooltip={collapsed}
+              />
+              <ListItemLink
+                to="/broadcasts"
+                primary="Lista de transmissão"
+                icon={<SendIcon />}
                 tooltip={collapsed}
               />
               <ListItemLink

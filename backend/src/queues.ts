@@ -987,6 +987,12 @@ async function sleep(seconds) {
 }
 
 function getCampaignValidMessages(campaign) {
+  if (campaign.dispatchMode === "broadcast") {
+    return !isEmpty(campaign.message1) && !isNil(campaign.message1)
+      ? [campaign.message1]
+      : [];
+  }
+
   const messages = [];
 
   if (!isEmpty(campaign.message1) && !isNil(campaign.message1)) {

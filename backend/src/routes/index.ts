@@ -49,6 +49,7 @@ import flowBuilder from "./flowBuilderRoutes";
 import flowCampaignRoutes from "./flowCampaignRoutes";
 import callRoutes from "./callRoutes";
 import companyKanbanRoutes from "./companyKanbanRoutes";
+import storyRoutes from "./storyRoutes";
 import floupApp from "../plugins/floup";
 
 import ChatController from "../controllers/ChatController";
@@ -106,6 +107,7 @@ routes.use(flowBuilder);
 routes.use(flowCampaignRoutes);
 routes.use("/call", callRoutes);
 routes.use(companyKanbanRoutes);
+routes.use(storyRoutes);
 
 // Plugins
 routes.use(floupApp);

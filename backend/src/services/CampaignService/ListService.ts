@@ -11,6 +11,7 @@ interface Request {
   pageSize?: string;
   status?: string;
   isRecurring?: string;
+  dispatchMode?: string;
 }
 
 interface Response {
@@ -28,7 +29,8 @@ const ListService = async ({
   pageSize = "10",
   companyId,
   status,
-  isRecurring
+  isRecurring,
+  dispatchMode
 }: Request): Promise<Response> => {
   let whereCondition: any = {
     companyId
@@ -46,6 +48,10 @@ const ListService = async ({
     } else if (isRecurring === "false") {
       whereCondition.isRecurring = false;
     }
+  }
+
+  if (dispatchMode && dispatchMode !== "") {
+    whereCondition.dispatchMode = dispatchMode;
   }
 
   // Filtro por busca de texto

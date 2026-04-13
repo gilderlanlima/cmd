@@ -15,6 +15,7 @@ import Users from "../pages/Users";
 import Contacts from "../pages/Contacts/";
 import ContactImportPage from "../pages/Contacts/import";
 import ChatMoments from "../pages/Moments";
+import Stories from "../pages/Stories";
 import Queues from "../pages/Queues/";
 import Tags from "../pages/Tags/";
 import MessagesAPI from "../pages/MessagesAPI/";
@@ -30,6 +31,7 @@ import { WhatsAppsProvider } from "../context/WhatsApp/WhatsAppsContext";
 import Route from "./Route";
 import Schedules from "../pages/Schedules";
 import Campaigns from "../pages/Campaigns";
+import Broadcasts from "../pages/Broadcasts";
 import CampaignsConfig from "../pages/CampaignsConfig";
 import CampaignReport from "../pages/CampaignReport";
 import Annoucements from "../pages/Annoucements";
@@ -192,6 +194,7 @@ const RoutesContent = () => {
                   component={ChatMoments}
                   isPrivate
                 />
+                <Route exact path="/stories" component={Stories} isPrivate />
                 <Route exact path="/Kanban" component={Kanban} isPrivate />
                 <Route
                   exact
@@ -253,13 +256,19 @@ const RoutesContent = () => {
                       component={ContactListItems}
                       isPrivate
                     />
-                    <Route
-                      exact
-                      path="/campaigns"
-                      component={Campaigns}
-                      isPrivate
-                    />
-                    <Route
+                      <Route
+                        exact
+                        path="/campaigns"
+                        component={Campaigns}
+                        isPrivate
+                      />
+                      <Route
+                        exact
+                        path="/broadcasts"
+                        component={Broadcasts}
+                        isPrivate
+                      />
+                      <Route
                       exact
                       path="/campaign/:campaignId/report"
                       component={CampaignReport}

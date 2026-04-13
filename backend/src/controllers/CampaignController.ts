@@ -34,6 +34,7 @@ type IndexQuery = {
   companyId: string | number;
   status?: string;
   isRecurring?: string;
+  dispatchMode?: string;
 };
 
 // src/controllers/CampaignController.ts - Type StoreData completo
@@ -61,6 +62,7 @@ type StoreData = {
   whatsappId: number;
   statusTicket: string;
   openTicket: string;
+  dispatchMode?: string;
   // Novos campos de recorrência
   isRecurring?: boolean;
   recurrenceType?: string | null;
@@ -79,7 +81,7 @@ type FindParams = {
 };
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
-  const { searchParam, pageNumber, pageSize, status, isRecurring } = req.query as IndexQuery;
+  const { searchParam, pageNumber, pageSize, status, isRecurring, dispatchMode } = req.query as IndexQuery;
   const { companyId } = req.user;
 
   const { records, count, hasMore, totalPages, currentPage, pageSize: limit } = await ListService({
@@ -88,7 +90,8 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
     pageSize,
     companyId,
     status,
-    isRecurring
+    isRecurring,
+    dispatchMode
   });
 
   return res.json({ records, count, hasMore, totalPages, currentPage, pageSize: limit });
@@ -110,6 +113,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     queueId: Yup.number().nullable(),
     statusTicket: Yup.string().required(),
     openTicket: Yup.string().required(),
+    dispatchMode: Yup.string().oneOf(["campaign", "broadcast"]).default("campaign"),
     // Validação de recorrência
     isRecurring: Yup.boolean().default(false),
     recurrenceType: Yup.string().when('isRecurring', {
@@ -162,6 +166,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
       queueId,
       statusTicket,
       openTicket,
+      dispatchMode,
       // Novos campos de recorrência
       isRecurring,
       recurrenceType,
@@ -206,18 +211,23 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 
     console.log('[Campaign Store] Dados processados:', processedRecurrenceData);
 
+    const dispatchModeValue = req.body.dispatchMode || "campaign";
+    if (dispatchModeValue === "broadcast" && !message1) {
+      throw new AppError("A lista de transmissão exige uma mensagem única", 400);
+    }
+
     const processedData = {
       name,
       message1: message1 || null,
-      message2: message2 || null,
-      message3: message3 || null,
-      message4: message4 || null,
-      message5: message5 || null,
-      confirmationMessage1: confirmationMessage1 || null,
-      confirmationMessage2: confirmationMessage2 || null,
-      confirmationMessage3: confirmationMessage3 || null,
-      confirmationMessage4: confirmationMessage4 || null,
-      confirmationMessage5: confirmationMessage5 || null,
+      message2: dispatchModeValue === "broadcast" ? null : message2 || null,
+      message3: dispatchModeValue === "broadcast" ? null : message3 || null,
+      message4: dispatchModeValue === "broadcast" ? null : message4 || null,
+      message5: dispatchModeValue === "broadcast" ? null : message5 || null,
+      confirmationMessage1: dispatchModeValue === "broadcast" ? null : confirmationMessage1 || null,
+      confirmationMessage2: dispatchModeValue === "broadcast" ? null : confirmationMessage2 || null,
+      confirmationMessage3: dispatchModeValue === "broadcast" ? null : confirmationMessage3 || null,
+      confirmationMessage4: dispatchModeValue === "broadcast" ? null : confirmationMessage4 || null,
+      confirmationMessage5: dispatchModeValue === "broadcast" ? null : confirmationMessage5 || null,
       confirmation,
       scheduledAt,
       contactListId: contactListId || null,
@@ -227,6 +237,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
       queueId: queueId || null,
       statusTicket,
       openTicket,
+      dispatchMode: dispatchModeValue,
       companyId,
       status: "PROGRAMADA",
       // Adicionar campos de recorrência processados
@@ -299,6 +310,7 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
     queueId: Yup.number().nullable(),
     statusTicket: Yup.string().required(),
     openTicket: Yup.string().required(),
+    dispatchMode: Yup.string().oneOf(["campaign", "broadcast"]).default("campaign"),
     // Validação de recorrência
     isRecurring: Yup.boolean().default(false),
     recurrenceType: Yup.string().when('isRecurring', {
@@ -391,18 +403,23 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
       maxExecutions: (isRecurring && maxExecutions) ? maxExecutions : null
     };
 
+    const dispatchModeValue = req.body.dispatchMode || "campaign";
+    if (dispatchModeValue === "broadcast" && !message1) {
+      throw new AppError("A lista de transmissão exige uma mensagem única", 400);
+    }
+
     const processedData = {
       name,
       message1: message1 || null,
-      message2: message2 || null,
-      message3: message3 || null,
-      message4: message4 || null,
-      message5: message5 || null,
-      confirmationMessage1: confirmationMessage1 || null,
-      confirmationMessage2: confirmationMessage2 || null,
-      confirmationMessage3: confirmationMessage3 || null,
-      confirmationMessage4: confirmationMessage4 || null,
-      confirmationMessage5: confirmationMessage5 || null,
+      message2: dispatchModeValue === "broadcast" ? null : message2 || null,
+      message3: dispatchModeValue === "broadcast" ? null : message3 || null,
+      message4: dispatchModeValue === "broadcast" ? null : message4 || null,
+      message5: dispatchModeValue === "broadcast" ? null : message5 || null,
+      confirmationMessage1: dispatchModeValue === "broadcast" ? null : confirmationMessage1 || null,
+      confirmationMessage2: dispatchModeValue === "broadcast" ? null : confirmationMessage2 || null,
+      confirmationMessage3: dispatchModeValue === "broadcast" ? null : confirmationMessage3 || null,
+      confirmationMessage4: dispatchModeValue === "broadcast" ? null : confirmationMessage4 || null,
+      confirmationMessage5: dispatchModeValue === "broadcast" ? null : confirmationMessage5 || null,
       confirmation,
       scheduledAt,
       contactListId: contactListId || null,
@@ -412,6 +429,7 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
       queueId: queueId || null,
       statusTicket,
       openTicket,
+      dispatchMode: dispatchModeValue,
       companyId,
       // Adicionar campos de recorrência processados
       ...processedRecurrenceData
