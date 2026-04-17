@@ -480,6 +480,12 @@ const TicketsManagerTabs = () => {
   }, [loadInternalChatCount]);
 
   useEffect(() => {
+    if (tabOpen === "chat-internal") {
+      loadInternalChatCount();
+    }
+  }, [loadInternalChatCount, location.search, tabOpen]);
+
+  useEffect(() => {
     if (!user?.companyId || !user?.id) {
       return undefined;
     }

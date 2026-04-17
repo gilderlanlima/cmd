@@ -1,6 +1,7 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
   Avatar,
+  Badge,
   InputBase,
   List,
   ListItem,
@@ -17,6 +18,7 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 import UserStatusIcon from "../UserModal/statusIcon";
 import api from "../../services/api";
 import { getBackendUrl } from "../../config";
+import { socketConnection } from "../../services/socket";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -65,6 +67,10 @@ const useStyles = makeStyles((theme) => ({
   secondary: {
     color: theme.palette.text.secondary,
   },
+  unreadBadge: {
+    right: 6,
+    top: 6,
+  },
   emptyState: {
     padding: theme.spacing(3),
     textAlign: "center",
@@ -85,35 +91,78 @@ const InternalChatTicketsList = () => {
   const query = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const activeChatUuid = query.get("chatUuid");
 
+  const applyChatReadLocally = useCallback(
+    (chatId) => {
+      setChats((prevChats) =>
+        prevChats.map((chat) => ({
+          ...chat,
+          users: (chat.users || []).map((chatUser) =>
+            chat.id === chatId && String(chatUser.userId) === String(user.id)
+              ? { ...chatUser, unreads: 0 }
+              : chatUser
+          ),
+        }))
+      );
+    },
+    [user.id]
+  );
+
+  const loadData = useCallback(async () => {
+    const [usersResponse, chatsResponse] = await Promise.all([
+      api.get("/users/list"),
+      api.get("/chats"),
+    ]);
+
+    setUsers(
+      (usersResponse.data || []).filter((listedUser) => listedUser.id !== user.id)
+    );
+    setChats(chatsResponse.data?.records || []);
+  }, [user.id]);
+
   useEffect(() => {
     let mounted = true;
 
-    const loadData = async () => {
+    const safeLoadData = async () => {
       try {
-        const [usersResponse, chatsResponse] = await Promise.all([
-          api.get("/users/list"),
-          api.get("/chats"),
-        ]);
-
         if (!mounted) {
           return;
         }
 
-        setUsers(
-          (usersResponse.data || []).filter((listedUser) => listedUser.id !== user.id)
-        );
-        setChats(chatsResponse.data?.records || []);
+        await loadData();
       } catch (error) {
         console.error("Erro ao carregar lista do chat interno:", error);
       }
     };
 
-    loadData();
+    safeLoadData();
 
     return () => {
       mounted = false;
     };
-  }, [user.id]);
+  }, [loadData]);
+
+  useEffect(() => {
+    if (!user?.companyId || !user?.id) {
+      return undefined;
+    }
+
+    const chatSocket = socketConnection({ user });
+    const refreshChats = (data) => {
+      if (!data?.action || ["new-message", "update", "create", "delete", "read"].includes(data.action)) {
+        loadData().catch((error) => {
+          console.error("Erro ao sincronizar lista do chat interno:", error);
+        });
+      }
+    };
+
+    chatSocket.on(`company-${user.companyId}-chat`, refreshChats);
+    chatSocket.on(`company-${user.companyId}-chat-user-${user.id}`, refreshChats);
+
+    return () => {
+      chatSocket.off(`company-${user.companyId}-chat`, refreshChats);
+      chatSocket.off(`company-${user.companyId}-chat-user-${user.id}`, refreshChats);
+    };
+  }, [loadData, user]);
 
   const directChatForUser = (targetUserId) =>
     chats.find((chat) => {
@@ -139,6 +188,15 @@ const InternalChatTicketsList = () => {
           const withoutSameChat = prevState.filter((chat) => chat.id !== directChat.id);
           return [directChat, ...withoutSameChat];
         });
+      }
+
+      const currentUserInChat = directChat.users?.find(
+        (chatUser) => String(chatUser.userId) === String(user.id)
+      );
+
+      if ((currentUserInChat?.unreads || 0) > 0) {
+        await api.post(`/chats/${directChat.id}/read`, { userId: user.id });
+        applyChatReadLocally(directChat.id);
       }
 
       const nextParams = new URLSearchParams(location.search);
@@ -170,6 +228,9 @@ const InternalChatTicketsList = () => {
         {visibleUsers.map((listedUser) => {
           const directChat = directChatForUser(listedUser.id);
           const isActive = directChat?.uuid === activeChatUuid;
+          const unreadMessages =
+            directChat?.users?.find((chatUser) => String(chatUser.userId) === String(user.id))
+              ?.unreads || 0;
 
           return (
             <ListItem
@@ -179,17 +240,24 @@ const InternalChatTicketsList = () => {
               className={isActive ? classes.listItemActive : classes.listItem}
             >
               <ListItemAvatar>
-                <Avatar
-                  src={
-                    listedUser.profileImage
-                      ? listedUser.profileImage.startsWith("http")
-                        ? listedUser.profileImage
-                        : `${getBackendUrl()}/public/company${listedUser.companyId}/user/${listedUser.profileImage}`
-                      : undefined
-                  }
+                <Badge
+                  color="primary"
+                  badgeContent={unreadMessages}
+                  invisible={!unreadMessages}
+                  classes={{ badge: classes.unreadBadge }}
                 >
-                  {listedUser.name?.charAt(0) || "U"}
-                </Avatar>
+                  <Avatar
+                    src={
+                      listedUser.profileImage
+                        ? listedUser.profileImage.startsWith("http")
+                          ? listedUser.profileImage
+                          : `${getBackendUrl()}/public/company${listedUser.companyId}/user/${listedUser.profileImage}`
+                        : undefined
+                    }
+                  >
+                    {listedUser.name?.charAt(0) || "U"}
+                  </Avatar>
+                </Badge>
               </ListItemAvatar>
 
               <ListItemText
