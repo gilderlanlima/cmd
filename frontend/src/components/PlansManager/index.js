@@ -208,7 +208,7 @@ export function PlanManagerForm(props) {
                         <Grid xs={12} sm={6} md={1} item>
                             <Field
                                 as={TextField}
-                                label="Filas"
+                                label="Setores"
                                 name="queues"
                                 variant="outlined"
                                 className={classes.fullWidth}
@@ -541,7 +541,7 @@ export function PlansManagerGrid(props) {
                         <TableCell align="center">{i18n.t("plans.form.users")}</TableCell>
                         <TableCell align="center">{i18n.t("plans.form.public")}</TableCell>
                         <TableCell align="center">{i18n.t("plans.form.connections")}</TableCell>
-                        <TableCell align="center">Filas</TableCell>
+                        <TableCell align="center">Setores</TableCell>
                         <TableCell align="center">Valor</TableCell>
                         <TableCell align="center">Whatsapp</TableCell>
                         <TableCell align="center">Whatsapp Oficial</TableCell>

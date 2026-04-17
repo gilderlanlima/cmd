@@ -20,6 +20,7 @@ import {
   Facebook,
   Instagram,
   Reply,
+  Share,
   WhatsApp
 } from "@material-ui/icons";
 import LockIcon from '@material-ui/icons/Lock';
@@ -225,6 +226,35 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: theme.mode === 'light' ? "0 1px 1px #b3b3b3" : "0 1px 1px #000000"
   },
 
+  messageRightBroadcast: {
+    marginLeft: 20,
+    marginTop: 2,
+    minWidth: 100,
+    maxWidth: 600,
+    height: "auto",
+    display: "block",
+    position: "relative",
+    "&:hover #messageActionsButton": {
+      display: "flex",
+      position: "absolute",
+      top: 0,
+      right: 0,
+    },
+    whiteSpace: "pre-wrap",
+    backgroundColor: theme.mode === "light" ? "#dbeafe" : "#1d4ed8",
+    color: theme.mode === "light" ? "#0f172a" : "#eff6ff",
+    alignSelf: "flex-end",
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 0,
+    paddingLeft: 5,
+    paddingRight: 5,
+    paddingTop: 5,
+    paddingBottom: 0,
+    boxShadow: theme.mode === "light" ? "0 1px 1px #b3b3b3" : "0 1px 1px #000000"
+  },
+
   quotedContainerRight: {
     margin: "-3px -80px 6px -6px",
     overflowY: "hidden",
@@ -351,6 +381,13 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 18,
     verticalAlign: "middle",
     marginLeft: 4,
+  },
+
+  broadcastIcon: {
+    fontSize: 14,
+    verticalAlign: "middle",
+    marginRight: 4,
+    color: theme.mode === "light" ? "#2563eb" : "#bfdbfe",
   },
   downloadMedia: {
     display: "flex",
@@ -1186,6 +1223,9 @@ const MessagesList = ({
     return xmlString;
   };
 
+  const isBroadcastMessage = (message) =>
+    Boolean(message?.fromMe && typeof message?.body === "string" && /\u200c/.test(message.body));
+
   const renderMessages = () => {
 
     if (messagesList.length > 0) {
@@ -1327,13 +1367,20 @@ const MessagesList = ({
             </React.Fragment>
           );
         } else {
+          const isBroadcast = isBroadcastMessage(message);
           return (
             <React.Fragment key={message.id}>
               {renderDailyTimestamps(message, index)}
               {renderTicketsSeparator(message, index)}
               {renderMessageDivider(message, index)}
               <div
-                className={message.isPrivate ? classes.messageRightPrivate : classes.messageRight}
+                className={
+                  isBroadcast
+                    ? classes.messageRightBroadcast
+                    : message.isPrivate
+                    ? classes.messageRightPrivate
+                    : classes.messageRight
+                }
                 title={message.queueId && message.queue?.name}
                 onDoubleClick={(e) => hanldeReplyMessage(e, message)}
               >
@@ -1407,6 +1454,7 @@ const MessagesList = ({
                   )}
 
                   <span className={classes.timestamp}>
+                    {isBroadcast && <Share className={classes.broadcastIcon} />}
                     {message.isEdited ? "Editada " + format(parseISO(message.createdAt), "HH:mm") : format(parseISO(message.createdAt), "HH:mm")}
                     {renderMessageAck(message)}
                   </span>

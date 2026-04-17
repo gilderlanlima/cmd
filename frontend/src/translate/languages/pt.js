@@ -187,7 +187,7 @@ const messages = {
             connection: "Conexão",
             contact: "Contato",
             user: "Usuário",
-            queue: "Fila",
+            queue: "Setor",
             status: "Status",
             lastMessage: "Última Mensagem",
             openDate: "Data Abertura",
@@ -304,7 +304,7 @@ const messages = {
         form: {
           message: "Este contato já está em atendimento:",
           user: "Atendente",
-          queue: "Fila",
+          queue: "Setor",
           messageWait:
             "Este contato já está aguardando atendimento. Veja na aba Aguardando!",
         },
@@ -316,12 +316,12 @@ const messages = {
         options: {
           create: "Ticket criado.",
           chatBot: "ChatBot iniciado.",
-          queue: " - Fila definida.",
+          queue: " - Setor definido.",
           open: " iniciou o atendimento.",
           access: "acessou o ticket.",
           transfered: "transferiu o ticket.",
           receivedTransfer: "recebeu o ticket transferido.",
-          pending: "devolveu a fila.",
+          pending: "devolveu o setor.",
           closed: "fechou o ticket",
           reopen: "reabriu o ticket",
           redirect: "- redirecionado",
@@ -347,12 +347,12 @@ const messages = {
           importOldMessagesGroups: "Importar mensagens de grupo",
           closedTicketsPostImported: "Encerrar tickets após importação",
           name: "Nome",
-          queueRedirection: "Redirecionamento de Fila",
+          queueRedirection: "Redirecionamento de Setor",
           queueRedirectionDesc:
-            "Selecione uma fila para os contatos que não possuem fila serem redirecionados",
+            "Selecione um setor para os contatos que não possuem setor serem redirecionados",
           default: "Padrão",
           group: "Permitir grupos",
-          timeSendQueue: "Tempo em minutos para redirecionar para fila",
+          timeSendQueue: "Tempo em minutos para redirecionar para setor",
           importAlert:
             "ATENÇÃO: Ao salvar, sua conexão será encerrada, será necessário ler novamente o QR Code para importar as mensagens",
           groupAsTicket: "Tratar grupos como ticket",
@@ -360,7 +360,7 @@ const messages = {
           maxUseBotQueues: "Enviar bot x vezes",
           maxUseInactiveTime: "Enviar flow de inatividade x vezes",
           timeUseBotQueues: "Enviar bot em x minutos",
-          timeToReturnQueue: "Tempo para retornar a fila em minutos",
+          timeToReturnQueue: "Tempo para retornar ao setor em minutos",
           timeAwaitActiveFlow: "Tempo para aguardar ativação do fluxo",
           expiresTicket: "Encerrar chats abertos após x minutos",
           expiresTicketNPS:
@@ -378,7 +378,7 @@ const messages = {
           lgpdSendMessage: "Sempre solicitar confirmação do contato",
           ratingMessage: "Mensagem de avaliaçao - Escala deve ser de 0 a 10",
           token: "Token para integração externa",
-          sendIdQueue: "Fila",
+          sendIdQueue: "Setor",
           inactiveMessage: "Mensagem de inatividade",
           timeInactiveMessage:
             "Tempo em minutos para envio do aviso de inatividade",
@@ -391,7 +391,7 @@ const messages = {
           collectiveVacationEnd: "Data final",
           collectiveVacationStart: "Data inicial",
           collectiveVacationMessage: "Mensagem de férias coletivas",
-          queueIdImportMessages: "Fila para importar as mensagens",
+          queueIdImportMessages: "Setor para importar as mensagens",
           isOficial: "Oficial",
           phone_number_id: "ID Número de telefone",
           waba_id: "Waba ID",
@@ -413,7 +413,7 @@ const messages = {
         },
         success: "Conexão salvo com sucesso.",
         errorSendQueue:
-          "Foi informado tempo para redirecionar fila, porém não foi selecionada fila para redirecionar. Os dois campos precisam estar preenchidos",
+          "Foi informado tempo para redirecionar setor, porém não foi selecionado um setor para redirecionamento. Os dois campos precisam estar preenchidos",
         errorExpiresNPS:
           "É obrigado informar um tempo para avaliação quando se utiliza o NPS.",
         errorRatingMessage:
@@ -500,7 +500,7 @@ const messages = {
         title: "Prompts",
         table: {
           name: "Nome",
-          queue: "Setor/Fila",
+          queue: "Setor",
           max_tokens: "Máximo Tokens Resposta",
           actions: "Ações",
         },
@@ -538,7 +538,7 @@ const messages = {
         },
         success: "Contato salvo com sucesso.",
         walletLinked: "Contato vinculado à sua carteira com sucesso!",
-        walletError: "Usuário não possui filas associadas",
+        walletError: "Usuário não possui setores associados",
         saveFirst: "Contato deve ser salvo primeiro",
       },
       wallets: {
@@ -548,14 +548,14 @@ const messages = {
         allUsers: "Todos os usuários",
         contact: "Contato",
         user: "Usuário",
-        queue: "Fila",
+        queue: "Setor",
         phone: "Telefone",
         email: "Email",
         actions: "Ações",
         editWallet: "Editar Carteira",
         selectUser: "Selecionar Usuário",
-        selectQueue: "Selecionar Fila",
-        selectUserAndQueue: "Selecione um usuário e uma fila",
+        selectQueue: "Selecionar Setor",
+        selectUserAndQueue: "Selecione um usuário e um setor",
         cancel: "Cancelar",
         save: "Salvar",
         confirmDeleteTitle: "Confirmar Exclusão",
@@ -567,17 +567,17 @@ const messages = {
       },
       queueModal: {
         title: {
-          queueData: "Dados da fila",
+          queueData: "Dados do setor",
           text: "Horários de atendimento",
-          add: "Adicionar fila",
-          edit: "Editar fila",
+          add: "Adicionar setor",
+          edit: "Editar setor",
           confirmationDelete:
             "Tem certeza? Todas as opções de integrações serão deletadas.",
         },
         form: {
           name: "Nome",
           color: "Cor",
-          orderQueue: "Ordem da fila (Bot)",
+          orderQueue: "Ordem do setor (Bot)",
           rotate: "Rodízio",
           timeRotate: "Tempo de Rodízio",
           typeRandomMode: "Tipo de rodízio",
@@ -591,7 +591,7 @@ const messages = {
           randomizeImmediate: "Randomizar Automaticamente (Imediato)",
           queueType: "Tipo de menu",
           message: "Mensagem de retorno",
-          queue: "Fila para transferência",
+          queue: "Setor para transferência",
           integration: "Integração",
           file: "Lista de arquivos",
         },
@@ -608,7 +608,7 @@ const messages = {
           selectOption: "Selecione uma opção",
           text: "Texto",
           attendent: "Atendente",
-          queue: "Fila",
+          queue: "Setor",
           integration: "Integração",
           file: "Arquivo",
           toolTipMessageTitle:
@@ -616,7 +616,7 @@ const messages = {
           toolTipMessageContent:
             "A mensagem é obrigatória para seguir ao próximo nível",
           selectUser: "Selecione um Usuário",
-          selectQueue: "Selecione uma Fila",
+          selectQueue: "Selecione um Setor",
           selectIntegration: "Selecione uma Integração",
           addOptions: "Adicionar opções",
         },
@@ -688,7 +688,7 @@ const messages = {
           whatsapp: "Conexão Padrão",
           allTicketEnable: "Habilitado",
           allTicketDisable: "Desabilitado",
-          allTicket: "Visualizar chamados sem fila",
+          allTicket: "Visualizar chamados sem setor",
           allowGroup: "Permitir Grupos",
           defaultMenuOpen: "Aberto",
           defaultMenuClosed: "Fechado",
@@ -696,7 +696,7 @@ const messages = {
           defaultTheme: "Tema Padrão",
           defaultThemeDark: "Escuro",
           defaultThemeLight: "Claro",
-          allHistoric: "Ver conversas de outras filas",
+          allHistoric: "Ver conversas de outros setores",
           allHistoricEnabled: "Habilitado",
           allHistoricDisabled: "Desabilitado",
           allUserChat: "Ver conversas de outros usuários",
@@ -843,7 +843,7 @@ const messages = {
         },
       },
       ticketsQueueSelect: {
-        placeholder: "Filas",
+        placeholder: "Setores",
       },
       tickets: {
         messageHidden: "Mensagem oculta",
@@ -882,7 +882,7 @@ const messages = {
         },
         buttons: {
           showAll: "Todos",
-          returnQueue: "Devolver a Fila",
+          returnQueue: "Devolver ao Setor",
           scredule: "Agendamento",
           deleteTicket: "Deletar Ticket",
         },
@@ -894,8 +894,8 @@ const messages = {
       transferTicketModal: {
         title: "Transferir Ticket",
         fieldLabel: "Digite para buscar usuários",
-        fieldQueueLabel: "Transferir para fila",
-        fieldQueuePlaceholder: "Selecione uma fila",
+        fieldQueueLabel: "Transferir para setor",
+        fieldQueuePlaceholder: "Selecione um setor",
         fieldWhatsapp: "Selecione um whatsapp",
         noOptions: "Nenhum usuário encontrado com esse nome",
         msgTransfer: "Observações - mensagem interna, não vai para o cliente",
@@ -928,7 +928,7 @@ const messages = {
         noTicketsTitle: "Nada aqui!",
         noTicketsMessage:
           "Nenhum ticket encontrado com esse status ou termo pesquisado",
-        noQueue: "Sem Fila",
+        noQueue: "Sem Setor",
         buttons: {
           accept: "Aceitar",
           cancel: "Cancelar",
@@ -972,7 +972,7 @@ const messages = {
           quickMessages: "Respostas rápidas",
           contacts: "Contatos",
           wallets: "Carteiras",
-          queues: "Filas & Chatbot",
+          queues: "Setores",
           tags: "Tags",
           administration: "Administração",
           companies: "Empresas",
@@ -1034,7 +1034,7 @@ const messages = {
           body: "Mensagem",
           token: "Token cadastrado",
           userId: "ID do usuário/atendente",
-          queueId: "ID da Fila",
+          queueId: "ID do Setor",
         },
         mediaMessage: {
           number: "Número",
@@ -1374,35 +1374,35 @@ const messages = {
         title: "Configurações de Campanhas",
       },
       queues: {
-        title: "Filas & Chatbot",
+        title: "Setores",
         table: {
           name: "Nome",
           color: "Cor",
           greeting: "Mensagem de saudação",
-          orderQueue: "Ordenação da fila (bot)",
+          orderQueue: "Ordenação do setor (bot)",
           actions: "Ações",
           ID: "ID",
         },
         buttons: {
-          add: "Adicionar fila",
+          add: "Adicionar setor",
         },
         toasts: {
-          success: "Fila salva com sucesso",
-          deleted: "Fila exclu[ida com sucesso",
+          success: "Setor salvo com sucesso",
+          deleted: "Setor excluído com sucesso",
         },
         confirmationModal: {
           deleteTitle: "Excluir",
           deleteMessage:
-            "Você tem certeza? Essa ação não pode ser revertida! Os atendimentos dessa fila continuarão existindo, mas não terão mais nenhuma fila atribuída.",
+            "Você tem certeza? Essa ação não pode ser revertida! Os atendimentos desse setor continuarão existindo, mas não terão mais nenhum setor atribuído.",
         },
       },
       queue: {
         queueData: "Dados",
       },
       queueSelect: {
-        inputLabel: "Filas",
-        inputLabelRO: "Filas somente leitura",
-        withoutQueue: "Sem fila",
+        inputLabel: "Setores",
+        inputLabelRO: "Setores somente leitura",
+        withoutQueue: "Sem setor",
       },
       reports: {
         title: "Relatórios de Atendimentos",
@@ -1416,7 +1416,7 @@ const messages = {
           NPS: "NPS",
           status: "Status",
           whatsapp: "Conexão",
-          queue: "Fila",
+          queue: "Setor",
           actions: "Ações",
           lastMessage: "Últ. Mensagem",
           contact: "Cliente",
@@ -1446,7 +1446,7 @@ const messages = {
         confirmationModal: {
           deleteTitle: "Excluir",
           deleteMessage:
-            "Você tem certeza? Essa ação não pode ser revertida! e será removida das filas e conexões vinculadas",
+            "Você tem certeza? Essa ação não pode ser revertida! e será removida dos setores e conexões vinculadas",
         },
       },
       users: {
@@ -1470,7 +1470,7 @@ const messages = {
         confirmationModal: {
           deleteTitle: "Excluir",
           deleteMessage:
-            "Todos os dados do usuário serão perdidos. Os atendimento abertos deste usuário serão movidos para a fila.",
+            "Todos os dados do usuário serão perdidos. Os atendimentos abertos deste usuário serão movidos para o setor.",
         },
       },
       compaies: {
@@ -1488,7 +1488,7 @@ const messages = {
           numberConections: "Conexões",
           value: "Valor",
           namePlan: "Nome Plano",
-          numberQueues: "Filas",
+          numberQueues: "Setores",
           useCampaigns: "Campanhas",
           useExternalApi: "Rest API",
           useFacebook: "Facebook",
@@ -1528,7 +1528,7 @@ const messages = {
         confirmationModal: {
           deleteTitle: "Excluir",
           deleteMessage:
-            "Todos os dados da empresa serão perdidos. Os tickets abertos deste usuário serão movidos para a fila.",
+            "Todos os dados da empresa serão perdidos. Os tickets abertos deste usuário serão movidos para o setor.",
         },
       },
       plans: {
@@ -1700,7 +1700,7 @@ const messages = {
             creationCompanyUser: "Criação de Company/Usuário",
             evaluations: "Avaliações",
             officeScheduling: "Agendamento de Expediente",
-            queueManagement: "Gerenciamento por Fila",
+            queueManagement: "Gerenciamento por Setor",
             companyManagement: "Gerenciamento por Empresa",
             connectionManagement: "Gerenciamento por Conexão",
             sendGreetingAccepted: "Enviar saudação ao aceitar o ticket",
@@ -1713,8 +1713,8 @@ const messages = {
             acceptCallWhatsapp: "Informar que não aceita ligação no whatsapp?",
             sendSignMessage: "Permite atendente escolher ENVIAR Assinatura",
             sendGreetingMessageOneQueues:
-              "Enviar saudação quando houver somente 1 fila",
-            sendQueuePosition: "Enviar mensagem com a posição da fila",
+              "Enviar saudação quando houver somente 1 setor",
+            sendQueuePosition: "Enviar mensagem com a posição do setor",
             sendFarewellWaitingTicket:
               "Enviar mensagem de despedida no Aguardando",
             acceptAudioMessageContact:
@@ -1722,7 +1722,7 @@ const messages = {
             enableLGPD: "Habilitar tratamento LGPD",
             requiredTag: "Tag obrigatoria para fechar ticket",
             closeTicketOnTransfer:
-              "Fechar ticket ao transferir para outra fila",
+              "Fechar ticket ao transferir para outro setor",
             transferredTicketStatus:
               "Status do ticket ao transferir com usuário",
             DirectTicketsToWallets:
@@ -1733,12 +1733,12 @@ const messages = {
             copyContactPrefixPlaceholder: "Ex: COPIA_"
           },
           customMessages: {
-            sendQueuePositionMessage: "Mensagem de posição na fila",
+            sendQueuePositionMessage: "Mensagem de posição no setor",
             AcceptCallWhatsappMessage:
               "Mensagem para informar que não aceita ligações",
             greetingAcceptedMessage: "Mensagem de Saudação ao aceitar ticket",
             transferMessage:
-              "Mensagem de transferência - ${queue.name} = fila destino",
+              "Mensagem de transferência - ${queue.name} = setor de destino",
           },
           LGPD: {
             title: "LGPD",
@@ -1876,7 +1876,7 @@ const messages = {
           details: "Detalhes",
           users: "Usuários",
           connections: "Conexões",
-          queue: "Filas",
+          queue: "Setores",
           value: "Valor",
           expirationDate: "Data Venc.",
           action: "Ação",
@@ -1916,7 +1916,7 @@ const messages = {
         ERR_QUEUE_COLOR_ALREADY_EXISTS:
           "Esta cor já está em uso, escolha outra.",
         ERR_WAPP_GREETING_REQUIRED:
-          "A mensagem de saudação é obrigatório quando há mais de uma fila.",
+          "A mensagem de saudação é obrigatória quando há mais de um setor.",
         ERR_OUT_OF_HOURS: "Fora do Horário de Expediente!",
       },
       messagesAPIInstructions: {
@@ -1930,7 +1930,7 @@ const messages = {
         fieldNumber: '"number": "558599999999"',
         fieldBody: '"body": "Mensagem"',
         fieldUserId: '"userId": ID do usuário ou ""',
-        fieldQueueId: '"queueId": ID da Fila ou ""',
+        fieldQueueId: '"queueId": ID do Setor ou ""',
         fieldSendSignature: '"sendSignature": Assinar mensagem - true/false',
         fieldCloseTicket: '"closeTicket": Encerrar o ticket - true/false',
         singMessage: "Assinar mensagem - true/false",
@@ -1962,7 +1962,7 @@ const messages = {
         details: "Detalhes",
         users: "Usuários",
         connections: "Conexões",
-        queues: "Filas",
+        queues: "Setores",
         value: "Valor",
         expirationDate: "Data Venc.",
         status: "Status",
@@ -1974,7 +1974,7 @@ const messages = {
       momentsUser: {
         services: "Atendimentos:",
         pending: "Pendentes",
-        noqueue: "SEM FILA",
+        noqueue: "SEM SETOR",
       },
       campaignsPhrase: {
         campaignsFlow: "Fluxo de Campanhas",

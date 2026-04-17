@@ -1,21 +1,18 @@
 import React from "react";
+import { styled } from "goober";
 
-import { makeStyles } from "@material-ui/core/styles";
-
-const useStyles = makeStyles(theme => ({
-	MainHeaderButtonsWrapper: {
-		flex: "none",
-		marginLeft: "auto",
-		"& > *": {
-			margin: theme.spacing(1),
-		},
-	},
-}));
+const ButtonsBar = styled("div")`
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 12px;
+	margin-left: auto;
+	flex-wrap: wrap;
+	padding-left: 12px;
+`;
 
 const MainHeaderButtonsWrapper = ({ children }) => {
-	const classes = useStyles();
-
-	return <div className={classes.MainHeaderButtonsWrapper}>{children}</div>;
+	return <ButtonsBar>{children}</ButtonsBar>;
 };
 
 export default MainHeaderButtonsWrapper;

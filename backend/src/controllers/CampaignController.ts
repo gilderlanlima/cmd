@@ -1,4 +1,4 @@
-import * as Yup from "yup";
+﻿import * as Yup from "yup";
 import { Request, Response } from "express";
 import { getIO } from "../libs/socket";
 import { head } from "lodash";
@@ -21,6 +21,7 @@ import Ticket from "../models/Ticket";
 import Contact from "../models/Contact";
 import ContactList from "../models/ContactList";
 import ContactListItem from "../models/ContactListItem";
+import UserQueue from "../models/UserQueue";
 
 import AppError from "../errors/AppError";
 import { CancelService } from "../services/CampaignService/CancelService";
@@ -63,7 +64,7 @@ type StoreData = {
   statusTicket: string;
   openTicket: string;
   dispatchMode?: string;
-  // Novos campos de recorrência
+  // Novos campos de recorrÃªncia
   isRecurring?: boolean;
   recurrenceType?: string | null;
   recurrenceInterval?: number | null;
@@ -100,7 +101,7 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 // src/controllers/CampaignController.ts - Store method completo
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
-  const { companyId } = req.user;
+  const { companyId, id: currentUserId } = req.user;
 
   const schema = Yup.object().shape({
     name: Yup.string().required(),
@@ -114,7 +115,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     statusTicket: Yup.string().required(),
     openTicket: Yup.string().required(),
     dispatchMode: Yup.string().oneOf(["campaign", "broadcast"]).default("campaign"),
-    // Validação de recorrência
+    // ValidaÃ§Ã£o de recorrÃªncia
     isRecurring: Yup.boolean().default(false),
     recurrenceType: Yup.string().when('isRecurring', {
       is: true,
@@ -167,7 +168,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
       statusTicket,
       openTicket,
       dispatchMode,
-      // Novos campos de recorrência
+      // Novos campos de recorrÃªncia
       isRecurring,
       recurrenceType,
       recurrenceInterval,
@@ -185,7 +186,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
       recurrenceDaysOfWeekIsArray: Array.isArray(recurrenceDaysOfWeek)
     });
 
-    // Processar dados de recorrência com logs
+    // Processar dados de recorrÃªncia com logs
     const processedRecurrenceData = {
       isRecurring: isRecurring || false,
       recurrenceType: isRecurring ? recurrenceType : null,
@@ -212,8 +213,21 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     console.log('[Campaign Store] Dados processados:', processedRecurrenceData);
 
     const dispatchModeValue = req.body.dispatchMode || "campaign";
+    const defaultBroadcastUserId =
+      dispatchModeValue === "broadcast" ? (userId || currentUserId) : userId || null;
+    let defaultBroadcastQueueId =
+      dispatchModeValue === "broadcast" ? (queueId || null) : queueId || null;
+
+    if (dispatchModeValue === "broadcast" && !defaultBroadcastQueueId && defaultBroadcastUserId) {
+      const userQueue = await UserQueue.findOne({
+        where: { userId: Number(defaultBroadcastUserId) },
+        order: [["createdAt", "ASC"]]
+      });
+
+      defaultBroadcastQueueId = userQueue?.queueId || null;
+    }
     if (dispatchModeValue === "broadcast" && !message1) {
-      throw new AppError("A lista de transmissão exige uma mensagem única", 400);
+      throw new AppError("A lista de transmissÃ£o exige uma mensagem Ãºnica", 400);
     }
 
     const processedData = {
@@ -233,14 +247,14 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
       contactListId: contactListId || null,
       tagListId: tagListId === "Nenhuma" ? null : tagListId,
       whatsappId,
-      userId: userId || null,
-      queueId: queueId || null,
+      userId: defaultBroadcastUserId,
+      queueId: defaultBroadcastQueueId,
       statusTicket,
       openTicket,
       dispatchMode: dispatchModeValue,
       companyId,
       status: "PROGRAMADA",
-      // Adicionar campos de recorrência processados
+      // Adicionar campos de recorrÃªncia processados
       ...processedRecurrenceData
     };
 
@@ -250,7 +264,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 
     console.log('[Campaign Store] Campanha criada:', campaign.id);
 
-    // Log detalhado com informações da lista/tag
+    // Log detalhado com informaÃ§Ãµes da lista/tag
     let totalContacts = 0;
     if (campaign.contactListId) {
       // Buscar total de contatos na lista
@@ -272,9 +286,9 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
       console.log(`[Campaign Store] Campanha por tag - Total de contatos: ${totalContacts}`);
     }
 
-    // Se for recorrente, calcular próxima execução
+    // Se for recorrente, calcular prÃ³xima execuÃ§Ã£o
     if (campaign.isRecurring) {
-      console.log('[Campaign Store] Configurando próxima execução para campanha recorrente');
+      console.log('[Campaign Store] Configurando prÃ³xima execuÃ§Ã£o para campanha recorrente');
       await RecurrenceService.scheduleNextExecution(campaign.id);
       // Recarregar campanha para ter o nextScheduledAt atualizado
       await campaign.reload();
@@ -294,9 +308,9 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   }
 };
 
-// Update method também precisa ser atualizado
+// Update method tambÃ©m precisa ser atualizado
 export const update = async (req: Request, res: Response): Promise<Response> => {
-  const { companyId } = req.user;
+  const { companyId, id: currentUserId } = req.user;
   const { campaignId } = req.params;
 
   const schema = Yup.object().shape({
@@ -311,7 +325,7 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
     statusTicket: Yup.string().required(),
     openTicket: Yup.string().required(),
     dispatchMode: Yup.string().oneOf(["campaign", "broadcast"]).default("campaign"),
-    // Validação de recorrência
+    // ValidaÃ§Ã£o de recorrÃªncia
     isRecurring: Yup.boolean().default(false),
     recurrenceType: Yup.string().when('isRecurring', {
       is: true,
@@ -363,7 +377,7 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
       queueId,
       statusTicket,
       openTicket,
-      // Novos campos de recorrência
+      // Novos campos de recorrÃªncia
       isRecurring,
       recurrenceType,
       recurrenceInterval,
@@ -382,7 +396,7 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
       recurrenceDaysOfWeekIsArray: Array.isArray(recurrenceDaysOfWeek)
     });
 
-    // Processar dados de recorrência
+    // Processar dados de recorrÃªncia
     const processedRecurrenceData = {
       isRecurring: isRecurring || false,
       recurrenceType: isRecurring ? recurrenceType : null,
@@ -404,8 +418,21 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
     };
 
     const dispatchModeValue = req.body.dispatchMode || "campaign";
+    const defaultBroadcastUserId =
+      dispatchModeValue === "broadcast" ? (userId || currentUserId) : userId || null;
+    let defaultBroadcastQueueId =
+      dispatchModeValue === "broadcast" ? (queueId || null) : queueId || null;
+
+    if (dispatchModeValue === "broadcast" && !defaultBroadcastQueueId && defaultBroadcastUserId) {
+      const userQueue = await UserQueue.findOne({
+        where: { userId: Number(defaultBroadcastUserId) },
+        order: [["createdAt", "ASC"]]
+      });
+
+      defaultBroadcastQueueId = userQueue?.queueId || null;
+    }
     if (dispatchModeValue === "broadcast" && !message1) {
-      throw new AppError("A lista de transmissão exige uma mensagem única", 400);
+      throw new AppError("A lista de transmissÃ£o exige uma mensagem Ãºnica", 400);
     }
 
     const processedData = {
@@ -425,13 +452,13 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
       contactListId: contactListId || null,
       tagListId: tagListId === "Nenhuma" ? null : tagListId,
       whatsappId,
-      userId: userId || null,
-      queueId: queueId || null,
+      userId: defaultBroadcastUserId,
+      queueId: defaultBroadcastQueueId,
       statusTicket,
       openTicket,
       dispatchMode: dispatchModeValue,
       companyId,
-      // Adicionar campos de recorrência processados
+      // Adicionar campos de recorrÃªncia processados
       ...processedRecurrenceData
     };
 
@@ -450,9 +477,9 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
 
     console.log('[Campaign Update] Campanha atualizada:', campaign.id);
 
-    // Se for recorrente, recalcular próxima execução
+    // Se for recorrente, recalcular prÃ³xima execuÃ§Ã£o
     if (campaign.isRecurring) {
-      console.log('[Campaign Update] Reconfigurando próxima execução para campanha recorrente');
+      console.log('[Campaign Update] Reconfigurando prÃ³xima execuÃ§Ã£o para campanha recorrente');
       await RecurrenceService.scheduleNextExecution(campaign.id);
       // Recarregar campanha para ter o nextScheduledAt atualizado
       await campaign.reload();
@@ -499,7 +526,7 @@ export const restart = async (
 
   await RestartService(+id);
 
-  return res.status(204).json({ message: "Reinício dos disparos" });
+  return res.status(204).json({ message: "ReinÃ­cio dos disparos" });
 };
 
 export const remove = async (
@@ -568,7 +595,7 @@ export const deleteMedia = async (
     campaign.mediaPath = null;
     campaign.mediaName = null;
     await campaign.save();
-    return res.send({ mensagem: "Arquivo excluído" });
+    return res.send({ mensagem: "Arquivo excluÃ­do" });
   } catch (err: any) {
     throw new AppError(err.message);
   }
@@ -581,7 +608,7 @@ export const previewRecurrence = async (req: Request, res: Response): Promise<Re
   try {
     const campaign = await Campaign.findByPk(id);
     if (!campaign) {
-      throw new AppError("Campanha não encontrada", 404);
+      throw new AppError("Campanha nÃ£o encontrada", 404);
     }
 
     const config = {
@@ -594,7 +621,7 @@ export const previewRecurrence = async (req: Request, res: Response): Promise<Re
     const executions = [];
     let currentDate = new Date(campaign.scheduledAt);
     
-    for (let i = 0; i < 10; i++) { // Preview das próximas 10 execuções
+    for (let i = 0; i < 10; i++) { // Preview das prÃ³ximas 10 execuÃ§Ãµes
       executions.push(new Date(currentDate));
       currentDate = RecurrenceService.calculateNextExecution(currentDate, config);
     }
@@ -612,7 +639,7 @@ export const stopRecurrence = async (req: Request, res: Response): Promise<Respo
   try {
     const campaign = await Campaign.findByPk(id);
     if (!campaign) {
-      throw new AppError("Campanha não encontrada", 404);
+      throw new AppError("Campanha nÃ£o encontrada", 404);
     }
 
     await campaign.update({
@@ -628,13 +655,13 @@ export const stopRecurrence = async (req: Request, res: Response): Promise<Respo
         record: campaign
       });
 
-    return res.status(200).json({ message: "Recorrência interrompida com sucesso" });
+    return res.status(200).json({ message: "RecorrÃªncia interrompida com sucesso" });
   } catch (err: any) {
     throw new AppError(err.message);
   }
 };
 
-// Novo endpoint para dados de shipping com paginação
+// Novo endpoint para dados de shipping com paginaÃ§Ã£o
 export const getShipping = async (req: Request, res: Response): Promise<Response> => {
   const { id } = req.params;
   const { page = 1, pageSize = 50, searchParam, status } = req.query;
@@ -655,7 +682,7 @@ export const getShipping = async (req: Request, res: Response): Promise<Response
   }
 };
 
-// Novo endpoint para estatísticas da campanha
+// Novo endpoint para estatÃ­sticas da campanha
 export const getStats = async (req: Request, res: Response): Promise<Response> => {
   const { id } = req.params;
 
@@ -663,7 +690,7 @@ export const getStats = async (req: Request, res: Response): Promise<Response> =
     const stats = await CampaignStatsService(id);
     return res.status(200).json(stats);
   } catch (err: any) {
-    console.error("Erro ao buscar estatísticas da campanha:", err);
+    console.error("Erro ao buscar estatÃ­sticas da campanha:", err);
     throw new AppError(err.message || "Erro interno do servidor", 500);
   }
 };

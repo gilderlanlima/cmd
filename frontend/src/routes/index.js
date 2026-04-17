@@ -15,7 +15,6 @@ import Users from "../pages/Users";
 import Contacts from "../pages/Contacts/";
 import ContactImportPage from "../pages/Contacts/import";
 import ChatMoments from "../pages/Moments";
-import Stories from "../pages/Stories";
 import Queues from "../pages/Queues/";
 import Tags from "../pages/Tags/";
 import MessagesAPI from "../pages/MessagesAPI/";
@@ -194,7 +193,6 @@ const RoutesContent = () => {
                   component={ChatMoments}
                   isPrivate
                 />
-                <Route exact path="/stories" component={Stories} isPrivate />
                 <Route exact path="/Kanban" component={Kanban} isPrivate />
                 <Route
                   exact

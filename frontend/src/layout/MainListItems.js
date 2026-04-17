@@ -40,7 +40,6 @@ import ForumIcon from "@material-ui/icons/Forum";
 import LocalAtmIcon from "@material-ui/icons/LocalAtm";
 import BusinessIcon from "@material-ui/icons/Business";
 import SendIcon from "@material-ui/icons/Send";
-import RadioButtonUncheckedIcon from "@material-ui/icons/RadioButtonUnchecked";
 import {
   AllInclusive,
   AttachFile,
@@ -679,12 +678,6 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                       to="/moments"
                       primary={i18n.t("mainDrawer.listItems.chatsTempoReal")}
                       icon={<GridOn />}
-                      tooltip={collapsed}
-                    />
-                    <ListItemLink
-                      to="/stories"
-                      primary="Stories"
-                      icon={<RadioButtonUncheckedIcon />}
                       tooltip={collapsed}
                     />
                   </>

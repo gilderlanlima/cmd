@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import * as Yup from "yup";
 import { Formik, Form, Field } from "formik";
 import { toast } from "react-toastify";
@@ -14,16 +14,12 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  Switch,
-  FormControlLabel,
-  TextField,
   makeStyles
 } from "@material-ui/core";
 import { green } from "@material-ui/core/colors";
 import { TextField as FormikTextField } from "formik-material-ui";
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
-import { i18n } from "../../translate/i18n";
 
 const useStyles = makeStyles(theme => ({
   btnWrapper: {
@@ -39,38 +35,35 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const BroadcastSchema = Yup.object().shape({
-  name: Yup.string().min(2).max(80).required(),
-  scheduledAt: Yup.string().required(),
-  whatsappId: Yup.number().required(),
-  contactListId: Yup.number().nullable(),
-  tagListId: Yup.string().nullable(),
-  message1: Yup.string().required("Informe a mensagem"),
-  openTicket: Yup.string().required(),
-  statusTicket: Yup.string().required()
-}).test(
-  "origin-required",
-  "Selecione uma lista de contatos ou uma tag",
-  values => Boolean(values.contactListId || values.tagListId)
-);
+const BroadcastSchema = Yup.object()
+  .shape({
+    name: Yup.string().min(2).max(80).required(),
+    scheduledAt: Yup.string().required(),
+    whatsappId: Yup.number().required(),
+    tagListId: Yup.string().nullable(),
+    message1: Yup.string().required("Informe a mensagem")
+  })
+  .test("tag-required", "Selecione uma tag", values => Boolean(values.tagListId));
 
 const BroadcastModal = ({ open, onClose, broadcastId, onSave }) => {
   const classes = useStyles();
-  const [contactLists, setContactLists] = useState([]);
   const [tagLists, setTagLists] = useState([]);
   const [whatsapps, setWhatsapps] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const initialState = {
-    name: "",
-    scheduledAt: "",
-    whatsappId: "",
-    contactListId: "",
-    tagListId: "",
-    message1: "",
-    openTicket: "disabled",
-    statusTicket: "open"
-  };
+  const initialState = useMemo(
+    () => ({
+      name: "",
+      scheduledAt: "",
+      whatsappId: "",
+      contactListId: "",
+      tagListId: "",
+      message1: "",
+      openTicket: "enabled",
+      statusTicket: "closed"
+    }),
+    []
+  );
 
   const [broadcast, setBroadcast] = useState(initialState);
 
@@ -81,13 +74,11 @@ const BroadcastModal = ({ open, onClose, broadcastId, onSave }) => {
 
     const loadDependencies = async () => {
       try {
-        const [contactListsResponse, tagsResponse, whatsappResponse] = await Promise.all([
-          api.get("/contact-lists/list"),
+        const [tagsResponse, whatsappResponse] = await Promise.all([
           api.get("/tags/list", { params: { kanban: 0 } }),
           api.get("/whatsapp", { params: { session: 0 } })
         ]);
 
-        setContactLists(contactListsResponse.data || []);
         setWhatsapps(whatsappResponse.data || []);
         setTagLists(
           (tagsResponse.data || [])
@@ -123,11 +114,11 @@ const BroadcastModal = ({ open, onClose, broadcastId, onSave }) => {
           name: data.name || "",
           scheduledAt: data.scheduledAt ? String(data.scheduledAt).slice(0, 16) : "",
           whatsappId: data.whatsappId || "",
-          contactListId: data.contactListId || "",
+          contactListId: "",
           tagListId: data.tagListId ? String(data.tagListId) : "",
           message1: data.message1 || "",
-          openTicket: data.openTicket || "disabled",
-          statusTicket: data.statusTicket || "open"
+          openTicket: "enabled",
+          statusTicket: "closed"
         });
       } catch (err) {
         toastError(err);
@@ -135,7 +126,7 @@ const BroadcastModal = ({ open, onClose, broadcastId, onSave }) => {
     };
 
     loadBroadcast();
-  }, [broadcastId, open]);
+  }, [broadcastId, initialState, open]);
 
   const handleSubmit = async values => {
     setLoading(true);
@@ -153,7 +144,9 @@ const BroadcastModal = ({ open, onClose, broadcastId, onSave }) => {
       confirmationMessage3: "",
       confirmationMessage4: "",
       confirmationMessage5: "",
-      contactListId: values.contactListId || null,
+      openTicket: "enabled",
+      statusTicket: "closed",
+      contactListId: null,
       tagListId: values.tagListId || null
     };
 
@@ -235,32 +228,6 @@ const BroadcastModal = ({ open, onClose, broadcastId, onSave }) => {
 
                 <Grid item xs={12} md={6}>
                   <FormControl variant="outlined" fullWidth>
-                    <InputLabel id="broadcast-contact-list-label">Lista de contatos</InputLabel>
-                    <Field
-                      as={Select}
-                      labelId="broadcast-contact-list-label"
-                      label="Lista de contatos"
-                      name="contactListId"
-                      value={values.contactListId}
-                      onChange={event => {
-                        setFieldValue("contactListId", event.target.value);
-                        if (event.target.value) {
-                          setFieldValue("tagListId", "");
-                        }
-                      }}
-                    >
-                      <MenuItem value="">Nenhuma</MenuItem>
-                      {contactLists.map(contactList => (
-                        <MenuItem key={contactList.id} value={contactList.id}>
-                          {contactList.name}
-                        </MenuItem>
-                      ))}
-                    </Field>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <FormControl variant="outlined" fullWidth>
                     <InputLabel id="broadcast-tag-list-label">Tag</InputLabel>
                     <Field
                       as={Select}
@@ -268,12 +235,7 @@ const BroadcastModal = ({ open, onClose, broadcastId, onSave }) => {
                       label="Tag"
                       name="tagListId"
                       value={values.tagListId}
-                      onChange={event => {
-                        setFieldValue("tagListId", event.target.value);
-                        if (event.target.value) {
-                          setFieldValue("contactListId", "");
-                        }
-                      }}
+                      onChange={event => setFieldValue("tagListId", event.target.value)}
                     >
                       <MenuItem value="">Nenhuma</MenuItem>
                       {tagLists.map(tag => (
@@ -281,37 +243,6 @@ const BroadcastModal = ({ open, onClose, broadcastId, onSave }) => {
                           {tag.name}
                         </MenuItem>
                       ))}
-                    </Field>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <FormControl variant="outlined" fullWidth>
-                    <InputLabel id="broadcast-open-ticket-label">Abrir ticket</InputLabel>
-                    <Field
-                      as={Select}
-                      labelId="broadcast-open-ticket-label"
-                      label="Abrir ticket"
-                      name="openTicket"
-                    >
-                      <MenuItem value="disabled">Não</MenuItem>
-                      <MenuItem value="enabled">Sim</MenuItem>
-                    </Field>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <FormControl variant="outlined" fullWidth disabled={values.openTicket !== "enabled"}>
-                    <InputLabel id="broadcast-status-ticket-label">Status do ticket</InputLabel>
-                    <Field
-                      as={Select}
-                      labelId="broadcast-status-ticket-label"
-                      label="Status do ticket"
-                      name="statusTicket"
-                    >
-                      <MenuItem value="open">{i18n.t("tickets.tabs.open.title")}</MenuItem>
-                      <MenuItem value="pending">{i18n.t("tickets.tabs.pending.title")}</MenuItem>
-                      <MenuItem value="closed">{i18n.t("tickets.tabs.closed.title")}</MenuItem>
                     </Field>
                   </FormControl>
                 </Grid>
@@ -325,17 +256,6 @@ const BroadcastModal = ({ open, onClose, broadcastId, onSave }) => {
                     fullWidth
                     multiline
                     rows={6}
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <TextField
-                    value="A lista de transmissão envia somente uma mensagem por contato. Use uma lista de contatos ou uma tag."
-                    variant="outlined"
-                    fullWidth
-                    multiline
-                    rows={2}
-                    disabled
                   />
                 </Grid>
               </Grid>

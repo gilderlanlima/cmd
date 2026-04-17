@@ -122,6 +122,36 @@ const findOrCreateCampaignHistoryContext = async (
     throw new Error(`WhatsApp ${campaign.whatsappId} não encontrado para histórico da campanha`);
   }
 
+  const latestTicket = await Ticket.findOne({
+    where: {
+      contactId: contact.id,
+      companyId: campaign.companyId,
+      whatsappId: whatsapp.id
+    },
+    order: [["updatedAt", "DESC"]]
+  });
+
+  let fallbackQueueId = campaign.queueId || latestTicket?.queueId || null;
+  let fallbackUserId = campaign.userId || latestTicket?.userId || null;
+
+  if (!fallbackQueueId && fallbackUserId) {
+    const userQueue = await UserQueue.findOne({
+      where: { userId: fallbackUserId },
+      order: [["createdAt", "ASC"]]
+    });
+
+    fallbackQueueId = userQueue?.queueId || null;
+  }
+
+  if (!fallbackUserId && fallbackQueueId) {
+    const queueUser = await UserQueue.findOne({
+      where: { queueId: fallbackQueueId },
+      order: [["createdAt", "ASC"]]
+    });
+
+    fallbackUserId = queueUser?.userId || null;
+  }
+
   let ticket = await Ticket.findOne({
     where: {
       contactId: contact.id,
@@ -137,11 +167,27 @@ const findOrCreateCampaignHistoryContext = async (
       companyId: campaign.companyId,
       contactId: contact.id,
       whatsappId: whatsapp.id,
+      queueId: fallbackQueueId,
+      userId: fallbackUserId,
       status: "closed",
       unreadMessages: 0,
       isBot: false,
       isGroup: Boolean(campaignShipping.contact?.isGroup)
     });
+  } else {
+    const ticketUpdates = {} as Partial<Ticket>;
+
+    if (!ticket.queueId && fallbackQueueId) {
+      ticketUpdates.queueId = fallbackQueueId;
+    }
+
+    if (!ticket.userId && fallbackUserId) {
+      ticketUpdates.userId = fallbackUserId;
+    }
+
+    if (Object.keys(ticketUpdates).length > 0) {
+      await ticket.update(ticketUpdates);
+    }
   }
 
   const historyTicket = await ShowTicketService(ticket.id, campaign.companyId);
@@ -1838,6 +1884,36 @@ async function handleDispatchCampaign(job) {
       });
       const whatsapp = await Whatsapp.findByPk(campaign.whatsappId);
 
+      const latestTicket = await Ticket.findOne({
+        where: {
+          contactId: contact.id,
+          companyId: campaign.companyId,
+          whatsappId: whatsapp.id
+        },
+        order: [["updatedAt", "DESC"]]
+      });
+
+      let fallbackQueueId = campaign?.queueId || latestTicket?.queueId || null;
+      let fallbackUserId = campaign?.userId || latestTicket?.userId || null;
+
+      if (!fallbackQueueId && fallbackUserId) {
+        const userQueue = await UserQueue.findOne({
+          where: { userId: fallbackUserId },
+          order: [["createdAt", "ASC"]]
+        });
+
+        fallbackQueueId = userQueue?.queueId || null;
+      }
+
+      if (!fallbackUserId && fallbackQueueId) {
+        const queueUser = await UserQueue.findOne({
+          where: { queueId: fallbackQueueId },
+          order: [["createdAt", "ASC"]]
+        });
+
+        fallbackUserId = queueUser?.userId || null;
+      }
+
       let ticket = await Ticket.findOne({
         where: {
           contactId: contact.id,
@@ -1848,14 +1924,25 @@ async function handleDispatchCampaign(job) {
       });
 
       if (!ticket) {
-        ticket = await Ticket.create({
-          companyId: campaign.companyId,
-          contactId: contact.id,
-          whatsappId: whatsapp.id,
-          queueId: campaign?.queueId,
-          userId: campaign?.userId,
-          status: campaign?.statusTicket
-        });
+        if (latestTicket && latestTicket.status === "closed") {
+          const ticketUpdates = {
+            status: campaign?.statusTicket,
+            queueId: latestTicket.queueId || fallbackQueueId,
+            userId: latestTicket.userId || fallbackUserId
+          };
+
+          await latestTicket.update(ticketUpdates);
+          ticket = latestTicket;
+        } else {
+          ticket = await Ticket.create({
+            companyId: campaign.companyId,
+            contactId: contact.id,
+            whatsappId: whatsapp.id,
+            queueId: fallbackQueueId,
+            userId: fallbackUserId,
+            status: campaign?.statusTicket
+          });
+        }
       }
 
       ticket = await ShowTicketService(ticket.id, campaign.companyId);
@@ -1871,7 +1958,7 @@ async function handleDispatchCampaign(job) {
             ticket,
             contact,
             null,
-            true,
+            false,
             false
           );
 
@@ -1892,7 +1979,7 @@ async function handleDispatchCampaign(job) {
               ticket,
               contact,
               null,
-              true,
+              false,
               false
             );
           }
@@ -1922,7 +2009,7 @@ async function handleDispatchCampaign(job) {
                   ticket,
                   contact,
                   null,
-                  true,
+                  false,
                   false
                 );
               }
@@ -1973,7 +2060,7 @@ async function handleDispatchCampaign(job) {
           historyTicket,
           contact,
           null,
-          true,
+          false,
           false
         );
 
@@ -1994,7 +2081,7 @@ async function handleDispatchCampaign(job) {
             historyTicket,
             contact,
             null,
-            true,
+            false,
             false
           );
         }
@@ -2024,7 +2111,7 @@ async function handleDispatchCampaign(job) {
                 historyTicket,
                 contact,
                 null,
-                true,
+                false,
                 false
               );
             }

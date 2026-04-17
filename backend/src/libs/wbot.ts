@@ -31,7 +31,12 @@ import cacheLayer from "../libs/cache";
 import ImportWhatsAppMessageService from "../services/WhatsappService/ImportWhatsAppMessageService";
 import { add } from "date-fns";
 import moment from "moment";
-import { getTypeMessage, isValidMsg } from "../services/WbotServices/wbotMessageListener";
+import {
+  downloadMedia,
+  getTypeMessage,
+  isValidMsg
+} from "../services/WbotServices/wbotMessageListener";
+import SyncWhatsappStatusStoryService from "../services/StoryServices/SyncWhatsappStatusStoryService";
 import { addLogs } from "../helpers/addLogs";
 import NodeCache from 'node-cache';
 import Message from "../models/Message";
@@ -282,6 +287,7 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
             keys: state.keys,
           },
           syncFullHistory: true,
+          markOnlineOnConnect: false,
           transactionOpts: { maxCommitRetries: 1, delayBetweenTriesMs: 10 },
           generateHighQualityLinkPreview: true,
           linkPreviewImageThumbnailWidth: 200,
@@ -299,8 +305,9 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
           // msgRetryCounterCache,
           // maxMsgRetryCount: 5,
           shouldIgnoreJid: jid => {
+            const isStatusBroadcast = jid === "status@broadcast";
             const ignoreJid = (!allowGroup && isJidGroup(jid)) ||
-              isJidBroadcast(jid) ||
+              (isJidBroadcast(jid) && !isStatusBroadcast) ||
               isJidNewsletter(jid)
             // || isJidMetaIa(jid)
             return ignoreJid
@@ -309,6 +316,29 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
         });
 
         wsocket.id = whatsapp.id;
+
+        wsocket.ev.on("messaging-history.set", async (messageSet: any) => {
+          const historyMessages = Array.isArray(messageSet?.messages)
+            ? messageSet.messages
+            : [];
+
+          for (const message of historyMessages) {
+            if (message?.key?.remoteJid !== "status@broadcast") {
+              continue;
+            }
+
+            try {
+              await SyncWhatsappStatusStoryService({
+                companyId,
+                message,
+                wbot: wsocket,
+                downloadMedia
+              });
+            } catch (error) {
+              logger.error("[STORIES] Erro ao sincronizar historico de status do WhatsApp", error);
+            }
+          }
+        });
 
         wsocket.store = (msg: proto.IWebMessageInfo): void => {
           if (!msg.key.fromMe) return;
@@ -503,6 +533,28 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
 
               wsocket.myLid = jidNormalizedUser(wsocket.user?.lid)
               wsocket.myJid = jidNormalizedUser(wsocket.user.id)
+
+              try {
+                await wsocket.sendPresenceUpdate("unavailable");
+              } catch (error) {
+                logger.warn("[STORIES] Nao foi possivel marcar sessao como unavailable", error);
+              }
+
+              if (typeof wsocket.fetchMessageHistory === "function") {
+                try {
+                  await wsocket.fetchMessageHistory(
+                    50,
+                    {
+                      remoteJid: "status@broadcast",
+                      id: "status-history-sync",
+                      fromMe: false
+                    },
+                    Date.now()
+                  );
+                } catch (error) {
+                  logger.warn("[STORIES] Nao foi possivel solicitar historico de status", error);
+                }
+              }
 
               await whatsapp.update({
                 status: "CONNECTED",

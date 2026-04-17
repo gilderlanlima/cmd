@@ -477,9 +477,9 @@ const nodeCategories = [
     nodes: [
       {
         icon: <Queue />,
-        name: "Filas",
+        name: "Setores",
         type: "ticket",
-        description: "Gerenciar filas de atendimento"
+        description: "Gerenciar setores de atendimento"
       },
       {
         icon: <Tag />,
