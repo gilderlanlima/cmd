@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { useTheme } from "@material-ui/core/styles";
 import { useHistory, useLocation } from "react-router-dom";
 import {
@@ -51,6 +51,7 @@ import { QueueSelectedContext } from "../../context/QueuesSelected/QueuesSelecte
 
 import api from "../../services/api";
 import { TicketsContext } from "../../context/Tickets/TicketsContext";
+import { socketConnection } from "../../services/socket";
 
 const useStyles = makeStyles((theme) => ({
   ticketsWrapper: {
@@ -429,6 +430,7 @@ const TicketsManagerTabs = () => {
   const [openCount, setOpenCount] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
   const [groupingCount, setGroupingCount] = useState(0);
+  const [internalChatCount, setInternalChatCount] = useState(0);
 
   const userQueueIds = user.queues.map((q) => q.id);
   const [selectedQueueIds, setSelectedQueueIds] = useState(userQueueIds || []);
@@ -452,6 +454,65 @@ const TicketsManagerTabs = () => {
   useEffect(() => {
     setSelectedQueuesMessage(selectedQueueIds);
   }, [selectedQueueIds]);
+
+  const loadInternalChatCount = useCallback(async () => {
+    try {
+      const { data } = await api.get("/chats");
+      const records = data?.records || [];
+      const unreadCount = records
+        .filter((chat) => !(chat.isGroup === true || chat.isGroup === "true"))
+        .reduce((total, chat) => {
+          const currentUser = chat.users?.find(
+            (chatUser) => String(chatUser.userId) === String(user.id)
+          );
+
+          return total + (currentUser?.unreads || 0);
+        }, 0);
+
+      setInternalChatCount(unreadCount);
+    } catch (error) {
+      console.error("Erro ao carregar contador do chat interno:", error);
+    }
+  }, [user.id]);
+
+  useEffect(() => {
+    loadInternalChatCount();
+  }, [loadInternalChatCount]);
+
+  useEffect(() => {
+    if (!user?.companyId || !user?.id) {
+      return undefined;
+    }
+
+    const chatSocket = socketConnection({ user });
+
+    const refreshInternalChatCount = (data) => {
+      if (
+        !data?.action ||
+        ["new-message", "update", "create", "delete", "read"].includes(data.action)
+      ) {
+        loadInternalChatCount();
+      }
+    };
+
+    const onConnect = () => loadInternalChatCount();
+
+    chatSocket.on("connect", onConnect);
+    chatSocket.on(`company-${user.companyId}-chat`, refreshInternalChatCount);
+    chatSocket.on(
+      `company-${user.companyId}-chat-user-${user.id}`,
+      refreshInternalChatCount
+    );
+
+    return () => {
+      chatSocket.off("connect", onConnect);
+      chatSocket.off(`company-${user.companyId}-chat`, refreshInternalChatCount);
+      chatSocket.off(
+        `company-${user.companyId}-chat-user-${user.id}`,
+        refreshInternalChatCount
+      );
+    };
+  }, [loadInternalChatCount, user]);
 
   useEffect(() => {
     if (user.profile.toUpperCase() === "ADMIN" || user.allUserChat.toUpperCase() === "ENABLED") {
@@ -1113,15 +1174,24 @@ const TicketsManagerTabs = () => {
           )}
           <Tab
             label={
-              <Grid container alignItems="center" justifyContent="center" style={{ position: "relative", paddingTop: 10 }}>
-                <Grid item>
-                  <ForumIcon
-                    style={{
-                      fontSize: 20,
-                      color: tabOpen === "chat-internal" ? theme.palette.primary.main : "inherit",
-                    }}
-                  />
-                </Grid>
+                <Grid container alignItems="center" justifyContent="center" style={{ position: "relative", paddingTop: 10 }}>
+                  <Grid item>
+                    <Badge
+                      overlap="circular"
+                      max={999}
+                      classes={{ badge: classes.customBadge }}
+                      badgeContent={internalChatCount}
+                      color="primary"
+                      invisible={!internalChatCount}
+                    >
+                      <ForumIcon
+                        style={{
+                          fontSize: 20,
+                          color: tabOpen === "chat-internal" ? theme.palette.primary.main : "inherit",
+                        }}
+                      />
+                    </Badge>
+                  </Grid>
                 <Grid item>
                   <Typography
                     style={{
