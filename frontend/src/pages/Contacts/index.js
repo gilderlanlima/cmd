@@ -130,23 +130,94 @@ const useStyles = makeStyles((theme) => ({
     overflowY: "scroll",
     ...theme.scrollbarStyles,
   },
+  table: {
+    tableLayout: "fixed",
+    "& .MuiTableCell-root": {
+      borderBottom: "1px solid rgba(15, 23, 42, 0.08)",
+    },
+  },
+  headerCell: {
+    padding: theme.spacing(1, 1.25),
+    fontSize: "0.78rem",
+    fontWeight: 700,
+    color: theme.palette.text.primary,
+    whiteSpace: "nowrap",
+  },
+  bodyRow: {
+    "& .MuiTableCell-root": {
+      paddingTop: theme.spacing(1),
+      paddingBottom: theme.spacing(1),
+      verticalAlign: "middle",
+    },
+  },
+  compactCell: {
+    padding: theme.spacing(1, 1.25),
+    fontSize: "0.92rem",
+    color: theme.palette.text.primary,
+  },
   avatarCell: {
-    width: '60px',
-    padding: theme.spacing(1),
+    width: '70px',
+    padding: theme.spacing(1, 0.75),
   },
   idCell: {
-    width: '80px',
+    width: '56px',
   },
   checkboxCell: {
     width: '48px',
     padding: theme.spacing(0, 1),
   },
+  nameCell: {
+    width: "18%",
+    fontWeight: 600,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  connectionCell: {
+    width: "17%",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  emailCell: {
+    width: "17%",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    color: theme.palette.text.secondary,
+  },
+  tagCell: {
+    width: "12%",
+  },
+  statusCell: {
+    width: "7%",
+  },
+  walletCell: {
+    width: "10%",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  actionsCell: {
+    width: "120px",
+    paddingRight: theme.spacing(1),
+  },
+  actionButtons: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: theme.spacing(0.25),
+    flexWrap: "nowrap",
+  },
   clickableAvatar: {
     cursor: 'pointer',
     transition: 'transform 0.2s ease-in-out',
     '&:hover': {
-      transform: 'scale(1.1)',
+      transform: 'scale(1.05)',
     },
+    width: 42,
+    height: 42,
+    margin: "0 auto",
   },
   imageDialog: {
     '& .MuiDialog-paper': {
@@ -183,6 +254,40 @@ const useStyles = makeStyles((theme) => ({
   bulkActions: {
     display: 'flex',
     gap: theme.spacing(1),
+  },
+  tagsWrap: {
+    display: "flex",
+    flexWrap: "nowrap",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    gap: 4,
+    overflow: "hidden",
+  },
+  tagPill: {
+    display: "inline-flex",
+    alignItems: "center",
+    maxWidth: 110,
+    color: "#fff",
+    fontWeight: 700,
+    fontSize: "0.68rem",
+    borderRadius: 6,
+    padding: "2px 7px",
+    lineHeight: 1.15,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  emptyTag: {
+    color: "#94A3B8",
+    fontSize: "0.78rem",
+    whiteSpace: "nowrap",
+  },
+  mutedText: {
+    color: theme.palette.text.secondary,
+    fontSize: "0.88rem",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
 }));
 
@@ -852,10 +957,10 @@ const Contacts = () => {
           </Toolbar>
         )}
 
-        <Table size="small">
+        <Table size="small" className={classes.table}>
           <TableHead>
             <TableRow>
-              <TableCell className={classes.checkboxCell}>
+              <TableCell className={`${classes.checkboxCell} ${classes.headerCell}`}>
                 <Checkbox
                   indeterminate={checkboxStatus.indeterminate}
                   checked={checkboxStatus.checked}
@@ -864,19 +969,19 @@ const Contacts = () => {
                   inputProps={{ 'aria-label': 'Selecionar todos os contatos' }}
                 />
               </TableCell>
-              <TableCell className={classes.idCell}>ID</TableCell>
-              <TableCell className={classes.avatarCell} align="center">Foto</TableCell>
-              <TableCell>{i18n.t("contacts.table.name")}</TableCell>
-              <TableCell align="center">
+              <TableCell className={`${classes.idCell} ${classes.headerCell}`}>ID</TableCell>
+              <TableCell className={`${classes.avatarCell} ${classes.headerCell}`} align="center">Foto</TableCell>
+              <TableCell className={`${classes.headerCell} ${classes.nameCell}`}>{i18n.t("contacts.table.name")}</TableCell>
+              <TableCell className={`${classes.headerCell} ${classes.connectionCell}`}>
                 {i18n.t("contacts.table.whatsapp")}
               </TableCell>
-              <TableCell align="center">
+              <TableCell className={`${classes.headerCell} ${classes.emailCell}`}>
                 {i18n.t("contacts.table.email")}
               </TableCell>
-              <TableCell align="center">TAG</TableCell>
-              <TableCell align="center">{"Status"}</TableCell>
-              <TableCell align="center">{i18n.t("contacts.table.wallet")}</TableCell>
-              <TableCell align="center">
+              <TableCell className={`${classes.headerCell} ${classes.tagCell}`}>TAG</TableCell>
+              <TableCell className={`${classes.headerCell} ${classes.statusCell}`} align="center">{"Status"}</TableCell>
+              <TableCell className={`${classes.headerCell} ${classes.walletCell}`}>{i18n.t("contacts.table.wallet")}</TableCell>
+              <TableCell className={`${classes.headerCell} ${classes.actionsCell}`} align="center">
                 {i18n.t("contacts.table.actions")}
               </TableCell>
             </TableRow>
@@ -890,8 +995,9 @@ const Contacts = () => {
                   <TableRow 
                     key={contact.id}
                     selected={isSelected}
+                    className={classes.bodyRow}
                   >
-                    <TableCell className={classes.checkboxCell}>
+                    <TableCell className={`${classes.checkboxCell} ${classes.compactCell}`}>
                       <Checkbox
                         checked={isSelected}
                         onChange={() => handleSelectContact(contact.id)}
@@ -899,16 +1005,18 @@ const Contacts = () => {
                         inputProps={{ 'aria-label': `Selecionar contato ${contact.name}` }}
                       />
                     </TableCell>
-                    <TableCell className={classes.idCell}>{contact.id}</TableCell>
-                    <TableCell className={classes.avatarCell} align="center">
+                    <TableCell className={`${classes.idCell} ${classes.compactCell}`}>{contact.id}</TableCell>
+                    <TableCell className={`${classes.avatarCell} ${classes.compactCell}`} align="center">
                       <Avatar 
                         src={`${contact?.urlPicture}`}
                         className={classes.clickableAvatar}
                         onClick={() => handleOpenImageModal(contact?.urlPicture, contact.name)}
                       />
                     </TableCell>
-                    <TableCell>{contact.name}</TableCell>
-                    <TableCell align="center">
+                    <TableCell className={`${classes.compactCell} ${classes.nameCell}`} title={contact.name}>
+                      {contact.name}
+                    </TableCell>
+                    <TableCell className={`${classes.compactCell} ${classes.connectionCell}`} title={contact.number}>
                       {enableLGPD && hideNum && user.profile === "user"
                         ? contact.isGroup
                           ? contact.number
@@ -923,42 +1031,30 @@ const Contacts = () => {
                         ? contact.number
                         : formatSerializedId(contact?.number)}
                     </TableCell>
-                    <TableCell align="center">{contact.email}</TableCell>
-                    <TableCell align="center">
-                      <div
-                        style={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          justifyContent: "center",
-                          gap: 4,
-                          minWidth: 120
-                        }}
-                      >
+                    <TableCell className={`${classes.compactCell} ${classes.emailCell}`} title={contact.email || ""}>
+                      {contact.email || "-"}
+                    </TableCell>
+                    <TableCell className={`${classes.compactCell} ${classes.tagCell}`}>
+                      <div className={classes.tagsWrap}>
                         {(contact.tags || []).length > 0 ? (
                           contact.tags.map((tag) => (
                             <span
                               key={`contact-tag-${contact.id}-${tag.id}`}
-                              style={{
-                                backgroundColor: tag.color || "#94A3B8",
-                                color: "#fff",
-                                fontWeight: 700,
-                                fontSize: "0.72rem",
-                                borderRadius: 999,
-                                padding: "3px 8px",
-                                lineHeight: 1.2
-                              }}
+                              className={classes.tagPill}
+                              style={{ backgroundColor: tag.color || "#94A3B8" }}
+                              title={tag.name}
                             >
                               {tag.name}
                             </span>
                           ))
                         ) : (
-                          <span style={{ color: "#94A3B8", fontSize: "0.8rem" }}>
+                          <span className={classes.emptyTag}>
                             Sem tag
                           </span>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell align="center">
+                    <TableCell className={`${classes.compactCell} ${classes.statusCell}`} align="center">
                       {contact.active ? (
                         <CheckCircleIcon
                           style={{ color: "green" }}
@@ -968,12 +1064,20 @@ const Contacts = () => {
                         <CancelIcon style={{ color: "red" }} fontSize="small" />
                       )}
                     </TableCell>
-                    <TableCell align="center">
+                    <TableCell
+                      className={`${classes.compactCell} ${classes.walletCell}`}
+                      title={
+                        contact.contactWallets && contact.contactWallets.length > 0
+                          ? contact.contactWallets[0].wallet?.name || "Usuario nao encontrado"
+                          : "Nao atribuido"
+                      }
+                    >
                       {contact.contactWallets && contact.contactWallets.length > 0 
                         ? contact.contactWallets[0].wallet?.name || "Usuário não encontrado"
                         : "Não atribuído"}
                     </TableCell>
-                    <TableCell align="center">
+                    <TableCell className={`${classes.compactCell} ${classes.actionsCell}`} align="center">
+                      <div className={classes.actionButtons}>
                       <IconButton
                         size="small"
                         disabled={!contact.active}
@@ -1034,6 +1138,7 @@ const Contacts = () => {
                           </IconButton>
                         )}
                       />
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
