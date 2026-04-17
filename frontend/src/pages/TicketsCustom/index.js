@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useParams } from "react-router-dom";
 import Paper from "@material-ui/core/Paper";
 import Hidden from "@material-ui/core/Hidden";
@@ -7,6 +7,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import TicketsManagerTabs from "../../components/TicketsManagerTabs";
 import Ticket from "../../components/Ticket";
 import { QueueSelectedProvider } from "../../context/QueuesSelected/QueuesSelectedContext";
+import { TicketsContext } from "../../context/Tickets/TicketsContext";
+import Chat from "../Chat";
 
 const useStyles = makeStyles((theme) => ({
 	chatContainer: {
@@ -76,6 +78,7 @@ const useStyles = makeStyles((theme) => ({
 const TicketsCustom = () => {
 	const classes = useStyles();
 	const { ticketId } = useParams();
+	const { tabOpen } = useContext(TicketsContext);
 
 	return (
 		<QueueSelectedProvider>
@@ -85,7 +88,9 @@ const TicketsCustom = () => {
 						<TicketsManagerTabs />
 					</div>
 					<div className={classes.messagesWrapper}>
-						{ticketId ? (
+						{tabOpen === "chat-internal" ? (
+							<Chat embedded />
+						) : ticketId ? (
 							<Ticket />
 						) : (
 							<Hidden only={["sm", "xs"]}>

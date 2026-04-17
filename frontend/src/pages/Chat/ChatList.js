@@ -143,6 +143,11 @@ export default function ChatList({
   pageInfo,
   loading,
   findChats,
+  disableRouting = false,
+  showUsersAsChats = false,
+  hideCreateButton = false,
+  hideContextActions = false,
+  activeChatId = null,
 }) {
   const classes = useStyles();
   const history = useHistory();
@@ -166,7 +171,48 @@ export default function ChatList({
     (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
   );
 
-  const filteredChats = orderedChats.filter((chat) => {
+  const buildPlaceholderChat = (user) => ({
+    id: `user-${user.id}`,
+    uuid: `user-${user.id}`,
+    isGroup: false,
+    isPlaceholder: true,
+    ownerId: loggedInUser.id,
+    updatedAt: user.updatedAt || user.createdAt || new Date().toISOString(),
+    users: [
+      {
+        userId: loggedInUser.id,
+        user: loggedInUser,
+        unreads: 0,
+      },
+      {
+        userId: user.id,
+        user,
+        unreads: 0,
+      },
+    ],
+    lastMessage: {
+      message: "Iniciar conversa",
+    },
+  });
+
+  const getDirectChatForUser = (userId) =>
+    orderedChats.find((chat) => {
+      const isDirectChat = !chat.isGroup && chat.users?.length === 2;
+      const hasSelectedUser = chat.users?.some((u) => u.userId === userId);
+      const hasLoggedInUser = chat.users?.some(
+        (u) => u.userId === loggedInUser.id
+      );
+
+      return isDirectChat && hasSelectedUser && hasLoggedInUser;
+    });
+
+  const displayChats = showUsersAsChats
+    ? availableUsers
+        .filter((user) => user.id !== loggedInUser.id)
+        .map((user) => getDirectChatForUser(user.id) || buildPlaceholderChat(user))
+    : orderedChats;
+
+  const filteredChats = displayChats.filter((chat) => {
     const isGroup = chat.isGroup;
     const otherUser =
       !isGroup && chat.users.find((u) => u.userId !== loggedInUser.id);
@@ -179,13 +225,24 @@ export default function ChatList({
   const isShowingOnlyGroups = filteredChats.every((chat) => chat.isGroup);
 
   const goToMessages = async (chat) => {
+    if (chat.isPlaceholder) {
+      const selectedUser = chat.users.find(
+        (u) => u.userId !== loggedInUser.id
+      )?.user;
+
+      if (selectedUser) {
+        await handleCreateChatWithUser(selectedUser);
+      }
+      return;
+    }
+
     if (unreadMessages(chat) > 0) {
       try {
         await api.post(`/chats/${chat.id}/read`, { userId: loggedInUser.id });
       } catch (err) {}
     }
     handleSelectChat(chat);
-    if (id !== chat.uuid) {
+    if (!disableRouting && id !== chat.uuid) {
       history.push(`/chats/${chat.uuid}`);
     }
   };
@@ -197,7 +254,7 @@ export default function ChatList({
 
   const unreadMessages = (chat) => {
     const currentUser = chat.users.find((u) => u.userId === loggedInUser.id);
-    return currentUser.unreads;
+    return currentUser?.unreads || 0;
   };
 
   const getPrimaryText = (chat) => {
@@ -334,7 +391,7 @@ export default function ChatList({
         toast.info("Chat com este usuário já existe!");
         handleSelectChat(existingChat);
         handleCloseCreateChat();
-        return;
+        return existingChat;
       }
 
       // Criar novo chat
@@ -352,15 +409,24 @@ export default function ChatList({
 
       handleSelectChat(data);
       handleCloseCreateChat();
+      return data;
     } catch (err) {
       console.error(err);
       toast.error("Erro ao criar chat");
+      return null;
     }
   };
 
   const filteredAvailableUsers = availableUsers.filter((user) =>
     user.name.toLowerCase().includes(userSearchTerm.toLowerCase())
   );
+
+  React.useEffect(() => {
+    if (showUsersAsChats) {
+      loadUsers();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showUsersAsChats]);
 
   return (
     <>
@@ -371,17 +437,19 @@ export default function ChatList({
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        {selectedChat.ownerId === loggedInUser.id && selectedChat.isGroup && (
+        {!hideContextActions &&
+          selectedChat.ownerId === loggedInUser.id &&
+          selectedChat.isGroup && (
           <MenuItem onClick={() => handleEditChat(selectedChat)}>
             {i18n.t("chatList.edit")}
           </MenuItem>
         )}
-        {loggedInUser.profile === "admin" && (
+        {!hideContextActions && loggedInUser.profile === "admin" && (
           <MenuItem onClick={() => handleDeleteChat(selectedChat)}>
             {i18n.t("chatList.delete")}
           </MenuItem>
         )}
-        {selectedChat.isGroup && (
+        {!hideContextActions && selectedChat.isGroup && (
           <MenuItem onClick={handleOpenDetails}>
             {i18n.t("chatList.details")}
           </MenuItem>
@@ -470,7 +538,7 @@ export default function ChatList({
               outline: "none",
             }}
           />
-          {!isShowingOnlyGroups && (
+          {!hideCreateButton && !showUsersAsChats && !isShowingOnlyGroups && (
             <IconButton
               onClick={handleOpenCreateChat}
               style={{
@@ -518,7 +586,11 @@ export default function ChatList({
                   button
                   onClick={() => goToMessages(chat)}
                   className={
-                    chat.uuid === id ? classes.listItemActive : classes.listItem
+                    (showUsersAsChats
+                      ? String(chat.id) === String(activeChatId)
+                      : chat.uuid === id)
+                      ? classes.listItemActive
+                      : classes.listItem
                   }
                 >
                   <ListItemAvatar>
@@ -606,9 +678,10 @@ export default function ChatList({
                     }
                   />
 
-                  {(loggedInUser.profile === "admin" ||
-                    (selectedChat.ownerId === loggedInUser.id &&
-                      selectedChat.isGroup)) && (
+                  {!hideContextActions &&
+                    (loggedInUser.profile === "admin" ||
+                      (selectedChat.ownerId === loggedInUser.id &&
+                        selectedChat.isGroup)) && (
                     <IconButton
                       edge="end"
                       aria-label="more"

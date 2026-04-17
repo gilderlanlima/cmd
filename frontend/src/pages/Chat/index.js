@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory, useLocation } from "react-router-dom";
 
 import {
   Button,
@@ -314,6 +314,8 @@ function Chat(props) {
   const classes = useStyles();
   const { user } = useContext(AuthContext);
   const history = useHistory();
+  const location = useLocation();
+  const embedded = Boolean(props.embedded);
 
   const [showDialog, setShowDialog] = useState(false);
   const [dialogType, setDialogType] = useState("new");
@@ -331,6 +333,7 @@ function Chat(props) {
   const scrollToBottomRef = useRef();
   const messageListRef = useRef();
   const { id } = useParams();
+  const embeddedChatUuid = new URLSearchParams(location.search).get("chatUuid");
   const isMdUp = useResponsive();
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -372,8 +375,10 @@ function Chat(props) {
             setChats(records);
             setChatsPageInfo(data);
 
-            if (id && records.length) {
-              const chat = records.find((r) => r.uuid === id);
+            const targetUuid = embedded ? embeddedChatUuid : id;
+
+            if (targetUuid && records.length) {
+              const chat = records.find((r) => r.uuid === targetUuid);
               if (chat) {
                 selectChat(
                   chat,
@@ -392,7 +397,7 @@ function Chat(props) {
       console.log("Componente não montado ou usuário não disponível");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [user?.id, embedded, embeddedChatUuid, id]);
 
   useEffect(() => {
     if (!user.id) return;
@@ -423,7 +428,9 @@ function Chat(props) {
           setMessagesPage(1);
           setMessagesPageInfo({ hasMore: false });
           setCurrentChat({});
-          history.push("/chats");
+          if (!embedded) {
+            history.push("/chats");
+          }
           setTab(0);
         }
         if (data.action === "new-message" || data.action === "update") {
@@ -449,7 +456,7 @@ function Chat(props) {
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, socket, companyId]);
+  }, [user, socket, companyId, embedded]);
 
   useEffect(() => {
     if (
@@ -703,7 +710,9 @@ function Chat(props) {
     // No mobile, não mudar a tab automaticamente
     // Deixar o usuário escolher qual tab usar
 
-    history.push(`/chats/${data.uuid}`);
+    if (!embedded) {
+      history.push(`/chats/${data.uuid}`);
+    }
 
     // Não chame findMessages aqui, selectChat já faz isso
     selectChat(data, "handleLoadNewChat (novo chat criado/editado)");
@@ -804,7 +813,32 @@ function Chat(props) {
 
     return (
       <Grid className={classes.gridContainer} container>
+        {embedded ? (
+          <Grid className={classes.gridItem} md={12} item>
+            {isObject(currentChat) && has(currentChat, "id") ? (
+              <ChatMessages
+                chat={currentChat}
+                scrollToBottomRef={scrollToBottomRef}
+                pageInfo={messagesPageInfo}
+                messages={messages}
+                loading={loading}
+                loadingMore={loadingMore}
+                handleSendMessage={sendMessage}
+                handleLoadMore={loadMoreMessages}
+                onEdit={handleEditMessage}
+                onDelete={handleDeleteMessage}
+                onForward={handleForwardMessage}
+                justOpenedChat={justOpenedChat}
+                setJustOpenedChat={setJustOpenedChat}
+                messageListRef={messageListRef}
+                addOptimisticMessage={addOptimisticMessage}
+              />
+            ) : null}
+          </Grid>
+        ) : (
+          <>
         <Grid className={classes.gridItem} md={3} item>
+          {!embedded && (
           <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
             <Button
               onClick={() => setShowGroupChats(false)}
@@ -834,8 +868,15 @@ function Chat(props) {
               {i18n.t("chatIndex.createGroup")}
             </Button>
           </div>
+          )}
           <ChatList
-            chats={filteredChats}
+            chats={
+              embedded
+                ? chats.filter(
+                    (chat) => !(chat.isGroup === true || chat.isGroup === "true")
+                  )
+                : filteredChats
+            }
             pageInfo={chatsPageInfo}
             loading={loading}
             handleSelectChat={(chat) =>
@@ -848,6 +889,11 @@ function Chat(props) {
               setShowDialog(true);
             }}
             findChats={findChats}
+            disableRouting={embedded}
+            showUsersAsChats={embedded}
+            hideCreateButton={embedded}
+            hideContextActions={embedded}
+            activeChatId={currentChat?.id}
           />
         </Grid>
         <Grid className={classes.gridItem} md={9} item>
@@ -871,6 +917,8 @@ function Chat(props) {
             />
           )}
         </Grid>
+          </>
+        )}
       </Grid>
     );
   };
@@ -936,6 +984,7 @@ function Chat(props) {
                   handleSelectChat={(chat) => selectChat(chat)}
                   handleDeleteChat={(chat) => deleteChat(chat)}
                   findChats={findChats}
+                  disableRouting={embedded}
                 />
               </Grid>
             )}
@@ -957,6 +1006,7 @@ function Chat(props) {
                     setShowDialog(true);
                   }}
                   findChats={findChats}
+                  disableRouting={embedded}
                 />
               </Grid>
             )}
@@ -1071,8 +1121,9 @@ function Chat(props) {
   };
 
   useEffect(() => {
-    if (id && chats.length) {
-      const chat = chats.find((r) => r.uuid === id);
+    const targetUuid = embedded ? embeddedChatUuid : id;
+    if (targetUuid && chats.length) {
+      const chat = chats.find((r) => r.uuid === targetUuid);
       // Só chama selectChat se o chat atual for diferente
       if (chat && (!currentChat || currentChat.id !== chat.id)) {
         selectChat(
@@ -1082,7 +1133,7 @@ function Chat(props) {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, chats]);
+  }, [id, chats, embedded, embeddedChatUuid]);
 
   const addOptimisticMessage = (msg) => {
     setMessages((prev) => [...prev, msg]);
@@ -1104,13 +1155,12 @@ function Chat(props) {
       />
       <Paper
         className={classes.mainContainer}
-        // style={{
-        //   height: "100%",
-        //   minHeight: 0,
-        //   display: "flex",
-        //   flexDirection: "column",
-        //   padding: 0,
-        // }}
+        style={embedded ? {
+          height: "100%",
+          minHeight: 0,
+          padding: 0,
+          border: "none",
+        } : undefined}
       >
         {isMdUp ? renderGrid() : renderTab()}
       </Paper>

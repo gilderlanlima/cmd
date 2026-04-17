@@ -22,6 +22,7 @@ import {
   AccessTime as ClockIcon,
   Search as SearchIcon,
   Add as AddIcon,
+  Forum as ForumIcon,
   TextRotateUp,
   TextRotationDown,
   Android as AndroidIcon,
@@ -35,6 +36,7 @@ import { FilterAltOff, FilterAlt, PlaylistAddCheckOutlined } from "@mui/icons-ma
 import NewTicketModal from "../NewTicketModal";
 import TicketsList from "../TicketsListCustom";
 import TabPanel from "../TabPanel";
+import InternalChatTicketsList from "../InternalChatTicketsList";
 import { Can } from "../Can";
 import TicketsQueueSelect from "../TicketsQueueSelect";
 import { TagsFilter } from "../TagsFilter";
@@ -385,6 +387,23 @@ const useStyles = makeStyles((theme) => ({
   activeIcon: {
     color: theme.mode === "light" ? theme.palette.primary.main : "#FFF",
   },
+  internalChatWrapper: {
+    display: "flex",
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: theme.spacing(3),
+    textAlign: "center",
+    backgroundColor: theme.mode === "light" ? "#fafafa" : "rgba(255, 255, 255, 0.04)",
+  },
+  internalChatNotice: {
+    maxWidth: 260,
+  },
+  internalChatIcon: {
+    fontSize: 42,
+    color: theme.mode === "light" ? theme.palette.primary.main : "#FFF",
+    marginBottom: theme.spacing(1),
+  },
 }));
 
 const TicketsManagerTabs = () => {
@@ -442,7 +461,7 @@ const TicketsManagerTabs = () => {
     // Verificar se há parâmetro 'tab' na URL ao carregar
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get('tab');
-    if (tabParam && ["pending", "open", "group", "closed"].includes(tabParam)) {
+    if (tabParam && ["pending", "open", "group", "closed", "chat-internal"].includes(tabParam)) {
       // Definir a tab principal primeiro
       if (tabParam === "pending") {
         setTab("open"); // "Aguardando" está dentro da tab "open"
@@ -450,7 +469,7 @@ const TicketsManagerTabs = () => {
         setTab("open");
       } else if (tabParam === "closed") {
         setTab("closed");
-      } else if (tabParam === "group") {
+      } else if (tabParam === "group" || tabParam === "chat-internal") {
         setTab("open"); // "Grupos" está dentro da tab "open"
       }
       // Depois definir a sub-aba (tabOpen)
@@ -464,7 +483,7 @@ const TicketsManagerTabs = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const tabParam = urlParams.get('tab');
-    if (tabParam && ["pending", "open", "group", "closed"].includes(tabParam)) {
+    if (tabParam && ["pending", "open", "group", "closed", "chat-internal"].includes(tabParam)) {
       // Se o parâmetro tab mudou, atualizar a aba
       if (tabOpen !== tabParam) {
         // Definir a tab principal primeiro
@@ -474,7 +493,7 @@ const TicketsManagerTabs = () => {
           setTab("open");
         } else if (tabParam === "closed") {
           setTab("closed");
-        } else if (tabParam === "group") {
+        } else if (tabParam === "group" || tabParam === "chat-internal") {
           setTab("open"); // "Grupos" está dentro da tab "open"
         }
         // Depois definir a sub-aba (tabOpen) com um pequeno delay
@@ -674,6 +693,7 @@ const TicketsManagerTabs = () => {
           handleCloseOrOpenTicket(ticket);
         }}
       />
+      {tabOpen !== "chat-internal" && (
       <div className={classes.serachInputWrapper}>
         <SearchIcon className={classes.searchIcon} />
         <InputBase
@@ -716,8 +736,9 @@ const TicketsManagerTabs = () => {
           )}
         </IconButton>
       </div>
+      )}
 
-      {filter === true && (
+      {tabOpen !== "chat-internal" && filter === true && (
         <>
           <TagsFilter onFiltered={handleSelectedTags} />
           <WhatsappsFilter onFiltered={handleSelectedWhatsapps} />
@@ -730,6 +751,7 @@ const TicketsManagerTabs = () => {
         </>
       )}
 
+      {tabOpen !== "chat-internal" && (
       <Paper square elevation={0} className={classes.ticketOptionsBox}>
         <Grid container alignItems="center">
           <Grid item>
@@ -955,6 +977,7 @@ const TicketsManagerTabs = () => {
           </Grid>
         </Grid>
       </Paper>
+      )}
 
       <TabPanel value={tab} name="open" className={classes.ticketsWrapper}>
         <Tabs
@@ -1088,6 +1111,36 @@ const TicketsManagerTabs = () => {
               classes={{ root: classes.tabPanelItem }}
             />
           )}
+          <Tab
+            label={
+              <Grid container alignItems="center" justifyContent="center" style={{ position: "relative", paddingTop: 10 }}>
+                <Grid item>
+                  <ForumIcon
+                    style={{
+                      fontSize: 20,
+                      color: tabOpen === "chat-internal" ? theme.palette.primary.main : "inherit",
+                    }}
+                  />
+                </Grid>
+                <Grid item>
+                  <Typography
+                    style={{
+                      marginLeft: 8,
+                      fontSize: 11,
+                      fontWeight: tabOpen === "chat-internal" ? 700 : 500,
+                      color: tabOpen === "chat-internal" ? theme.palette.primary.main : "inherit",
+                      transition: "all 0.2s ease",
+                    }}
+                  >
+                    {i18n.t("mainDrawer.listItems.chats")}
+                  </Typography>
+                </Grid>
+              </Grid>
+            }
+            value={"chat-internal"}
+            name="chat-internal"
+            classes={{ root: classes.tabPanelItem }}
+          />
         </Tabs>
 
         <Paper className={classes.ticketsWrapper}>
@@ -1120,6 +1173,7 @@ const TicketsManagerTabs = () => {
               setTabOpen={setTabOpen}
             />
           )}
+          {tabOpen === "chat-internal" && <InternalChatTicketsList />}
         </Paper>
       </TabPanel>
 

@@ -36,7 +36,6 @@ import CakeIcon from "@material-ui/icons/Cake";
 import PeopleIcon from "@material-ui/icons/People";
 import ListIcon from "@material-ui/icons/ListAlt";
 import AnnouncementIcon from "@material-ui/icons/Announcement";
-import ForumIcon from "@material-ui/icons/Forum";
 import LocalAtmIcon from "@material-ui/icons/LocalAtm";
 import BusinessIcon from "@material-ui/icons/Business";
 import SendIcon from "@material-ui/icons/Send";
@@ -766,21 +765,6 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         icon={<LocalOfferIcon />}
         tooltip={collapsed}
       />
-
-      {showInternalChat && (
-        <>
-          <ListItemLink
-            to="/chats"
-            primary={i18n.t("mainDrawer.listItems.chats")}
-            icon={
-              <Badge color="secondary" variant="dot" invisible={invisible}>
-                <ForumIcon />
-              </Badge>
-            }
-            tooltip={collapsed}
-          />
-        </>
-      )}
 
       {/* 
       <ListItemLink
