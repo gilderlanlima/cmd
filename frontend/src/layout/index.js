@@ -28,8 +28,6 @@ import {
 } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import NotificationsIcon from "@material-ui/icons/Notifications";
-import CachedIcon from "@material-ui/icons/Cached";
 import api from "../services/api";
 import MainListItems from "./MainListItems";
 import NotificationsPopOver from "../components/NotificationsPopOver";
@@ -44,13 +42,17 @@ import BirthdayModal from "../components/BirthdayModal";
 import ChatPopover from "../pages/Chat/ChatPopover";
 import { useDate } from "../hooks/useDate";
 import ColorModeContext from "../layout/themeContext";
-import Brightness4Icon from "@material-ui/icons/Brightness4";
-import Brightness7Icon from "@material-ui/icons/Brightness7";
 import { getBackendUrl } from "../config";
 import useSettings from "../hooks/useSettings";
 import VersionControl from "../components/VersionControl";
 import useSocketListener from "../hooks/useSocketListener";
-import { FaGlobe } from "react-icons/fa";
+import {
+  CampaignRounded,
+  DarkModeRounded,
+  LanguageRounded,
+  LightModeRounded,
+  SyncRounded,
+} from "@mui/icons-material";
 
 const backendUrl = getBackendUrl();
 const drawerWidth = 240;
@@ -846,7 +848,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                     paddingTop: "8px",
                   }}
                 >
-                  <FaGlobe />
+                  <LanguageRounded />
                 </button>
 
                 {showOptions && (
@@ -886,9 +888,9 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
 
               <IconButton edge="start" onClick={colorMode.toggleColorMode}>
                 {theme.mode === "dark" ? (
-                  <Brightness7Icon style={{ color: "white" }} />
+                  <LightModeRounded style={{ color: "white" }} />
                 ) : (
-                  <Brightness4Icon style={{ color: "white" }} />
+                  <DarkModeRounded style={{ color: "white" }} />
                 )}
               </IconButton>
 
@@ -899,7 +901,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                 aria-label={i18n.t("mainDrawer.appBar.refresh")}
                 color="inherit"
               >
-                <CachedIcon style={{ color: "white" }} />
+                <SyncRounded style={{ color: "white" }} />
               </IconButton>
 
               {/* <DarkMode themeToggle={themeToggle} /> */}
@@ -1019,7 +1021,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                 >
                   <ListItemAvatar>
                     <Avatar>
-                      <NotificationsIcon />
+                      <CampaignRounded />
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText

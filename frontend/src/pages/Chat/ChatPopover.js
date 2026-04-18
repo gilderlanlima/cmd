@@ -8,7 +8,7 @@ import React, {
 import { makeStyles } from "@material-ui/core/styles";
 import toastError from "../../errors/toastError";
 import Popover from "@material-ui/core/Popover";
-import { MdOutlineForum } from "react-icons/md";
+import ForumRoundedIcon from "@mui/icons-material/ForumRounded";
 import {
   Badge,
   IconButton,
@@ -265,7 +265,7 @@ export default function ChatPopover(volume) {
         size="large"
       >
         <Badge color="secondary" variant="dot" invisible={invisible}>
-          <MdOutlineForum size={18} />
+          <ForumRoundedIcon fontSize="small" />
         </Badge>
       </IconButton>
       <Popover

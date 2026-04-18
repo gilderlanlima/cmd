@@ -4,8 +4,8 @@ import Popover from "@material-ui/core/Popover";
 import IconButton from "@material-ui/core/IconButton";
 import List from "@material-ui/core/List";
 import { makeStyles } from "@material-ui/core/styles";
-import VolumeUpIcon from "@material-ui/icons/VolumeUp";
-import VolumeDownIcon from "@material-ui/icons/VolumeDown";
+import VolumeDownRoundedIcon from "@mui/icons-material/VolumeDownRounded";
+import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 
 import { Grid, Slider } from "@material-ui/core";
 
@@ -107,7 +107,7 @@ const NotificationsVolume = ({ volume, setVolume }) => {
                 // color="inherit"
                 // color="secondary"
             >
-                <VolumeUpIcon color="inherit" />
+                <VolumeUpRoundedIcon color="inherit" />
             </IconButton>
             <Popover
                 disableScrollLock
@@ -126,7 +126,7 @@ const NotificationsVolume = ({ volume, setVolume }) => {
             >
                 <List dense className={classes.tabContainer}>
                     <div className={classes.volumeContainer}>
-                        <VolumeDownIcon className={classes.volumeIcon} />
+                        <VolumeDownRoundedIcon className={classes.volumeIcon} />
                         <div className={classes.sliderContainer}>
                             <Slider
                                 value={Number(volume)}
@@ -138,7 +138,7 @@ const NotificationsVolume = ({ volume, setVolume }) => {
                                 onChange={handleVolumeChange}
                             />
                         </div>
-                        <VolumeUpIcon className={classes.volumeIcon} />
+                        <VolumeUpRoundedIcon className={classes.volumeIcon} />
                     </div>
                 </List>
             </Popover>

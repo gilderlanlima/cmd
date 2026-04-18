@@ -14,39 +14,35 @@ import List from "@material-ui/core/List";
 import Tooltip from "@material-ui/core/Tooltip";
 import Typography from "@material-ui/core/Typography";
 
-import DashboardOutlinedIcon from "@material-ui/icons/DashboardOutlined";
-import WhatsAppIcon from "@material-ui/icons/WhatsApp";
-import SyncAltIcon from "@material-ui/icons/SyncAlt";
-import SettingsOutlinedIcon from "@material-ui/icons/SettingsOutlined";
-import PeopleAltOutlinedIcon from "@material-ui/icons/PeopleAltOutlined";
-import ContactPhoneOutlinedIcon from "@material-ui/icons/ContactPhoneOutlined";
+import DashboardCustomizeRoundedIcon from "@mui/icons-material/DashboardCustomizeRounded";
+import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";
+import SettingsInputAntennaRoundedIcon from "@mui/icons-material/SettingsInputAntennaRounded";
+import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
+import GroupRoundedIcon from "@mui/icons-material/GroupRounded";
+import PermContactCalendarRoundedIcon from "@mui/icons-material/PermContactCalendarRounded";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
-import AccountTreeOutlinedIcon from "@material-ui/icons/AccountTreeOutlined";
-import FlashOnIcon from "@material-ui/icons/FlashOn";
-import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
-import CodeRoundedIcon from "@material-ui/icons/CodeRounded";
+import ApartmentRoundedIcon from "@mui/icons-material/ApartmentRounded";
+import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import HelpCenterRoundedIcon from "@mui/icons-material/HelpCenterRounded";
+import ApiRoundedIcon from "@mui/icons-material/ApiRounded";
 import ViewKanban from "@mui/icons-material/ViewKanban";
-import Schedule from "@material-ui/icons/Schedule";
-import LocalOfferIcon from "@material-ui/icons/LocalOffer";
+import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
+import SellRoundedIcon from "@mui/icons-material/SellRounded";
 import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
-import EventAvailableIcon from "@material-ui/icons/EventAvailable";
+import CampaignRoundedIcon from "@mui/icons-material/CampaignRounded";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import CakeIcon from "@material-ui/icons/Cake";
-import PeopleIcon from "@material-ui/icons/People";
-import ListIcon from "@material-ui/icons/ListAlt";
-import AnnouncementIcon from "@material-ui/icons/Announcement";
-import LocalAtmIcon from "@material-ui/icons/LocalAtm";
-import BusinessIcon from "@material-ui/icons/Business";
-import SendIcon from "@material-ui/icons/Send";
+import CelebrationRoundedIcon from "@mui/icons-material/CelebrationRounded";
+import PeopleRoundedIcon from "@mui/icons-material/PeopleRounded";
+import ViewListRoundedIcon from "@mui/icons-material/ViewListRounded";
+import FeedRoundedIcon from "@mui/icons-material/FeedRounded";
+import AccountBalanceRoundedIcon from "@mui/icons-material/AccountBalanceRounded";
+import DomainRoundedIcon from "@mui/icons-material/DomainRounded";
+import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import {
   AllInclusive,
   AttachFile,
-  Dashboard,
   Description,
-  DeviceHubOutlined,
-  GridOn,
-  PhonelinkSetup,
 } from "@material-ui/icons";
 
 import { WhatsAppsContext } from "../context/WhatsApp/WhatsAppsContext";
@@ -61,7 +57,16 @@ import toastError from "../errors/toastError";
 import usePlans from "../hooks/usePlans";
 import useVersion from "../hooks/useVersion";
 import { i18n } from "../translate/i18n";
-import { Campaign, ShapeLine, Webhook } from "@mui/icons-material";
+import {
+  AutoAwesomeMotionRounded,
+  AutoModeRounded,
+  FolderRounded,
+  HubRounded,
+  InsightsRounded,
+  LanRounded,
+  ShapeLine,
+  Webhook,
+} from "@mui/icons-material";
 
 import useCompanySettings from "../hooks/useSettings/companySettings";
 
@@ -614,7 +619,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                     className={`${classes.iconHoverActive} ${isManagementActive || managementHover ? "active" : ""
                       }`}
                   >
-                    <Dashboard />
+                    <DashboardCustomizeRoundedIcon />
                   </Avatar>
                 </ListItemIcon>
                 <ListItemText
@@ -651,7 +656,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                       small
                       to="/"
                       primary="Dashboard"
-                      icon={<DashboardOutlinedIcon />}
+                      icon={<DashboardCustomizeRoundedIcon />}
                       tooltip={collapsed}
                     />
                     <ListItemLink
@@ -676,7 +681,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                     <ListItemLink
                       to="/moments"
                       primary={i18n.t("mainDrawer.listItems.chatsTempoReal")}
-                      icon={<GridOn />}
+                      icon={<InsightsRounded />}
                       tooltip={collapsed}
                     />
                   </>
@@ -708,7 +713,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
       <ListItemLink
         to="/tickets"
         primary={i18n.t("mainDrawer.listItems.tickets")}
-        icon={<WhatsAppIcon />}
+        icon={<SupportAgentRoundedIcon />}
         tooltip={collapsed}
       />
 
@@ -724,7 +729,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
       <ListItemLink
         to="/quick-messages"
         primary={i18n.t("mainDrawer.listItems.quickMessages")}
-        icon={<FlashOnIcon />}
+        icon={<BoltRoundedIcon />}
         tooltip={collapsed}
       />
 
@@ -743,7 +748,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         <ListItemLink
           to="/contacts"
           primary={i18n.t("mainDrawer.listItems.contacts")}
-          icon={<ContactPhoneOutlinedIcon />}
+          icon={<PermContactCalendarRoundedIcon />}
           tooltip={collapsed}
         />
       )}
@@ -753,7 +758,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
           <ListItemLink
             to="/schedules"
             primary={i18n.t("mainDrawer.listItems.schedules")}
-            icon={<Schedule />}
+            icon={<EventNoteRoundedIcon />}
             tooltip={collapsed}
           />
         </>
@@ -762,7 +767,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
       <ListItemLink
         to="/tags"
         primary={i18n.t("mainDrawer.listItems.tags")}
-        icon={<LocalOfferIcon />}
+        icon={<SellRoundedIcon />}
         tooltip={collapsed}
       />
 
@@ -778,7 +783,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         <ListItemLink
           to="/helps"
           primary={i18n.t("mainDrawer.listItems.helps")}
-          icon={<HelpOutlineIcon />}
+          icon={<HelpCenterRoundedIcon />}
           tooltip={collapsed}
         />
       )}
@@ -800,7 +805,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 <Avatar
                   className={`${classes.iconHoverActive} ${isCampaignRouteActive || campaignHover ? "active" : ""}`}
                 >
-                  <EventAvailableIcon />
+                  <CampaignRoundedIcon />
                 </Avatar>
               </ListItemIcon>
               <ListItemText
@@ -828,25 +833,25 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               <ListItemLink
                 to="/campaigns"
                 primary={i18n.t("campaigns.subMenus.list")}
-                icon={<ListIcon />}
+                icon={<ViewListRoundedIcon />}
                 tooltip={collapsed}
               />
               <ListItemLink
                 to="/broadcasts"
                 primary="Lista de transmissão"
-                icon={<SendIcon />}
+                icon={<SendRoundedIcon />}
                 tooltip={collapsed}
               />
               <ListItemLink
                 to="/contact-lists"
                 primary={i18n.t("campaigns.subMenus.listContacts")}
-                icon={<PeopleIcon />}
+                icon={<PeopleRoundedIcon />}
                 tooltip={collapsed}
               />
               <ListItemLink
                 to="/campaigns-config"
                 primary={i18n.t("campaigns.subMenus.settings")}
-                icon={<SettingsOutlinedIcon />}
+                icon={<TuneRoundedIcon />}
                 tooltip={collapsed}
               />
             </List>
@@ -877,7 +882,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                     : ""
                     }`}
                 >
-                  <Webhook />
+                  <AutoModeRounded />
                 </Avatar>
               </ListItemIcon>
               <ListItemText
@@ -910,7 +915,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               <ListItemLink
                 to="/phrase-lists"
                 primary={"Fluxo de Campanha"}
-                icon={<EventAvailableIcon />}
+                icon={<AutoAwesomeMotionRounded />}
                 tooltip={collapsed}
               />
 
@@ -948,7 +953,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               <ListItemLink
                 to="/announcements"
                 primary={i18n.t("mainDrawer.listItems.annoucements")}
-                icon={<AnnouncementIcon />}
+                    icon={<FeedRoundedIcon />}
                 tooltip={collapsed}
               />
             )}
@@ -962,7 +967,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                     <ListItemLink
                       to="/messages-api"
                       primary={i18n.t("mainDrawer.listItems.messagesAPI")}
-                      icon={<CodeRoundedIcon />}
+                      icon={<ApiRoundedIcon />}
                       tooltip={collapsed}
                     />
                   )}
@@ -977,7 +982,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 <ListItemLink
                   to="/users"
                   primary={i18n.t("mainDrawer.listItems.users")}
-                  icon={<PeopleAltOutlinedIcon />}
+                  icon={<GroupRoundedIcon />}
                   tooltip={collapsed}
                 />
               )}
@@ -990,7 +995,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 <ListItemLink
                   to="/birthday-settings"
                   primary={i18n.t("mainDrawer.listItems.birthdaySettings")}
-                  icon={<CakeIcon />}
+                  icon={<CelebrationRoundedIcon />}
                   tooltip={collapsed}
                 />
               )}
@@ -1003,7 +1008,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 <ListItemLink
                   to="/queues"
                   primary={i18n.t("mainDrawer.listItems.queues")}
-                  icon={<AccountTreeOutlinedIcon />}
+                  icon={<ApartmentRoundedIcon />}
                   tooltip={collapsed}
                 />
               )}
@@ -1016,7 +1021,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 <ListItemLink
                   to="/files"
                   primary={i18n.t("mainDrawer.listItems.files")}
-                  icon={<AttachFile />}
+                  icon={<FolderRounded />}
                   tooltip={collapsed}
                 />
               )}
@@ -1045,7 +1050,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                   <ListItemLink
                     to="/queue-integration"
                     primary={i18n.t("mainDrawer.listItems.queueIntegration")}
-                    icon={<DeviceHubOutlined />}
+                  icon={<HubRounded />}
                     tooltip={collapsed}
                   />
                 )}
@@ -1062,7 +1067,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 <ListItemLink
                   to="/connections"
                   primary={i18n.t("mainDrawer.listItems.connections")}
-                  icon={<SyncAltIcon />}
+                  icon={<SettingsInputAntennaRoundedIcon />}
                   showBadge={connectionWarning}
                   tooltip={collapsed}
                 />
@@ -1072,7 +1077,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               <ListItemLink
                 to="/allConnections"
                 primary={i18n.t("mainDrawer.listItems.allConnections")}
-                icon={<PhonelinkSetup />}
+                  icon={<LanRounded />}
                 tooltip={collapsed}
               />
             )}
@@ -1083,7 +1088,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 <ListItemLink
                   to="/financeiro"
                   primary={i18n.t("mainDrawer.listItems.financeiro")}
-                  icon={<LocalAtmIcon />}
+                  icon={<AccountBalanceRoundedIcon />}
                   tooltip={collapsed}
                 />
               )}
@@ -1095,7 +1100,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 <ListItemLink
                   to="/settings"
                   primary={i18n.t("mainDrawer.listItems.settings")}
-                  icon={<SettingsOutlinedIcon />}
+                  icon={<TuneRoundedIcon />}
                   tooltip={collapsed}
                 />
               )}
@@ -1104,7 +1109,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               <ListItemLink
                 to="/companies"
                 primary={i18n.t("mainDrawer.listItems.companies")}
-                icon={<BusinessIcon />}
+                  icon={<DomainRoundedIcon />}
                 tooltip={collapsed}
               />
             )}

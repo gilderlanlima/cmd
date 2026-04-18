@@ -14,7 +14,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import { makeStyles } from "@material-ui/core/styles";
 import Badge from "@material-ui/core/Badge";
-import ChatIcon from "@material-ui/icons/Chat";
+import MarkUnreadChatAltRoundedIcon from "@mui/icons-material/MarkUnreadChatAltRounded";
 
 import TicketListItem from "../TicketListItem";
 import useTickets from "../../hooks/useTickets";
@@ -324,7 +324,7 @@ const onCompanyAppMessageNotificationsPopover = (data) => {
 				style={{ color: "white" }}
 			>
 				<Badge overlap="rectangular" badgeContent={notifications.length} color="secondary">
-					<ChatIcon />
+					<MarkUnreadChatAltRoundedIcon />
 				</Badge>
 			</IconButton>
 			<Popover

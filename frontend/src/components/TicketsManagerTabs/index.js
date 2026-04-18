@@ -15,23 +15,25 @@ import {
   Switch,
 } from "@material-ui/core";
 import {
-  Group,
-  MoveToInbox as MoveToInboxIcon,
-  CheckBox as CheckBoxIcon,
-  MessageSharp as MessageSharpIcon,
-  AccessTime as ClockIcon,
-  Search as SearchIcon,
-  Add as AddIcon,
-  Forum as ForumIcon,
-  TextRotateUp,
-  TextRotationDown,
-  Android as AndroidIcon,
+  SwapVertRounded,
 } from "@material-ui/icons";
-import VisibilityIcon from "@material-ui/icons/Visibility";
-import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 
-import { FilterAltOff, FilterAlt, PlaylistAddCheckOutlined } from "@mui/icons-material";
+import {
+  AddCircleOutlineRounded,
+  AllInboxRounded,
+  ChatBubbleOutlineRounded,
+  CheckCircleOutlineRounded,
+  ForumRounded,
+  GroupsRounded,
+  MarkChatReadRounded,
+  SearchRounded,
+  VisibilityOffOutlined,
+  VisibilityOutlined,
+  WatchLaterRounded,
+  FilterAltOff,
+  FilterAlt,
+} from "@mui/icons-material";
 
 import NewTicketModal from "../NewTicketModal";
 import TicketsList from "../TicketsListCustom";
@@ -762,7 +764,7 @@ const TicketsManagerTabs = () => {
       />
       {tabOpen !== "chat-internal" && (
       <div className={classes.serachInputWrapper}>
-        <SearchIcon className={classes.searchIcon} />
+        <SearchRounded className={classes.searchIcon} />
         <InputBase
           className={classes.searchInput}
           inputRef={searchInputRef}
@@ -838,7 +840,7 @@ const TicketsManagerTabs = () => {
   badgeContent={"Todos"}
   classes={{ badge: classes.tabsBadge }}
 >
-  <ToggleButton
+      <ToggleButton
     onMouseEnter={() => setIsHoveredAll(true)}
     onMouseLeave={() => setIsHoveredAll(false)}
     className={`${classes.standardButton} ${showAllTickets ? classes.activeButton : ''}`}
@@ -847,9 +849,9 @@ const TicketsManagerTabs = () => {
     onChange={() => setShowAllTickets((prevState) => !prevState)}
   >
     {showAllTickets ? (
-      <VisibilityIcon className={`${classes.standardIcon} ${classes.activeIcon}`} />
+      <VisibilityOutlined className={`${classes.standardIcon} ${classes.activeIcon}`} />
     ) : (
-      <VisibilityOffIcon className={classes.standardIcon} />
+      <VisibilityOffOutlined className={classes.standardIcon} />
     )}
   </ToggleButton>
 </Badge>
@@ -901,7 +903,7 @@ const TicketsManagerTabs = () => {
       setNewTicketModalOpen(true);
     }}
   >
-    <AddIcon className={classes.standardIcon} />
+    <AddCircleOutlineRounded className={classes.standardIcon} />
   </IconButton>
 </Badge>
 {user.profile === "admin" && (
@@ -923,7 +925,7 @@ const TicketsManagerTabs = () => {
       className={classes.standardButton}
       onClick={handleSnackbarOpen}
     >
-      <PlaylistAddCheckOutlined className={classes.standardIcon} />
+      <MarkChatReadRounded className={classes.standardIcon} />
     </IconButton>
   </Badge>
 )}
@@ -956,7 +958,7 @@ const TicketsManagerTabs = () => {
     }`}
     onClick={() => handleChangeTab(null, "open")}
   >
-    <MoveToInboxIcon
+    <AllInboxRounded
       className={`${classes.standardIcon} ${
         (tab === "open" || isHoveredOpen) ? classes.activeIcon : ''
       }`}
@@ -994,7 +996,7 @@ const TicketsManagerTabs = () => {
     }`}
     onClick={() => handleChangeTab(null, "closed")}
   >
-    <CheckBoxIcon
+    <CheckCircleOutlineRounded
       className={`${classes.standardIcon} ${
         (tab === "closed" || isHoveredClosed) ? classes.activeIcon : ''
       }`}
@@ -1025,9 +1027,9 @@ const TicketsManagerTabs = () => {
       onChange={() => setSortTickets((prevState) => !prevState)}
     >
       {!sortTickets ? (
-        <TextRotateUp className={`${classes.standardIcon} ${sortTickets ? classes.activeIcon : ''}`} />
+        <SwapVertRounded className={`${classes.standardIcon} ${sortTickets ? classes.activeIcon : ''}`} />
       ) : (
-        <TextRotationDown className={`${classes.standardIcon} ${classes.activeIcon}`} />
+        <SwapVertRounded className={`${classes.standardIcon} ${classes.activeIcon}`} style={{ transform: "rotate(180deg)" }} />
       )}
     </ToggleButton>
   </Badge>
@@ -1069,10 +1071,10 @@ const TicketsManagerTabs = () => {
                     badgeContent={openCount}
                     color="primary"
                   >
-                    <MessageSharpIcon
-                      style={{
-                        fontSize: 20,
-                        color: tabOpen === "open" ? theme.palette.primary.main : "inherit",
+                      <ChatBubbleOutlineRounded
+                        style={{
+                          fontSize: 20,
+                          color: tabOpen === "open" ? theme.palette.primary.main : "inherit",
                       }}
                     />
                   </Badge>
@@ -1109,7 +1111,7 @@ const TicketsManagerTabs = () => {
                     badgeContent={pendingCount}
                     color="primary"
                   >
-                    <ClockIcon
+                    <WatchLaterRounded
                       style={{
                         fontSize: 20,
                         color: tabOpen === "pending" ? theme.palette.primary.main : "inherit",
@@ -1150,7 +1152,7 @@ const TicketsManagerTabs = () => {
                       badgeContent={groupingCount}
                       color="primary"
                     >
-                      <Group
+                      <GroupsRounded
                         style={{
                           fontSize: 20,
                           color: tabOpen === "group" ? theme.palette.primary.main : "inherit",
@@ -1190,7 +1192,7 @@ const TicketsManagerTabs = () => {
                       color="primary"
                       invisible={!internalChatCount}
                     >
-                      <ForumIcon
+                      <ForumRounded
                         style={{
                           fontSize: 20,
                           color: tabOpen === "chat-internal" ? theme.palette.primary.main : "inherit",
