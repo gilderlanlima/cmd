@@ -119,8 +119,9 @@ const reducer = (state, action) => {
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    padding: theme.spacing(2),
+    padding: theme.spacing(1.5),
     overflowY: "auto",
+    overflowX: "hidden",
     ...theme.scrollbarStyles,
     borderRadius: 24,
     border: "1px solid rgba(37, 99, 235, 0.08)",
@@ -132,7 +133,7 @@ const useStyles = makeStyles((theme) => ({
   },
   heroPanel: {
     marginBottom: theme.spacing(2),
-    padding: theme.spacing(2.5),
+    padding: theme.spacing(1.75, 2),
     borderRadius: 24,
     color: theme.mode === "light" ? "#0f172a" : theme.palette.text.primary,
     background:
@@ -143,38 +144,42 @@ const useStyles = makeStyles((theme) => ({
   },
   heroTitle: {
     fontWeight: 800,
-    marginBottom: theme.spacing(0.75),
+    marginBottom: theme.spacing(0.35),
+    fontSize: "0.98rem",
   },
   heroSubtitle: {
     color: theme.palette.text.secondary,
-    maxWidth: 640,
-    lineHeight: 1.6,
+    maxWidth: 760,
+    lineHeight: 1.45,
+    fontSize: "0.84rem",
   },
   metricsRow: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-    gap: theme.spacing(1.5),
-    marginTop: theme.spacing(2),
+    gap: theme.spacing(1),
+    marginTop: theme.spacing(1.25),
   },
   metricCard: {
-    padding: theme.spacing(1.5),
-    borderRadius: 18,
+    padding: theme.spacing(1.1, 1.25),
+    borderRadius: 16,
     background: theme.mode === "light" ? "#fff" : "rgba(255,255,255,0.03)",
     border: "1px solid rgba(148,163,184,0.16)",
   },
   metricLabel: {
     color: theme.palette.text.secondary,
-    fontSize: "0.8rem",
-    marginBottom: theme.spacing(0.5),
+    fontSize: "0.75rem",
+    marginBottom: theme.spacing(0.35),
   },
   metricValue: {
     display: "flex",
     alignItems: "center",
-    gap: theme.spacing(1),
-    fontSize: "1.2rem",
+    gap: theme.spacing(0.75),
+    fontSize: "1.05rem",
     fontWeight: 800,
   },
   calendarToolbar: {
+    width: "100%",
+    minWidth: 0,
     "& .rbc-toolbar": {
       marginBottom: theme.spacing(2),
       gap: theme.spacing(1),
@@ -209,6 +214,31 @@ const useStyles = makeStyles((theme) => ({
         borderColor: "transparent",
       },
     },
+    "& .rbc-calendar": {
+      width: "100%",
+      minWidth: 0,
+    },
+    "& .rbc-month-view, & .rbc-time-view, & .rbc-agenda-view table": {
+      width: "100%",
+      minWidth: 0,
+    },
+    "& .rbc-month-view": {
+      borderRadius: 20,
+      overflow: "hidden",
+      border: "1px solid rgba(148,163,184,0.16)",
+    },
+    "& .rbc-header": {
+      padding: "4px 6px",
+      fontSize: "0.74rem",
+      lineHeight: 1.2,
+      whiteSpace: "normal",
+    },
+    "& .rbc-date-cell": {
+      paddingRight: 8,
+    },
+    "& .rbc-month-row": {
+      minHeight: 92,
+    },
     "& .rbc-event": {
       borderRadius: 14,
       border: "none",
@@ -218,6 +248,24 @@ const useStyles = makeStyles((theme) => ({
     },
     "& .rbc-today": {
       backgroundColor: "rgba(37,99,235,0.06)",
+    },
+    [theme.breakpoints.down("md")]: {
+      "& .rbc-toolbar": {
+        alignItems: "stretch",
+      },
+      "& .rbc-toolbar-label": {
+        fontSize: "0.94rem",
+      },
+      "& .rbc-btn-group button": {
+        padding: "7px 12px",
+        fontSize: "0.78rem",
+      },
+      "& .rbc-header": {
+        fontSize: "0.68rem",
+      },
+      "& .rbc-month-row": {
+        minHeight: 84,
+      },
     },
   },
 }));

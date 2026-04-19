@@ -20,7 +20,7 @@ import { Colorize, AttachFile, Delete, Palette, Image, Language, Apps } from "@m
 import ColorPicker from "../ColorPicker";
 import ColorModeContext from "../../layout/themeContext";
 import api from "../../services/api";
-import { getBackendUrl } from "../../config";
+import { getBackendUrl, withCacheBustedUrl } from "../../config";
 
 import defaultLogoLight from "../../assets/logo.png";
 import defaultLogoDark from "../../assets/logo-black.png";
@@ -358,8 +358,14 @@ export default function Whitelabel(props) {
         if (mode === "BackgroundLight" || mode === "BackgroundDark") {
         } else {
           colorMode[`setAppLogo${mode}`](
-            getBackendUrl() + "/public/" + response.data
+            withCacheBustedUrl(
+              getBackendUrl() + "/public/" + response.data,
+              `${response.data}-${Date.now()}`
+            )
           );
+          if (mode === "Favicon" && colorMode?.setFaviconCacheSeed) {
+            colorMode.setFaviconCacheSeed(`${response.data}-${Date.now()}`);
+          }
         }
       })
       .catch((err) => {
@@ -666,6 +672,9 @@ export default function Whitelabel(props) {
                                 onClick={() => {
                                   handleSaveSetting("appLogoFavicon", "");
                                   colorMode.setAppLogoFavicon(defaultLogoFavicon);
+                                  if (colorMode?.setFaviconCacheSeed) {
+                                    colorMode.setFaviconCacheSeed(`default-${Date.now()}`);
+                                  }
                                 }}
                               >
                                 <Delete

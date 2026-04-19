@@ -167,33 +167,26 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0, 1),
   },
   nameCell: {
-    width: "18%",
+    width: "23%",
     fontWeight: 600,
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
   connectionCell: {
-    width: "17%",
+    width: "20%",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
-  },
-  emailCell: {
-    width: "17%",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    color: theme.palette.text.secondary,
   },
   tagCell: {
-    width: "12%",
+    width: "15%",
   },
   statusCell: {
     width: "7%",
   },
   walletCell: {
-    width: "10%",
+    width: "14%",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -975,9 +968,6 @@ const Contacts = () => {
               <TableCell className={`${classes.headerCell} ${classes.connectionCell}`}>
                 {i18n.t("contacts.table.whatsapp")}
               </TableCell>
-              <TableCell className={`${classes.headerCell} ${classes.emailCell}`}>
-                {i18n.t("contacts.table.email")}
-              </TableCell>
               <TableCell className={`${classes.headerCell} ${classes.tagCell}`}>TAG</TableCell>
               <TableCell className={`${classes.headerCell} ${classes.statusCell}`} align="center">{"Status"}</TableCell>
               <TableCell className={`${classes.headerCell} ${classes.walletCell}`}>{i18n.t("contacts.table.wallet")}</TableCell>
@@ -1030,9 +1020,6 @@ const Contacts = () => {
                         : contact.isGroup
                         ? contact.number
                         : formatSerializedId(contact?.number)}
-                    </TableCell>
-                    <TableCell className={`${classes.compactCell} ${classes.emailCell}`} title={contact.email || ""}>
-                      {contact.email || "-"}
                     </TableCell>
                     <TableCell className={`${classes.compactCell} ${classes.tagCell}`}>
                       <div className={classes.tagsWrap}>

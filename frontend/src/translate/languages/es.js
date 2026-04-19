@@ -962,6 +962,7 @@ const messages = {
         appBar: {
           user: {
             profile: "Perfil",
+            clearCache: "Limpiar caché",
             logout: "Cerrar Sesión",
             message: "Hola",
             messageEnd: "bienvenido a",

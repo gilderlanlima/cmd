@@ -596,10 +596,23 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 
 	// Navegar para mensagem (placeholder - implementar conforme necessário)
 	const handleGoToMessage = (message) => {
-		// Aqui você pode implementar a navegação para a mensagem específica
-		console.log("Navegar para mensagem:", message);
-		toast.info(`Mensagem encontrada: ${message.body.substring(0, 50)}...`);
+		const targetTicketUuid = message?.ticket?.uuid || ticket?.uuid;
+
+		if (!targetTicketUuid) {
+			toast.error("Não foi possível localizar o ticket da mensagem");
+			return;
+		}
+
+		const params = new URLSearchParams();
+		params.set("messageId", String(message.id));
+
+		if (message?.ticket?.status) {
+			params.set("tab", message.ticket.status);
+		}
+
 		setShowSearchResults(false);
+		handleDrawerClose();
+		history.push(`/tickets/${targetTicketUuid}?${params.toString()}`);
 	};
 
 	const fetchMediaData = async () => {

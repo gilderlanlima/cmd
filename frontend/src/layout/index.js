@@ -48,6 +48,7 @@ import VersionControl from "../components/VersionControl";
 import useSocketListener from "../hooks/useSocketListener";
 import {
   CampaignRounded,
+  CleaningServicesRounded,
   DarkModeRounded,
   LanguageRounded,
   LightModeRounded,
@@ -684,6 +685,37 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
     handleLogout();
   };
 
+  const handleClearCache = async () => {
+    handleCloseMenu();
+
+    try {
+      const appStorageKeys = [
+        "appName",
+        "primaryColorLight",
+        "primaryColorDark",
+        "frontendVersion",
+      ];
+
+      appStorageKeys.forEach((key) => localStorage.removeItem(key));
+
+      if ("caches" in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
+      }
+
+      if ("serviceWorker" in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((registration) => registration.unregister()));
+      }
+    } catch (error) {
+      console.error("Erro ao limpar cache da aplicaÃ§Ã£o:", error);
+    } finally {
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set("cacheReset", Date.now().toString());
+      window.location.replace(currentUrl.toString());
+    }
+  };
+
   const drawerClose = () => {
     if (document.body.offsetWidth < 600 || user.defaultMenu === "closed") {
       setDrawerOpen(false);
@@ -962,6 +994,12 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                 >
                   <MenuItem onClick={handleOpenUserModal}>
                     {i18n.t("mainDrawer.appBar.user.profile")}
+                  </MenuItem>
+                  <MenuItem onClick={handleClearCache}>
+                    <CleaningServicesRounded
+                      style={{ fontSize: 18, marginRight: 10 }}
+                    />
+                    {i18n.t("mainDrawer.appBar.user.clearCache")}
                   </MenuItem>
                   <MenuItem onClick={handleClickLogout}>
                     {i18n.t("mainDrawer.appBar.user.logout")}

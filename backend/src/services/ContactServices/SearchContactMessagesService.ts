@@ -65,7 +65,7 @@ const SearchContactMessagesService = async ({
       {
         model: Ticket,
         as: "ticket",
-        attributes: ["id", "uuid"]
+        attributes: ["id", "uuid", "status"]
       }
     ],
     attributes: [

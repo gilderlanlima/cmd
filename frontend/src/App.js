@@ -8,7 +8,7 @@ import { useMediaQuery } from "@material-ui/core";
 import ColorModeContext from "./layout/themeContext";
 import { ActiveMenuProvider } from "./context/ActiveMenuContext";
 import Favicon from "react-favicon";
-import { getBackendUrl } from "./config";
+import { getBackendUrl, withCacheBustedUrl } from "./config";
 import Routes from "./routes";
 import defaultLogoLight from "./assets/logo.png";
 import defaultLogoDark from "./assets/logo-black.png";
@@ -39,6 +39,7 @@ const App = () => {
   const [appLogoLight, setAppLogoLight] = useState(defaultLogoLight);
   const [appLogoDark, setAppLogoDark] = useState(defaultLogoDark);
   const [appLogoFavicon, setAppLogoFavicon] = useState(defaultLogoFavicon);
+  const [faviconCacheSeed, setFaviconCacheSeed] = useState(Date.now().toString());
   const [appName, setAppName] = useState(appNameLocalStorage);
   const { getPublicSetting } = useSettings();
 
@@ -56,6 +57,7 @@ const App = () => {
       setAppLogoLight,
       setAppLogoDark,
       setAppLogoFavicon,
+      setFaviconCacheSeed,
       setAppName,
       appLogoLight,
       appLogoDark,
@@ -397,6 +399,7 @@ const App = () => {
       });
     getPublicSetting("appLogoFavicon")
       .then((file) => {
+        setFaviconCacheSeed(`${file || "default"}-${Date.now()}`);
         setAppLogoFavicon(
           file ? getBackendUrl() + "/public/" + file : defaultLogoFavicon
         );
@@ -436,14 +439,39 @@ const App = () => {
     fetchVersionData();
   }, []);
 
+  useEffect(() => {
+    const faviconHref = withCacheBustedUrl(
+      appLogoFavicon || defaultLogoFavicon,
+      faviconCacheSeed
+    );
+
+    if (!faviconHref || typeof document === "undefined") {
+      return;
+    }
+
+    const selectors = [
+      'link[rel="icon"]',
+      'link[rel="shortcut icon"]',
+      'link[rel="apple-touch-icon"]',
+    ];
+
+    selectors.forEach((selector) => {
+      const nodes = document.querySelectorAll(selector);
+      nodes.forEach((node) => {
+        node.setAttribute("href", faviconHref);
+      });
+    });
+  }, [appLogoFavicon, faviconCacheSeed]);
+
+  const faviconUrl = useMemo(
+    () => withCacheBustedUrl(appLogoFavicon || defaultLogoFavicon, faviconCacheSeed),
+    [appLogoFavicon, faviconCacheSeed]
+  );
+
   return (
     <>
       <Favicon
-        url={
-          appLogoFavicon
-            ? appLogoFavicon
-            : defaultLogoFavicon
-        }
+        url={faviconUrl}
       />
       <ColorModeContext.Provider value={{ colorMode }}>
         <ThemeProvider theme={theme}>

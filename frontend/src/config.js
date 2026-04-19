@@ -93,6 +93,17 @@ export function normalizeBackendAssetUrl(url, options = {}) {
     return `${backendUrl}/public/${normalizedPath}`;
 }
 
+export function withCacheBustedUrl(url, seed = "") {
+    if (!url || typeof url !== "string") {
+        return "";
+    }
+
+    const normalizedSeed = seed || Date.now().toString();
+    const separator = url.includes("?") ? "&" : "?";
+
+    return `${url}${separator}v=${encodeURIComponent(normalizedSeed)}`;
+}
+
 export function getHoursCloseTicketsAuto() {
     return getConfig('REACT_APP_HOURS_CLOSE_TICKETS_AUTO');
 }

@@ -88,12 +88,14 @@ const useStyles = makeStyles((theme) => ({
     tagGroupTitle: {
         display: "flex",
         alignItems: "center",
+        justifyContent: "center",
         minWidth: 0,
         flex: 1,
     },
     tagGroupBadge: {
         display: "flex",
         alignItems: "center",
+        justifyContent: "center",
         minHeight: 36,
         width: "100%",
         borderRadius: 0,
@@ -103,6 +105,7 @@ const useStyles = makeStyles((theme) => ({
         color: "#fff",
         fontSize: "0.88rem",
         letterSpacing: "0.02em",
+        textAlign: "center",
     },
     groupDivider: {
         margin: theme.spacing(0.5, 0, 0.5),

@@ -45,7 +45,7 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 import { QueueSelectedContext } from "../../context/QueuesSelected/QueuesSelectedContext";
 import AudioModal from "../AudioModal";
 import { CircularProgress } from "@material-ui/core";
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { downloadResource } from "../../utils";
 import Template from "./templates";
 import { usePdfViewer } from "../../hooks/usePdfViewer";
@@ -253,6 +253,12 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 5,
     paddingBottom: 0,
     boxShadow: theme.mode === "light" ? "0 1px 1px #b3b3b3" : "0 1px 1px #000000"
+  },
+
+  highlightedMessage: {
+    boxShadow: `0 0 0 2px ${theme.palette.primary.main}, 0 10px 28px ${theme.palette.primary.main}33 !important`,
+    transform: "scale(1.01)",
+    transition: "box-shadow 0.25s ease, transform 0.25s ease",
   },
 
   quotedContainerRight: {
@@ -486,13 +492,18 @@ const MessagesList = ({
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const history = useHistory();
+  const location = useLocation();
   const lastMessageRef = useRef();
+  const messageRefs = useRef({});
+  const highlightedMessageTimeoutRef = useRef(null);
+  const targetMessageReachedRef = useRef(false);
 
   const [selectedMessage, setSelectedMessage] = useState({});
   const { setReplyingMessage } = useContext(ReplyMessageContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const messageOptionsMenuOpen = Boolean(anchorEl);
   const { ticketId } = useParams();
+  const targetMessageId = new URLSearchParams(location.search).get("messageId");
 
   const currentTicketId = useRef(ticketId);
   const { getAll } = useCompanySettings();
@@ -538,7 +549,12 @@ const MessagesList = ({
     dispatch({ type: "RESET" });
     setPageNumber(1);
     currentTicketId.current = ticketId;
+    targetMessageReachedRef.current = false;
   }, [ticketId, selectedQueuesMessage]);
+
+  useEffect(() => {
+    targetMessageReachedRef.current = false;
+  }, [targetMessageId]);
 
   useEffect(() => {
     setLoading(true);
@@ -618,6 +634,9 @@ const MessagesList = ({
     return () => {
       if (dragTimeout) {
         clearTimeout(dragTimeout);
+      }
+      if (highlightedMessageTimeoutRef.current) {
+        clearTimeout(highlightedMessageTimeoutRef.current);
       }
     };
   }, [dragTimeout]);
@@ -1223,6 +1242,87 @@ const MessagesList = ({
     return xmlString;
   };
 
+  const setMessageRef = (messageId, element) => {
+    if (!messageId) return;
+
+    if (element) {
+      messageRefs.current[messageId] = element;
+    } else {
+      delete messageRefs.current[messageId];
+    }
+  };
+
+  const clearTargetMessageFromUrl = () => {
+    const params = new URLSearchParams(location.search);
+    if (!params.has("messageId")) return;
+
+    params.delete("messageId");
+    const search = params.toString();
+
+    history.replace({
+      pathname: location.pathname,
+      search: search ? `?${search}` : ""
+    });
+  };
+
+  const scrollToTargetMessage = (messageId) => {
+    const messageElement = messageRefs.current[messageId];
+    if (!messageElement) {
+      return false;
+    }
+
+    messageElement.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    messageElement.classList.add(classes.highlightedMessage);
+
+    if (highlightedMessageTimeoutRef.current) {
+      clearTimeout(highlightedMessageTimeoutRef.current);
+    }
+
+    highlightedMessageTimeoutRef.current = setTimeout(() => {
+      messageElement.classList.remove(classes.highlightedMessage);
+    }, 2200);
+
+    return true;
+  };
+
+  useEffect(() => {
+    if (!targetMessageId || targetMessageReachedRef.current) {
+      return;
+    }
+
+    const targetExistsInLoadedMessages = messagesList.some(
+      message => String(message.id) === String(targetMessageId)
+    );
+
+    if (targetExistsInLoadedMessages) {
+      const scrollTimeout = setTimeout(() => {
+        const didScroll = scrollToTargetMessage(targetMessageId);
+
+        if (didScroll) {
+          targetMessageReachedRef.current = true;
+          clearTargetMessageFromUrl();
+        }
+      }, 180);
+
+      return () => clearTimeout(scrollTimeout);
+    }
+
+    if (hasMore && !loading && !loadingMore) {
+      loadMore();
+      return;
+    }
+
+    if (!hasMore && !loading && !loadingMore) {
+      targetMessageReachedRef.current = true;
+      toastError("Não foi possível localizar a mensagem pesquisada no histórico carregado.");
+      clearTargetMessageFromUrl();
+    }
+  }, [targetMessageId, messagesList, hasMore, loading, loadingMore]);
+
   const isBroadcastMessage = (message) =>
     Boolean(message?.fromMe && typeof message?.body === "string" && /\u200c/.test(message.body));
 
@@ -1273,6 +1373,7 @@ const MessagesList = ({
                 className={classes.messageLeft}
                 title={message.queueId && message.queue?.name}
                 onDoubleClick={(e) => hanldeReplyMessage(e, message)}
+                ref={(element) => setMessageRef(message.id, element)}
               >
                 {showSelectMessageCheckbox && (
                   <SelectMessageCheckbox
@@ -1383,6 +1484,7 @@ const MessagesList = ({
                 }
                 title={message.queueId && message.queue?.name}
                 onDoubleClick={(e) => hanldeReplyMessage(e, message)}
+                ref={(element) => setMessageRef(message.id, element)}
               >
                 {showSelectMessageCheckbox && (
                   <SelectMessageCheckbox

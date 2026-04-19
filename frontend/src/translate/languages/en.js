@@ -972,6 +972,7 @@ const messages = {
         appBar: {
           user: {
             profile: "Profile",
+            clearCache: "Clear cache",
             logout: "Logout",
             message: "Hello",
             messageEnd: "welcome to",

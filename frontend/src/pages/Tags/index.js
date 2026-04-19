@@ -77,50 +77,84 @@ const useStyles = makeStyles((theme) => ({
   },
   orderingPanel: {
     marginBottom: theme.spacing(2),
-    padding: theme.spacing(2),
-    borderRadius: 16,
-    border: "1px solid rgba(0,0,0,0.08)",
+    padding: theme.spacing(1.5),
+    borderRadius: 14,
+    border: "1px solid rgba(0,0,0,0.07)",
     background: theme.palette.background.default,
+    overflow: "hidden",
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(1.2),
+    },
   },
   orderingHeader: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
-    gap: theme.spacing(2),
-    marginBottom: theme.spacing(1.5),
+    gap: theme.spacing(1.5),
+    marginBottom: theme.spacing(1.1),
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+      alignItems: "stretch",
+      gap: theme.spacing(0.75),
+    },
+  },
+  orderingHeaderText: {
+    minWidth: 0,
+  },
+  orderingTitle: {
+    fontSize: "1rem",
+    fontWeight: 700,
+    lineHeight: 1.2,
+    marginBottom: theme.spacing(0.35),
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "0.95rem",
+    },
   },
   orderingHint: {
     color: theme.palette.text.secondary,
-    fontSize: "0.9rem",
+    fontSize: "0.83rem",
+    lineHeight: 1.45,
   },
   orderingList: {
     display: "flex",
     flexDirection: "column",
-    gap: theme.spacing(1),
+    gap: theme.spacing(0.7),
   },
   orderingItem: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: theme.spacing(1.5),
-    padding: theme.spacing(1.25, 1.5),
-    borderRadius: 14,
+    gap: theme.spacing(1),
+    padding: theme.spacing(0.85, 1.1),
+    borderRadius: 12,
     background: theme.palette.background.paper,
-    border: "1px solid rgba(0,0,0,0.08)",
+    border: "1px solid rgba(0,0,0,0.06)",
+    minWidth: 0,
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(0.75, 0.85),
+      alignItems: "flex-start",
+      flexDirection: "column",
+    },
   },
   orderingItemLeft: {
     display: "flex",
     alignItems: "center",
-    gap: theme.spacing(1.25),
+    gap: theme.spacing(0.9),
     minWidth: 0,
+    flex: 1,
+    width: "100%",
   },
   dragHandle: {
     color: theme.palette.text.secondary,
     cursor: "grab",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
   },
   orderingIndex: {
-    minWidth: 26,
-    height: 26,
+    minWidth: 24,
+    height: 24,
     borderRadius: 999,
     display: "inline-flex",
     alignItems: "center",
@@ -128,10 +162,39 @@ const useStyles = makeStyles((theme) => ({
     background: "rgba(37,99,235,0.12)",
     color: theme.palette.primary.main,
     fontWeight: 700,
-    fontSize: "0.78rem",
+    fontSize: "0.75rem",
+    flexShrink: 0,
+  },
+  orderingChip: {
+    maxWidth: "100%",
+    height: 28,
+    "& .MuiChip-label": {
+      display: "block",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      paddingLeft: theme.spacing(1.1),
+      paddingRight: theme.spacing(1.1),
+      fontWeight: 700,
+      fontSize: "0.8rem",
+    },
   },
   orderingName: {
+    minWidth: 0,
+    maxWidth: 220,
+    marginLeft: theme.spacing(1),
     fontWeight: 700,
+    fontSize: "0.84rem",
+    color: theme.palette.text.secondary,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    [theme.breakpoints.down("sm")]: {
+      marginLeft: 0,
+      maxWidth: "100%",
+      width: "100%",
+      paddingLeft: theme.spacing(3.4),
+    },
   }
 }));
 
@@ -359,8 +422,8 @@ const Tags = () => {
       {!searchParam && tags.length > 0 && (
         <Paper className={classes.orderingPanel} elevation={0}>
           <div className={classes.orderingHeader}>
-            <div>
-              <Typography variant="h6">Ordem das tags nos Tickets</Typography>
+            <div className={classes.orderingHeaderText}>
+              <Typography className={classes.orderingTitle}>Ordem das tags nos Tickets</Typography>
               <Typography className={classes.orderingHint}>
                 Arraste para reorganizar. Essa ordem será refletida na separação visual dos tickets.
               </Typography>
@@ -389,6 +452,7 @@ const Tags = () => {
                             </div>
                             <span className={classes.orderingIndex}>{index + 1}</span>
                             <Chip
+                              className={classes.orderingChip}
                               size="small"
                               label={tag.name}
                               style={{
@@ -399,7 +463,7 @@ const Tags = () => {
                             />
                           </div>
                           <Typography className={classes.orderingName}>
-                            {tag.name}
+                            Visualização nos tickets
                           </Typography>
                         </div>
                       )}

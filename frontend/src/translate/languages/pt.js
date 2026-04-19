@@ -1000,6 +1000,7 @@ const messages = {
         appBar: {
           user: {
             profile: "Perfil",
+            clearCache: "Limpar cache",
             logout: "Sair",
             message: "Olá",
             messageEnd: "seja bem-vindo a",

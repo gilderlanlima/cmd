@@ -4,7 +4,7 @@ module.exports = {
     await queryInterface.sequelize.query(`
     INSERT INTO "Versions"
     (id, "versionFrontend", "versionBackend", "createdAt", "updatedAt")
-    VALUES(1, '3.3.1', '3.3.1', '2024-05-16 12:13:48.163', '2024-05-16 13:02:46.030')`
+    VALUES(1, '3.3.2', '3.3.2', '2024-05-16 12:13:48.163', '2024-05-16 13:02:46.030')`
     );
   },
 
