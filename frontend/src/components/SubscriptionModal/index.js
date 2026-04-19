@@ -52,7 +52,7 @@ const ContactModal = ({ open, onClose, Invoice, contactId, initialValues, onSave
 
   return (
     <div className={classes.root}>
-      <Dialog open={open} onClose={handleClose} maxWidth="md" scroll="paper">
+      <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth scroll="paper">
         <DialogContent dividers>
           <CheckoutPage
             Invoice={Invoice}

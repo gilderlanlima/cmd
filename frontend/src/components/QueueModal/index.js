@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { Formik, FieldArray, Form, Field } from "formik";
 import { toast } from "react-toastify";
 
-import { FormControl, FormControlLabel, Grid, InputLabel, MenuItem, Paper, Select, Tab, Tabs } from "@material-ui/core";
+import { Chip, FormControl, FormControlLabel, Grid, InputLabel, MenuItem, Paper, Select, Tab, Tabs } from "@material-ui/core";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { green } from "@material-ui/core/colors";
@@ -98,7 +98,42 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
   },
+  variableSection: {
+    marginTop: theme.spacing(1.5),
+    padding: theme.spacing(1.5),
+    border: "1px solid rgba(148, 163, 184, 0.35)",
+    borderRadius: 10,
+    backgroundColor: "#fff",
+  },
+  variableTitle: {
+    marginBottom: theme.spacing(1),
+    fontWeight: 600,
+    color: theme.palette.text.secondary,
+  },
+  variableChips: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: theme.spacing(1),
+  },
+  variableChip: {
+    fontWeight: 600,
+    borderRadius: 999,
+  },
 }));
+
+const queueMessageVariables = [
+  { label: "Primeiro Nome", token: "firstName" },
+  { label: "Nome", token: "name" },
+  { label: "Atendente", token: "attendant" },
+  { label: "Sauda\u00e7\u00e3o", token: "saudacao" },
+  { label: "Protocolo", token: "protocol" },
+  { label: "Data", token: "date" },
+  { label: "Hora", token: "hour" },
+  { label: "N\u00ba do Chamado", token: "ticket_id" },
+  { label: "Setor", token: "queue" },
+  { label: "Conex\u00e3o", token: "connection" },
+  { label: "Data do Agendamento", token: "dataAgendamento" },
+];
 
 const QueueSchema = Yup.object().shape({
   name: Yup.string()
@@ -179,6 +214,30 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
   const [showOpenAi, setShowOpenAi] = useState(false);
   const [showIntegrations, setShowIntegrations] = useState(false);
   const { getPlanCompany } = usePlans();
+
+  const handleInsertGreetingVariable = (token, values, setFieldValue) => {
+    const variable = `{{${token}}}`;
+    const currentValue = values.greetingMessage || "";
+    const input = greetingRef.current;
+
+    if (!input || typeof input.selectionStart !== "number") {
+      setFieldValue("greetingMessage", `${currentValue}${variable}`);
+      return;
+    }
+
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    const nextValue =
+      currentValue.slice(0, start) + variable + currentValue.slice(end);
+
+    setFieldValue("greetingMessage", nextValue);
+
+    setTimeout(() => {
+      input.focus();
+      const cursorPosition = start + variable.length;
+      input.setSelectionRange(cursorPosition, cursorPosition);
+    }, 0);
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -691,6 +750,30 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
                       variant="outlined"
                       margin="dense"
                     />
+                    <div className={classes.variableSection}>
+                      <Typography variant="body2" className={classes.variableTitle}>
+                        Variáveis disponíveis (clique para inserir):
+                      </Typography>
+                      <div className={classes.variableChips}>
+                        {queueMessageVariables.map((variable) => (
+                          <Chip
+                            key={variable.token}
+                            label={variable.label}
+                            size="small"
+                            color="primary"
+                            clickable
+                            className={classes.variableChip}
+                            onClick={() =>
+                              handleInsertGreetingVariable(
+                                variable.token,
+                                values,
+                                setFieldValue
+                              )
+                            }
+                          />
+                        ))}
+                      </div>
+                    </div>
                     {schedulesEnabled && (
                       <Field
                         as={TextField}

@@ -133,47 +133,46 @@ export const createSubscription = async (
   const mercadopagoURL = await createMercadoPagoPreference();
 
   if (key_ASAAS_TOKEN && valor > 10) {
+    const frontendUrl = process.env.FRONTEND_URL || "https://app.ideianobolso.com";
 
-    var optionsGetAsaas = {
-      method: 'POST',
-      url: `https://api.asaas.com/v3/paymentLinks`,
+    const optionsGetAsaas = {
+      method: "POST",
+      url: "https://api.asaas.com/v3/checkouts",
       headers: {
-        'Content-Type': 'application/json',
-        'access_token': key_ASAAS_TOKEN
+        "Content-Type": "application/json",
+        access_token: key_ASAAS_TOKEN
       },
       data: {
-        "name": `#Fatura:${invoiceId}`,
-        "description": `#Fatura:${invoiceId}`,
-        //"endDate": "2021-02-05",
-        "value": price.toLocaleString("pt-br", { minimumFractionDigits: 2 }).replace(",", "."),
-        //"value": "50",
-        "billingType": "UNDEFINED",
-        "chargeType": "DETACHED",
-        "dueDateLimitDays": 1,
-        "subscriptionCycle": null,
-        "maxInstallmentCount": 1,
-        "notificationEnabled": true
+        billingTypes: ["PIX", "CREDIT_CARD"],
+        chargeTypes: ["DETACHED"],
+        minutesToExpire: 60,
+        externalReference: String(invoiceId),
+        callback: {
+          successUrl: `${frontendUrl}/financeiro?payment=success&provider=asaas&invoiceId=${invoiceId}`,
+          cancelUrl: `${frontendUrl}/financeiro?payment=cancel&provider=asaas&invoiceId=${invoiceId}`,
+          expiredUrl: `${frontendUrl}/financeiro?payment=expired&provider=asaas&invoiceId=${invoiceId}`
+        },
+        items: [
+          {
+            name: `#Fatura:${invoiceId}`,
+            description: `Renovação da licença CRM - fatura ${invoiceId}`,
+            quantity: 1,
+            value: valor
+          }
+        ]
       }
     };
 
-
-    while (asaasURL === undefined) {
-      try {
-        const response = await axios.request(optionsGetAsaas);
+    try {
+      const response = await axios.request(optionsGetAsaas);
+      if (response?.data?.id) {
+        asaasURL = `https://asaas.com/checkoutSession/show?id=${response.data.id}`;
+      } else if (response?.data?.url) {
         asaasURL = response.data.url;
-
-        console.log('asaasURL:', asaasURL);
-
-        // Handle the response here
-        // You can proceed with the rest of your code that depends on asaasURL
-      } catch (error) {
-        console.error('Error:', error);
       }
+    } catch (error) {
+      console.error("Erro ao criar checkout do Asaas:", error?.response?.data || error);
     }
-
-
-
-
   }
 
   //console.log(asaasURL);
@@ -564,9 +563,15 @@ export const asaaswebhook = async (
   const { event } = req.body;
   console.log('asaaswebhook', req.body);
 
-  if (event === "PAYMENT_RECEIVED") {
+  if (["PAYMENT_RECEIVED", "PAYMENT_CONFIRMED", "CHECKOUT_PAID"].includes(event)) {
 
-    const paymentId = req.body.payment.description.replace("#Fatura:", "");
+    const paymentDescription = req.body?.payment?.description || req.body?.checkout?.description || "";
+    const externalReference = req.body?.payment?.externalReference || req.body?.checkout?.externalReference || "";
+    const paymentId = String(externalReference || paymentDescription).replace("#Fatura:", "");
+
+    if (!paymentId) {
+      return res.status(200).json({ ok: false, message: "Invoice not found in webhook payload" });
+    }
 
     console.log('paymentId', paymentId);
 
