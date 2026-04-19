@@ -18,6 +18,7 @@ import ShowQueueIntegrationService from "../QueueIntegrationServices/ShowQueueIn
 import { handleMessageIntegration } from "../WbotServices/wbotMessageListener";
 import { flowbuilderIntegration } from "../WbotServices/wbotMessageListener";
 import ShowContactService from "../ContactServices/ShowContactService";
+import UpdateTicketService from "../TicketServices/UpdateTicketService";
 import { WebhookModel } from "../../models/Webhook";
 import { FlowBuilderModel } from "../../models/FlowBuilder";
 import { ActionsWebhookService } from "../WebhookService/ActionsWebhookService";
@@ -555,11 +556,24 @@ export class ReceibedWhatsAppService {
                               });
                         }
 
-                        //atualiza o contador de vezes que enviou o bot e que foi enviado fora de hora
+                        const outOfHoursTicketAction =
+                            settings?.outOfHoursTicketAction === "closed" ? "closed" : "pending";
+
                         await ticket.update({
                             isOutOfHour: true,
                             amountUsedBotQueues: ticket.amountUsedBotQueues + 1
                         });
+
+                        if (outOfHoursTicketAction === "closed") {
+                            await UpdateTicketService({
+                                ticketData: {
+                                    status: "closed",
+                                    sendFarewellMessage: false
+                                },
+                                ticketId: ticket.id,
+                                companyId
+                            });
+                        }
 
                         return;
                     }

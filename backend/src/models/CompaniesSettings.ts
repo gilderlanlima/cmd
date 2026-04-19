@@ -69,6 +69,9 @@ class CompaniesSettings extends Model<CompaniesSettings> {
   scheduleType: string;
 
   @Column
+  outOfHoursTicketAction: string;
+
+  @Column
   acceptAudioMessageContact: string;
 
   @Column

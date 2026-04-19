@@ -25,6 +25,7 @@ module.exports = {
             CheckMsgIsGroup: "enabled",
             sendQueuePosition: "enabled",
             scheduleType: "disabled",
+            outOfHoursTicketAction: "pending",
             acceptAudioMessageContact: "enabled",
             sendMsgTransfTicket: "enabled",
             enableLGPD: "disabled",

@@ -69,10 +69,12 @@ export default function Options(props) {
   const classes = useStyles();
   const [userRating, setUserRating] = useState("disabled");
   const [scheduleType, setScheduleType] = useState("disabled");
+  const [outOfHoursTicketAction, setOutOfHoursTicketAction] = useState("pending");
   const [chatBotType, setChatBotType] = useState("text");
 
   const [loadingUserRating, setLoadingUserRating] = useState(false);
   const [loadingScheduleType, setLoadingScheduleType] = useState(false);
+  const [loadingOutOfHoursTicketAction, setLoadingOutOfHoursTicketAction] = useState(false);
 
   const [userCreation, setUserCreation] = useState("disabled");
   const [loadingUserCreation, setLoadingUserCreation] = useState(false);
@@ -261,6 +263,7 @@ const [loadingCopyContactPrefix, setLoadingCopyContactPrefix] = useState(false);
     for (const [key, value] of Object.entries(settings)) {
       if (key === "userRating") setUserRating(value);
       if (key === "scheduleType") setScheduleType(value);
+      if (key === "outOfHoursTicketAction") setOutOfHoursTicketAction(value);
       if (key === "chatBotType") setChatBotType(value);
       if (key === "acceptCallWhatsapp") setAcceptCallWhatsapp(value);
       if (key === "userRandom") setUserRandom(value);
@@ -407,6 +410,16 @@ async function handleCopyContactPrefix(value) {
     if (typeof scheduleTypeChanged === "function") {
       scheduleTypeChanged(value);
     }
+  }
+
+  async function handleOutOfHoursTicketAction(value) {
+    setOutOfHoursTicketAction(value);
+    setLoadingOutOfHoursTicketAction(true);
+    await update({
+      column: "outOfHoursTicketAction",
+      data: value
+    });
+    setLoadingOutOfHoursTicketAction(false);
   }
 
   async function handleCopyContactPrefix(value) {
@@ -784,6 +797,31 @@ async function handleCopyContactPrefix(value) {
         </Grid>
 
         {/* ENVIAR SAUDAÇÃO AO ACEITAR O TICKET */}
+        <Grid xs={12} sm={6} md={4} item>
+          <FormControl className={classes.selectContainer}>
+            <InputLabel id="out-of-hours-ticket-action-label">
+              {i18n.t("settings.settings.options.outOfHoursTicketAction")}
+            </InputLabel>
+            <Select
+              labelId="out-of-hours-ticket-action-label"
+              value={outOfHoursTicketAction}
+              onChange={async (e) => {
+                handleOutOfHoursTicketAction(e.target.value);
+              }}
+            >
+              <MenuItem value={"closed"}>
+                {i18n.t("settings.settings.options.outOfHoursCloseTicket")}
+              </MenuItem>
+              <MenuItem value={"pending"}>
+                {i18n.t("settings.settings.options.outOfHoursKeepWaiting")}
+              </MenuItem>
+            </Select>
+            <FormHelperText>
+              {loadingOutOfHoursTicketAction && i18n.t("settings.settings.options.updating")}
+            </FormHelperText>
+          </FormControl>
+        </Grid>
+
         <Grid xs={12} sm={6} md={4} item>
           <FormControl className={classes.selectContainer}>
             <InputLabel id="sendGreetingAccepted-label">

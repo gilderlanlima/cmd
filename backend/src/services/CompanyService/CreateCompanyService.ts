@@ -133,6 +133,7 @@ if (document && document.trim() !== "") {
           CheckMsgIsGroup: "enabled",
           sendQueuePosition: "disabled",
           scheduleType: "disabled",
+          outOfHoursTicketAction: "pending",
           acceptAudioMessageContact: "enabled",
           sendMsgTransfTicket:"disabled",
           enableLGPD: "disabled",

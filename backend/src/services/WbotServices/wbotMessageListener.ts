@@ -1873,12 +1873,26 @@ const verifyQueue = async (
 
           // return;
         }
-        //atualiza o contador de vezes que enviou o bot e que foi enviado fora de hora
+        const outOfHoursTicketAction =
+          settings?.outOfHoursTicketAction === "closed" ? "closed" : "pending";
+
         await ticket.update({
           queueId: queue.id,
           isOutOfHour: true,
           amountUsedBotQueues: ticket.amountUsedBotQueues + 1
         });
+
+        if (outOfHoursTicketAction === "closed") {
+          await UpdateTicketService({
+            ticketData: {
+              status: "closed",
+              queueId: queue.id,
+              sendFarewellMessage: false
+            },
+            ticketId: ticket.id,
+            companyId
+          });
+        }
         return;
       }
 
@@ -4469,11 +4483,24 @@ const handleMessage = async (
             debouncedSentMessage();
           }
 
-          //atualiza o contador de vezes que enviou o bot e que foi enviado fora de hora
+          const outOfHoursTicketAction =
+            settings?.outOfHoursTicketAction === "closed" ? "closed" : "pending";
+
           await ticket.update({
             isOutOfHour: true,
             amountUsedBotQueues: ticket.amountUsedBotQueues + 1
           });
+
+          if (outOfHoursTicketAction === "closed") {
+            await UpdateTicketService({
+              ticketData: {
+                status: "closed",
+                sendFarewellMessage: false
+              },
+              ticketId: ticket.id,
+              companyId
+            });
+          }
 
           return;
         }
@@ -4955,11 +4982,24 @@ const handleMessage = async (
             );
             debouncedSentMessage();
           }
-          //atualiza o contador de vezes que enviou o bot e que foi enviado fora de hora
+          const outOfHoursTicketAction =
+            settings?.outOfHoursTicketAction === "closed" ? "closed" : "pending";
+
           await ticket.update({
             isOutOfHour: true,
             amountUsedBotQueues: ticket.amountUsedBotQueues + 1
           });
+
+          if (outOfHoursTicketAction === "closed") {
+            await UpdateTicketService({
+              ticketData: {
+                status: "closed",
+                sendFarewellMessage: false
+              },
+              ticketId: ticket.id,
+              companyId
+            });
+          }
           return;
         }
       }

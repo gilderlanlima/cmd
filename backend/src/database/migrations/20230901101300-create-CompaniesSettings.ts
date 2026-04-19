@@ -69,6 +69,11 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false
       },
+      outOfHoursTicketAction: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "pending"
+      },
       acceptAudioMessageContact: {
         type: DataTypes.STRING,
         allowNull: false
