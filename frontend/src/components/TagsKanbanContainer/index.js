@@ -25,6 +25,36 @@ const useStyles = makeStyles((theme) => ({
     chip: {
         margin: 2,
     },
+    kanbanField: {
+        marginBottom: 4,
+        zIndex: 10,
+        position: "relative",
+        "& .MuiInputLabel-outlined": {
+            transform: "translate(14px, -6px) scale(0.75)",
+            backgroundColor: theme.palette.background.paper,
+            padding: "0 6px",
+            lineHeight: 1,
+        },
+        "& .MuiOutlinedInput-root": {
+            minHeight: 48,
+            borderRadius: 10,
+        },
+    },
+    mobileKanbanTrigger: {
+        border: "1px solid rgba(0, 0, 0, 0.23)",
+        borderRadius: 10,
+        padding: "11px 14px",
+        minHeight: 48,
+        cursor: "pointer",
+        backgroundColor: "transparent",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        pointerEvents: "auto",
+        zIndex: 10,
+        position: "relative",
+        marginTop: 4,
+    },
 }));
 export function TagsKanbanContainer({ ticket }) {
     const classes = useStyles();
@@ -189,7 +219,7 @@ export function TagsKanbanContainer({ ticket }) {
         const selectedTag = tags.find(tag => tag.id === selected);
         return (
             <>
-                <FormControl fullWidth margin="dense" variant="outlined" style={{ marginBottom: 8, zIndex: 10, position: 'relative' }}>
+                <FormControl fullWidth margin="dense" variant="outlined" className={classes.kanbanField}>
                     <InputLabel id="tag-kanban-id" shrink={true}>{i18n.t("Etapa Kanban")}</InputLabel>
                     <div
                         ref={fieldRef}
@@ -204,20 +234,7 @@ export function TagsKanbanContainer({ ticket }) {
                         onTouchStart={(e) => {
                             e.stopPropagation();
                         }}
-                        style={{
-                            border: '1px solid rgba(0, 0, 0, 0.23)',
-                            borderRadius: 4,
-                            padding: '16.5px 14px',
-                            minHeight: 56,
-                            cursor: 'pointer',
-                            backgroundColor: 'transparent',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            pointerEvents: 'auto',
-                            zIndex: 10,
-                            position: 'relative'
-                        }}
+                        className={classes.mobileKanbanTrigger}
                     >
                         <div style={{ flex: 1 }}>
                             {selectedTag ? (
@@ -353,7 +370,7 @@ export function TagsKanbanContainer({ ticket }) {
     // No desktop, usar Select normal
     return (
         <>
-            <FormControl fullWidth margin="dense" variant="outlined" style={{ marginBottom: 8, zIndex: 10, position: 'relative' }}>
+            <FormControl fullWidth margin="dense" variant="outlined" className={classes.kanbanField}>
                 <InputLabel id="tag-kanban-id" shrink={true}>{i18n.t("Etapa Kanban")}</InputLabel>
                 <Select
                     labelWidth={100}

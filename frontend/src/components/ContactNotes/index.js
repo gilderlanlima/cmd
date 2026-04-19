@@ -22,20 +22,32 @@ import { Grid } from '@material-ui/core';
 const useStyles = makeStyles((theme) => ({
     root: {
         '& .MuiTextField-root': {
-            margin: theme.spacing(1),
-            width: '350px',
+            margin: 0,
+            width: '100%',
         },
     },
     list: {
         width: '100%',
-        maxWidth: '350px',
+        maxWidth: '100%',
         maxHeight: '200px',
         backgroundColor: theme.palette.background.paper,
         overflow: 'auto'
     },
     inline: {
         width: '100%'
-    }
+    },
+    noteField: {
+        "& .MuiOutlinedInput-root": {
+            borderRadius: 10,
+            alignItems: "flex-start",
+        },
+        "& .MuiOutlinedInput-inputMultiline": {
+            padding: theme.spacing(1.2, 1.25),
+        },
+    },
+    notesActions: {
+        marginTop: theme.spacing(0.25),
+    },
 }));
 
 const NoteSchema = Yup.object().shape({
@@ -191,6 +203,7 @@ export function ContactNotes({ ticket }) {
                                     }}
                                 >
                                     <TextField
+                                        className={classes.noteField}
                                         name="note"
                                         rows={3}
                                         label={i18n.t("ticketOptionsMenu.appointmentsModal.textarea")}
@@ -259,7 +272,8 @@ export function ContactNotes({ ticket }) {
                                             userSelect: 'text',
                                             position: 'relative',
                                             backgroundColor: 'transparent',
-                                            width: '100%'
+                                            width: '100%',
+                                            margin: 0
                                         }}
                                         InputProps={{
                                             style: {
@@ -296,7 +310,7 @@ export function ContactNotes({ ticket }) {
                                 </Grid>
                             )}
                             <Grid item xs={12}>
-                                <Grid container spacing={2}>
+                                <Grid container spacing={2} className={classes.notesActions}>
                                     <Grid item xs={6}>
                                         <Button
                                             type="button"

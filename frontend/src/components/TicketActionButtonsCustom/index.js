@@ -39,7 +39,6 @@ import AcceptTicketWithouSelectQueue from "../AcceptTicketWithoutQueueModal";
 import NewTicketModal from "../NewTicketModal";
 
 //icones
-import HighlightOffIcon from "@material-ui/icons/HighlightOff";
 import UndoIcon from "@material-ui/icons/Undo";
 
 import ScheduleModal from "../ScheduleModal";
@@ -221,6 +220,37 @@ const TicketActionButtonsCustom = ({
   };
 
   // Função para copiar telefone
+  const copyTextWithFallback = async (text) => {
+    if (navigator?.clipboard && window?.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.setAttribute("readonly", "");
+    textArea.style.position = "fixed";
+    textArea.style.top = "-1000px";
+    textArea.style.left = "-1000px";
+    textArea.style.opacity = "0";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    let copied = false;
+    try {
+      copied = document.execCommand("copy");
+    } finally {
+      document.body.removeChild(textArea);
+    }
+
+    if (!copied) {
+      throw new Error("Clipboard copy fallback failed");
+    }
+
+    return true;
+  };
+
   const handleCopyPhone = async () => {
     try {
       if (!contact?.number) {
@@ -233,7 +263,7 @@ const TicketActionButtonsCustom = ({
 
       // Verifica se tem pelo menos 8 dígitos (número mínimo válido)
       if (phoneNumber.length >= 8) {
-        await navigator.clipboard.writeText(phoneNumber);
+        await copyTextWithFallback(phoneNumber);
         toast.success(i18n.t("ticketInfo.phonecopied"));
       } else {
         toast.error(i18n.t("ticketInfo.invalidPhoneFormat"));
@@ -975,10 +1005,6 @@ const TicketActionButtonsCustom = ({
         >
           {(ticket.status === "open" || ticket.status === "group") && (
             <>
-              <MenuItem onClick={handleClickResolver}>
-                <HighlightOffIcon style={{ marginRight: 8, fontSize: 20 }} />
-                {i18n.t("messagesList.header.buttons.resolve")}
-              </MenuItem>
               <MenuItem onClick={(e) => handleUpdateTicketStatus(e, "pending", null)}>
                 <UndoIcon style={{ marginRight: 8, fontSize: 20 }} />
                 {i18n.t("tickets.buttons.returnQueue")}

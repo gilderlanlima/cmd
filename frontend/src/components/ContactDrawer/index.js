@@ -132,14 +132,15 @@ const useStyles = makeStyles(theme => ({
 		backgroundColor: theme.palette.inputBackground,
 	},
 	searchContainer: {
-		padding: theme.spacing(1, 2),
+		padding: theme.spacing(0.75, 1.25),
 		backgroundColor: theme.palette.background.paper,
 		borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
 		flexShrink: 0,
 	},
 	searchField: {
 		"& .MuiOutlinedInput-root": {
-			height: 40,
+			height: 38,
+			borderRadius: 10,
 		}
 	},
 	searchResults: {
@@ -210,10 +211,10 @@ const useStyles = makeStyles(theme => ({
 	},
 	// Avatar redondo e menor
 	contactAvatar: {
-		width: 80,
-		height: 80,
+		width: 72,
+		height: 72,
 		borderRadius: "50%",
-		margin: theme.spacing(1),
+		margin: theme.spacing(0.5, 1, 0.75),
 		border: `2px solid ${theme.palette.primary.main}`,
 		cursor: "pointer", // Adicionar cursor pointer
 		"&:hover": {
@@ -222,17 +223,17 @@ const useStyles = makeStyles(theme => ({
 	},
 	contactHeader: {
 		display: "flex",
-		padding: theme.spacing(1),
+		padding: theme.spacing(0.75, 1),
 		flexDirection: "column",
 		alignItems: "center",
 		justifyContent: "center",
 		"& > *": {
-			margin: theme.spacing(0.5),
+			margin: theme.spacing(0.35),
 		},
 	},
 	contactDetails: {
-		marginTop: 8,
-		padding: 8,
+		marginTop: 6,
+		padding: theme.spacing(0.85, 1),
 		display: "flex",
 		flexDirection: "column",
 		position: "relative",
@@ -245,10 +246,23 @@ const useStyles = makeStyles(theme => ({
 		padding: 6,
 	},
 	switchContainer: {
-		padding: theme.spacing(1, 2),
+		padding: theme.spacing(0.55, 1.25),
 		backgroundColor: theme.palette.background.paper,
-		marginBottom: theme.spacing(1),
+		marginBottom: theme.spacing(0.5),
 		flexShrink: 0,
+	},
+	switchRow: {
+		display: "flex",
+		alignItems: "center",
+		gap: theme.spacing(0.65),
+		fontSize: "0.9rem",
+		fontWeight: 600,
+		lineHeight: 1.2,
+		color: theme.palette.text.primary,
+	},
+	switchControl: {
+		marginLeft: -6,
+		marginRight: 0,
 	},
 	mediaGrid: {
 		padding: theme.spacing(1),
@@ -275,6 +289,70 @@ const useStyles = makeStyles(theme => ({
 	mediaIcon: {
 		fontSize: 40,
 		color: theme.palette.text.secondary,
+	},
+	documentGrid: {
+		padding: theme.spacing(0.5),
+	},
+	documentCard: {
+		cursor: "pointer",
+		borderRadius: theme.spacing(1.25),
+		padding: theme.spacing(1.2),
+		height: 132,
+		display: "flex",
+		flexDirection: "column",
+		justifyContent: "space-between",
+		alignItems: "flex-start",
+		border: `1px solid ${theme.palette.divider}`,
+		backgroundColor: theme.palette.background.paper,
+		transition: "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
+		"&:hover": {
+			transform: "translateY(-1px)",
+			boxShadow: theme.shadows[4],
+			borderColor: theme.palette.primary.main,
+		},
+	},
+	documentHeader: {
+		display: "flex",
+		alignItems: "center",
+		gap: theme.spacing(1),
+		width: "100%",
+		minWidth: 0,
+	},
+	documentIconWrap: {
+		width: 38,
+		height: 38,
+		borderRadius: 10,
+		backgroundColor: theme.palette.action.hover,
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
+		flex: "none",
+	},
+	documentInfo: {
+		minWidth: 0,
+		width: "100%",
+	},
+	documentName: {
+		fontSize: "0.82rem",
+		fontWeight: 700,
+		lineHeight: 1.3,
+		color: theme.palette.text.primary,
+		overflow: "hidden",
+		textOverflow: "ellipsis",
+		display: "-webkit-box",
+		WebkitLineClamp: 3,
+		WebkitBoxOrient: "vertical",
+		wordBreak: "break-word",
+	},
+	documentDate: {
+		fontSize: "0.72rem",
+		color: theme.palette.text.secondary,
+	},
+	documentHint: {
+		fontSize: "0.68rem",
+		fontWeight: 600,
+		color: theme.palette.primary.main,
+		letterSpacing: "0.02em",
 	},
 	loadingContainer: {
 		display: "flex",
@@ -326,7 +404,42 @@ const useStyles = makeStyles(theme => ({
 	// Garantir que o CardHeader não cause overflow
 	contactCardHeader: {
 		width: '100%',
-		padding: theme.spacing(1),
+		padding: theme.spacing(0.25, 0.5, 0.5),
+	},
+	contactName: {
+		marginBottom: 6,
+		fontSize: "0.96rem",
+		fontWeight: 700,
+		lineHeight: 1.2,
+		color: theme.palette.text.primary,
+	},
+	contactPhone: {
+		fontSize: 12,
+		textAlign: "center",
+		marginBottom: 3,
+		lineHeight: 1.35,
+		wordBreak: "break-word",
+	},
+	contactLid: {
+		fontSize: 11,
+		textAlign: "center",
+		marginBottom: 2,
+		lineHeight: 1.35,
+		wordBreak: "break-all",
+		overflowWrap: "anywhere",
+	},
+	kanbanSection: {
+		marginBottom: 6,
+		paddingBottom: 6,
+	},
+	notesSection: {
+		paddingTop: theme.spacing(0.75),
+	},
+	sectionTitle: {
+		marginBottom: 6,
+		fontSize: "0.94rem",
+		fontWeight: 700,
+		lineHeight: 1.25,
 	},
 	participantsList: {
 		padding: 0,
@@ -656,6 +769,21 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 			});
 		} finally {
 			setLoadingMedia(false);
+		}
+	};
+
+	const handleDownloadDocument = (doc) => {
+		try {
+			const link = document.createElement("a");
+			link.href = doc.mediaUrl;
+			link.target = "_blank";
+			link.rel = "noopener noreferrer";
+			link.download = doc.body || `documento-${doc.id || Date.now()}`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+		} catch (err) {
+			window.open(doc.mediaUrl, "_blank");
 		}
 	};
 
@@ -1188,19 +1316,17 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 				<div className={classes.contentWrapper}>
 					{/* Seção de Switch */}
 					<Box className={classes.switchContainer}>
-						<Typography
-							style={{ marginBottom: 0 }}
-							variant="subtitle2"
-						>
+						<div className={classes.switchRow}>
 							<Switch
 								size="small"
 								checked={acceptAudioMessage}
 								onChange={() => handleContactToggleAcceptAudio()}
 								name="disableBot"
 								color="primary"
+								className={classes.switchControl}
 							/>
-							{i18n.t("ticketOptionsMenu.acceptAudioMessage")}
-						</Typography>
+							<span>{i18n.t("ticketOptionsMenu.acceptAudioMessage")}</span>
+						</div>
 					</Box>
 
 					{/* Seção do Perfil */}
@@ -1218,7 +1344,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 
 							<div className={classes.contactCardHeader}>
 								{/* Nome completo */}
-								<Typography variant="h6" align="center" style={{ marginBottom: 8 }}>
+								<Typography align="center" className={classes.contactName}>
 									{contact.name}
 								</Typography>
 
@@ -1243,7 +1369,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 								</Typography>
 
 								{/* LID */}
-								<Typography style={{ fontSize: 12, textAlign: "center", marginBottom: 4 }}>
+								<Typography className={classes.contactLid}>
 									LID: {contact.lid || ""}
 								</Typography>
 
@@ -1441,7 +1567,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 									<Paper 
 										square 
 										variant="outlined" 
-										className={classes.contactDetails} 
+										className={`${classes.contactDetails} ${classes.kanbanSection}`} 
 										style={{ 
 											marginBottom: 8, 
 											pointerEvents: 'auto',
@@ -1457,7 +1583,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 									<Paper 
 										square 
 										variant="outlined" 
-										className={classes.contactDetails} 
+										className={`${classes.contactDetails} ${classes.notesSection}`} 
 										style={{ 
 											pointerEvents: 'auto',
 											position: 'relative',
@@ -1465,7 +1591,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 										}}
 										onClick={(e) => e.stopPropagation()}
 									>
-										<Typography variant="subtitle1" style={{ marginBottom: 10 }}>
+										<Typography className={classes.sectionTitle}>
 											{i18n.t("ticketOptionsMenu.appointmentsModal.title")}
 										</Typography>
 										<ContactNotes ticket={ticket} />
@@ -1601,24 +1727,38 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 												<Typography variant="body2">Nenhum documento encontrado</Typography>
 											</div>
 										) : (
-											<List>
+											<Grid container spacing={1} className={classes.documentGrid}>
 												{mediaData.documents.map((doc, index) => (
-													<ListItem
-														key={index}
-														button
-														className={classes.linkItem}
-														onClick={() => window.open(doc.mediaUrl, '_blank')}
-													>
-														<ListItemIcon>
-															<InsertDriveFileIcon />
-														</ListItemIcon>
-														<ListItemText
-															primary={doc.body || `Documento ${index + 1}`}
-															secondary={new Date(doc.createdAt).toLocaleDateString('pt-BR')}
-														/>
-													</ListItem>
+													<Grid item xs={6} key={index}>
+														<Tooltip title={doc.body || `Documento ${index + 1}`} arrow>
+															<Paper
+																elevation={0}
+																className={classes.documentCard}
+																onClick={() => handleDownloadDocument(doc)}
+															>
+																<div className={classes.documentHeader}>
+																	<div className={classes.documentIconWrap}>
+																		<InsertDriveFileIcon />
+																	</div>
+																	<div className={classes.documentInfo}>
+																		<Typography className={classes.documentName}>
+																			{doc.body || `Documento ${index + 1}`}
+																		</Typography>
+																	</div>
+																</div>
+																<div>
+																	<Typography className={classes.documentDate}>
+																		{new Date(doc.createdAt).toLocaleDateString('pt-BR')}
+																	</Typography>
+																	<Typography className={classes.documentHint}>
+																		Clique para baixar
+																	</Typography>
+																</div>
+															</Paper>
+														</Tooltip>
+													</Grid>
 												))}
-											</List>
+											</Grid>
 										)
 									)}
 								</TabPanel>

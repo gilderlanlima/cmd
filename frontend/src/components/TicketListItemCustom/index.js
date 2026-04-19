@@ -424,6 +424,8 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
   const [finalizacaoTipo, setFinalizacaoTipo] = useState(null);
   const [ticketDataToFinalize, setTicketDataToFinalize] = useState(null);
   const [showFinalizacaoOptions, setShowFinalizacaoOptions] = useState(false);
+  const [resolveOptionsOpen, setResolveOptionsOpen] = useState(false);
+  const [showIntegrationOnClose, setShowIntegrationOnClose] = useState(false);
 
   const [imageModalOpen, setImageModalOpen] = useState(false); // Estado para o modal da imagem
 
@@ -441,6 +443,30 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
   }, []);
 
   // Função para abrir modal da imagem
+  useEffect(() => {
+    const checkWhatsAppTriggerIntegration = async () => {
+      if (!ticket?.whatsappId) {
+        if (isMounted.current) {
+          setShowIntegrationOnClose(false);
+        }
+        return;
+      }
+
+      try {
+        const { data } = await api.get(`/whatsapp/${ticket.whatsappId}`);
+        if (isMounted.current) {
+          setShowIntegrationOnClose(data.triggerIntegrationOnClose === true);
+        }
+      } catch (err) {
+        if (isMounted.current) {
+          setShowIntegrationOnClose(false);
+        }
+      }
+    };
+
+    checkWhatsAppTriggerIntegration();
+  }, [ticket?.whatsappId]);
+
   const handleImageClick = (e) => {
     e.stopPropagation(); // Prevenir que o clique no avatar selecione o ticket
     if (ticket?.contact?.urlPicture) {
@@ -456,6 +482,10 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
   const handleOpenAcceptTicketWithouSelectQueue = useCallback(() => {
     setAcceptTicketWithouSelectQueueOpen(true);
   }, []);
+
+  const handleCloseResolveOptions = () => {
+    setResolveOptionsOpen(false);
+  };
 
   const handleCloseTicket = async (id) => {
     // Verificar se a finalização com valor de venda está ativa
@@ -483,37 +513,89 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
           if (!contactTags.data.tags) {
             toast.warning(i18n.t("messagesList.header.buttons.requiredTag"));
           } else {
-            await api.put(`/tickets/${id}`, {
-              status: "closed",
-              userId: user?.id || null,
-            });
-
-            if (isMounted.current) {
-              setLoading(false);
-            }
-
-            history.push(`/tickets/`);
+            setResolveOptionsOpen(true);
           }
         } catch (err) {
           setLoading(false);
           toastError(err);
         }
       } else {
-        setLoading(true);
-        try {
-          await api.put(`/tickets/${id}`, {
-            status: "closed",
-            userId: user?.id || null,
-          });
-        } catch (err) {
-          setLoading(false);
-          toastError(err);
-        }
-        if (isMounted.current) {
-          setLoading(false);
-        }
+        setResolveOptionsOpen(true);
+      }
+    }
+  };
 
-        history.push(`/tickets/`);
+  const handleCloseTicketWithoutFarewellMsg = async () => {
+    setLoading(true);
+    try {
+      await api.put(`/tickets/${ticket.id}`, {
+        status: "closed",
+        userId: user?.id || null,
+        sendFarewellMessage: false,
+        amountUsedBotQueues: 0,
+      });
+
+      handleCloseResolveOptions();
+      history.push(`/tickets/`);
+    } catch (err) {
+      toastError(err);
+    } finally {
+      if (isMounted.current) {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleCloseTicketWithFarewellMsg = async () => {
+    setLoading(true);
+    try {
+      await api.put(`/tickets/${ticket.id}`, {
+        status: "closed",
+        userId: user?.id || null,
+      });
+
+      handleCloseResolveOptions();
+      history.push(`/tickets/`);
+    } catch (err) {
+      toastError(err);
+    } finally {
+      if (isMounted.current) {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleResolveAndTriggerIntegration = async () => {
+    setLoading(true);
+    try {
+      if (ticket?.whatsapp?.integrationTypeId) {
+        const { data: integration } = await api.get(
+          `/queueIntegration/${ticket.whatsapp.integrationTypeId}`
+        );
+
+        if (integration) {
+          await api.post(`/queueIntegration/testsession`, {
+            integrationId: ticket.whatsapp.integrationTypeId,
+            ticketId: ticket.id,
+            contactId: ticket.contactId,
+            body: ticket.lastMessage || "",
+            status: "closed",
+          });
+        }
+      }
+
+      await api.put(`/tickets/${ticket.id}`, {
+        status: "closed",
+        userId: user?.id || null,
+      });
+
+      handleCloseResolveOptions();
+      history.push(`/tickets/`);
+    } catch (err) {
+      toastError(err);
+    } finally {
+      if (isMounted.current) {
+        setLoading(false);
       }
     }
   };
@@ -776,6 +858,34 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
           initialContact={ticket.contact}
         />
       )}
+      <Dialog
+        open={resolveOptionsOpen}
+        onClose={handleCloseResolveOptions}
+        aria-labelledby="resolve-options-title"
+      >
+        <DialogActions style={{ padding: 16, gap: 8, justifyContent: "center" }}>
+          <Button
+            onClick={handleCloseTicketWithoutFarewellMsg}
+            style={{ background: theme.palette.primary.main, color: "white" }}
+          >
+            {i18n.t("messagesList.header.dialogRatingWithoutFarewellMsg")}
+          </Button>
+          <Button
+            onClick={handleCloseTicketWithFarewellMsg}
+            style={{ background: theme.palette.primary.main, color: "white" }}
+          >
+            {i18n.t("messagesList.header.dialogRatingCancel")}
+          </Button>
+          {showIntegrationOnClose && (
+            <Button
+              onClick={handleResolveAndTriggerIntegration}
+              style={{ background: theme.palette.primary.main, color: "white" }}
+            >
+              {i18n.t("whatsappModalRel.form.resolveAndTriggerIntegration")}
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
       <ListItem
         button
         dense
