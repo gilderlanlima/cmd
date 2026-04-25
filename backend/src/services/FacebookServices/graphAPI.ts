@@ -3,6 +3,7 @@ import FormData from "form-data";
 import { createReadStream } from "fs";
 import logger from "../../utils/logger";
 import { isNil } from "lodash";
+import GetMetaAppCredentialsService from "../SettingServices/GetMetaAppCredentialsService";
 const formData: FormData = new FormData();
 
 const apiBase = (token: string) =>
@@ -13,13 +14,19 @@ const apiBase = (token: string) =>
     }
   });
 
-export const getAccessToken = async (): Promise<string> => {
+export const getAccessToken = async (companyId?: number): Promise<string> => {
+  const { appId, appSecret } = await GetMetaAppCredentialsService(companyId);
+
+  if (!appId || !appSecret) {
+    throw new Error("ERR_META_APP_NOT_CONFIGURED");
+  }
+
   const { data } = await axios.get(
     "https://graph.facebook.com/v20.0/oauth/access_token",
     {
       params: {
-        client_id: process.env.FACEBOOK_APP_ID,
-        client_secret: process.env.FACEBOOK_APP_SECRET,
+        client_id: appId,
+        client_secret: appSecret,
         grant_type: "client_credentials"
       }
     }
@@ -274,18 +281,23 @@ export const getSubscribedApps = async (
 };
 
 export const getAccessTokenFromPage = async (
-  token: string
+  token: string,
+  companyId?: number
 ): Promise<string> => {
   try {
+    const { appId, appSecret } = await GetMetaAppCredentialsService(companyId);
 
     if (!token) throw new Error("ERR_FETCHING_FB_USER_TOKEN");
+    if (!appId || !appSecret) {
+      throw new Error("ERR_META_APP_NOT_CONFIGURED");
+    }
 
     const data = await axios.get(
       "https://graph.facebook.com/v20.0/oauth/access_token",
       {
         params: {
-          client_id: process.env.FACEBOOK_APP_ID,
-          client_secret: process.env.FACEBOOK_APP_SECRET,
+          client_id: appId,
+          client_secret: appSecret,
           grant_type: "fb_exchange_token",
           fb_exchange_token: token
         }
@@ -295,6 +307,9 @@ export const getAccessTokenFromPage = async (
     return data.data.access_token;
   } catch (error) {
     console.log(error);
+    if ((error as Error)?.message === "ERR_META_APP_NOT_CONFIGURED") {
+      throw error;
+    }
     throw new Error("ERR_FETCHING_FB_USER_TOKEN");
   }
 };

@@ -309,7 +309,7 @@ export const storeFacebook = async (
     for await (const page of data) {
       const { name, access_token, id, instagram_business_account } = page;
 
-      const acessTokenPage = await getAccessTokenFromPage(access_token);
+      const acessTokenPage = await getAccessTokenFromPage(access_token, companyId);
 
       if (addInstagram) {
         if (!instagram_business_account) {
@@ -404,6 +404,12 @@ export const storeFacebook = async (
     });
   } catch (error) {
     console.log(error);
+    if ((error as Error)?.message === "ERR_META_APP_NOT_CONFIGURED") {
+      return res.status(400).json({
+        error:
+          "A integracao Meta nao esta configurada para esta empresa. Cadastre o App ID e o App Secret em Conexoes."
+      });
+    }
     return res.status(400).json({
       error: "Facebook page not found"
     });

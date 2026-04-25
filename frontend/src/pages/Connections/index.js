@@ -31,6 +31,7 @@ import {
   MenuItem as MuiMenuItem,
   FormControl,
   InputLabel,
+  TextField,
 } from "@material-ui/core";
 import {
   Edit,
@@ -186,6 +187,14 @@ const Connections = () => {
   const [whatsAppToDelete, setWhatsAppToDelete] = useState(null);
   const [transferProgressModalOpen, setTransferProgressModalOpen] = useState(false);
   const [transferProgress, setTransferProgress] = useState({ current: 0, total: 0, percentage: 0 });
+  const [metaConfigModalOpen, setMetaConfigModalOpen] = useState(false);
+  const [metaConfigLoading, setMetaConfigLoading] = useState(false);
+  const [metaAppId, setMetaAppId] = useState("");
+  const [metaAppSecret, setMetaAppSecret] = useState("");
+  const [metaForm, setMetaForm] = useState({
+    appId: "",
+    appSecret: "",
+  });
 
   //   const socketManager = useContext(SocketContext);
   const { user, socket } = useContext(AuthContext);
@@ -202,6 +211,37 @@ const Connections = () => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const loadMetaSettings = useCallback(async () => {
+    try {
+      const [appIdResponse, appSecretResponse] = await Promise.allSettled([
+        api.get("/settings/metaAppId"),
+        api.get("/settings/metaAppSecret"),
+      ]);
+
+      const loadedAppId =
+        appIdResponse.status === "fulfilled"
+          ? appIdResponse.value?.data?.value || ""
+          : "";
+      const loadedAppSecret =
+        appSecretResponse.status === "fulfilled"
+          ? appSecretResponse.value?.data?.value || ""
+          : "";
+
+      setMetaAppId(loadedAppId);
+      setMetaAppSecret(loadedAppSecret);
+      setMetaForm({
+        appId: loadedAppId,
+        appSecret: loadedAppSecret,
+      });
+    } catch (error) {
+      // noop
+    }
+  }, []);
+
+  useEffect(() => {
+    loadMetaSettings();
+  }, [loadMetaSettings]);
 
   const responseFacebook = (response) => {
     if (response.status !== "unknown") {
@@ -245,7 +285,7 @@ const Connections = () => {
   };
 
   const getMetaConnectionBlockReason = () => {
-    if (!process.env.REACT_APP_FACEBOOK_APP_ID) {
+    if (!metaAppId || !metaAppSecret) {
       return "A integração Meta não está configurada neste ambiente. Cadastre o Facebook App ID e o App Secret para liberar Messenger e Instagram.";
     }
 
@@ -262,10 +302,52 @@ const Connections = () => {
     return null;
   };
 
+  const handleOpenMetaConfigModal = (popupState) => {
+    setMetaForm({
+      appId: metaAppId,
+      appSecret: metaAppSecret,
+    });
+    setMetaConfigModalOpen(true);
+    popupState?.close?.();
+  };
+
+  const handleSaveMetaConfig = async () => {
+    const appId = metaForm.appId.trim();
+    const appSecret = metaForm.appSecret.trim();
+
+    if (!appId || !appSecret) {
+      toast.error("Informe o App ID e a Chave Secreta do Aplicativo.");
+      return;
+    }
+
+    try {
+      setMetaConfigLoading(true);
+
+      await Promise.all([
+        api.put("/settings/metaAppId", { value: appId }),
+        api.put("/settings/metaAppSecret", { value: appSecret }),
+      ]);
+
+      setMetaAppId(appId);
+      setMetaAppSecret(appSecret);
+      setMetaConfigModalOpen(false);
+      toast.success("Configuracao Meta salva com sucesso.");
+    } catch (error) {
+      toastError(error);
+    } finally {
+      setMetaConfigLoading(false);
+    }
+  };
+
   const handleMetaLoginClick = (renderProps, popupState) => {
     const blockReason = getMetaConnectionBlockReason();
 
     if (blockReason) {
+      if (!metaAppId || !metaAppSecret) {
+        handleOpenMetaConfigModal(popupState);
+        return;
+      }
+
       toast.error(blockReason);
       popupState.close();
       return;
@@ -698,6 +780,51 @@ const Connections = () => {
         channel={channel}
       />
       <Dialog
+        open={metaConfigModalOpen}
+        onClose={() => setMetaConfigModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Configurar Meta</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" style={{ marginBottom: 16 }}>
+            Cadastre o App ID e a Chave Secreta do Aplicativo para conectar Messenger e Instagram sem depender do codigo fonte.
+          </Typography>
+          <TextField
+            margin="dense"
+            label="App ID"
+            fullWidth
+            value={metaForm.appId}
+            onChange={(e) =>
+              setMetaForm((prev) => ({ ...prev, appId: e.target.value }))
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Chave Secreta do Aplicativo"
+            type="password"
+            fullWidth
+            value={metaForm.appSecret}
+            onChange={(e) =>
+              setMetaForm((prev) => ({ ...prev, appSecret: e.target.value }))
+            }
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setMetaConfigModalOpen(false)} color="default">
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleSaveMetaConfig}
+            color="primary"
+            variant="contained"
+            disabled={metaConfigLoading}
+          >
+            Salvar
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
         open={transferModalOpen}
         onClose={handleCloseTransferModal}
         maxWidth="sm"
@@ -871,6 +998,20 @@ const Connections = () => {
                             {i18n.t("connections.newConnection")}
                           </Button>
                           <Menu {...bindMenu(popupState)}>
+                            <MenuItem
+                              onClick={() => {
+                                handleOpenMetaConfigModal(popupState);
+                              }}
+                            >
+                              <Facebook
+                                fontSize="small"
+                                style={{
+                                  marginRight: "10px",
+                                  color: "#3b5998",
+                                }}
+                              />
+                              Configurar Meta
+                            </MenuItem>
                             {/* WHATSAPP */}
                             <MenuItem
                               disabled={planConfig?.plan?.useWhatsapp ? false : true}
@@ -907,7 +1048,7 @@ const Connections = () => {
                             </MenuItem>
                             {/* FACEBOOK */}
                             <FacebookLogin
-                              appId={process.env.REACT_APP_FACEBOOK_APP_ID}
+                              appId={metaAppId || "meta-app-id-not-configured"}
                               autoLoad={false}
                               fields="name,email,picture"
                               version="9.0"
@@ -938,7 +1079,7 @@ const Connections = () => {
                             />
                             {/* INSTAGRAM */}
                             <FacebookLogin
-                              appId={process.env.REACT_APP_FACEBOOK_APP_ID}
+                              appId={metaAppId || "meta-app-id-not-configured"}
                               autoLoad={false}
                               fields="name,email,picture"
                               version="9.0"
