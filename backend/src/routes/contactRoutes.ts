@@ -11,6 +11,7 @@ const upload = multer(uploadConfig);
 contactRoutes.post("/contacts/bulk-delete", isAuth, ContactController.bulkDelete);
 contactRoutes.delete("/contacts/all", isAuth, ContactController.deleteAll);
 contactRoutes.post("/contacts/import", isAuth, ImportPhoneContactsController.store);
+contactRoutes.post("/contacts/:contactId/refresh-avatar", isAuth, ContactController.refreshAvatar);
 contactRoutes.get("/contacts/:contactId/participants", isAuth, ContactController.getGroupParticipants);
 contactRoutes.get("/contacts/:contactId/media", isAuth, ContactController.getContactMedia);
 contactRoutes.get("/contacts/:contactId/messages/search", isAuth, ContactController.searchMessages);

@@ -266,6 +266,8 @@ const TicketListItem = ({ ticket }) => {
     const { user } = useContext(AuthContext);
     const { setCurrentTicket, setTabOpen } = useContext(TicketsContext);
     const [imageModalOpen, setImageModalOpen] = useState(false); // Estado para o modal da imagem
+    const [avatarSrc, setAvatarSrc] = useState(ticket?.contact?.urlPicture || ticket?.contact?.profilePicUrl || "");
+    const [now, setNow] = useState(Date.now());
 
     useEffect(() => {
         return () => {
@@ -273,10 +275,35 @@ const TicketListItem = ({ ticket }) => {
         };
     }, []);
 
+    useEffect(() => {
+        setAvatarSrc(ticket?.contact?.urlPicture || ticket?.contact?.profilePicUrl || "");
+    }, [ticket?.contact?.id, ticket?.contact?.urlPicture, ticket?.contact?.profilePicUrl]);
+
+    useEffect(() => {
+        const refreshAvatar = async () => {
+            if (!ticket?.contact?.isGroup || !ticket?.contact?.id || avatarSrc) return;
+
+            try {
+                const { data } = await api.post(`/contacts/${ticket.contact.id}/refresh-avatar`);
+                setAvatarSrc(data?.urlPicture || data?.profilePicUrl || "");
+            } catch (error) {}
+        };
+
+        refreshAvatar();
+    }, [ticket?.contact?.id, ticket?.contact?.isGroup, avatarSrc]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setNow(Date.now());
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, []);
+
     // Função para abrir modal da imagem
     const handleImageClick = (e) => {
         e.stopPropagation(); // Prevenir que o clique no avatar selecione o ticket
-        if (ticket?.contact?.urlPicture) {
+        if (avatarSrc) {
             setImageModalOpen(true);
         }
     };
@@ -285,6 +312,47 @@ const TicketListItem = ({ ticket }) => {
     const handleImageModalClose = () => {
         setImageModalOpen(false);
     };
+
+    const renderTicketOpenedTime = () => {
+        const referenceDate = ticket?.updatedAt || ticket?.lastMessageAt || ticket?.createdAt;
+
+        if (!referenceDate) {
+            return null;
+        }
+
+        const lastInteractionAt = parseISO(referenceDate);
+        const diffInMinutes = Math.max(0, Math.floor((now - lastInteractionAt.getTime()) / 60000));
+
+        if (diffInMinutes < 1) {
+            return {
+                label: "agora mesmo",
+                isNow: true,
+            };
+        }
+
+        if (diffInMinutes < 60) {
+            return {
+                label: `${diffInMinutes} min atrás`,
+                isNow: false,
+            };
+        }
+
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) {
+            return {
+                label: `${diffInHours} h atrás`,
+                isNow: false,
+            };
+        }
+
+        const diffInDays = Math.floor(diffInHours / 24);
+        return {
+            label: `${diffInDays} d atrás`,
+            isNow: false,
+        };
+    };
+
+    const ticketOpenedTime = renderTicketOpenedTime();
 
     function getRatingIcon(rate) {
         let icon = "";
@@ -443,7 +511,7 @@ const TicketListItem = ({ ticket }) => {
                     >
                         <Avatar
                             alt={ticket?.contact?.name}
-                            src={ticket?.contact?.urlPicture}
+                            src={avatarSrc || undefined}
                             className={classes.clickableAvatar}
                             onClick={handleImageClick}
                         />
@@ -461,6 +529,19 @@ const TicketListItem = ({ ticket }) => {
                             >
                                 {ticket.contact.name}
                             </Typography>
+                            {ticketOpenedTime && (
+                                <Typography
+                                    component="span"
+                                    variant="body2"
+                                    style={{
+                                        marginLeft: 8,
+                                        fontWeight: 700,
+                                        color: ticketOpenedTime.isNow ? "#16a34a" : undefined,
+                                    }}
+                                >
+                                    ({ticketOpenedTime.label})
+                                </Typography>
+                            )}
 
                             {/* {ticket.lastMessage && ( */}
                             <Typography
@@ -690,7 +771,7 @@ const TicketListItem = ({ ticket }) => {
             >
                 <DialogContent className={classes.imageModalContent}>
                     <img 
-                        src={ticket?.contact?.urlPicture} 
+                        src={avatarSrc} 
                         alt={ticket?.contact?.name || "Foto do contato"}
                         className={classes.expandedImage}
                     />

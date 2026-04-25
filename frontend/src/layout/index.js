@@ -12,6 +12,7 @@ import {
   MenuItem,
   IconButton,
   Menu,
+  Popover,
   useTheme,
   useMediaQuery,
   Avatar,
@@ -52,6 +53,8 @@ import {
   DarkModeRounded,
   LanguageRounded,
   LightModeRounded,
+  NetworkCheckRounded,
+  SignalWifi4BarRounded,
   SyncRounded,
 } from "@mui/icons-material";
 
@@ -147,10 +150,16 @@ const useStyles = makeStyles((theme) => ({
 
   title: {
     flexGrow: 1,
-    fontSize: 14,
+    fontSize: 13,
     color: "white",
-    fontWeight: 600,
-    letterSpacing: "0.025em",
+    fontWeight: 700,
+    letterSpacing: "0.01em",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 11,
+    },
   },
 
   drawerPaper: {
@@ -301,6 +310,115 @@ const useStyles = makeStyles((theme) => ({
     "&:active": {
       transform: "translateY(0)",
     },
+  },
+
+  toolbarActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(0.25),
+    flexShrink: 0,
+  },
+
+  healthPillButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: theme.spacing(0.65),
+    minHeight: 30,
+    marginRight: theme.spacing(1),
+    padding: theme.spacing(0.25, 1.15),
+    borderRadius: 999,
+    border: "1px solid rgba(255,255,255,0.12)",
+    background: "rgba(255,255,255,0.18)",
+    color: "white",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    backdropFilter: "blur(8px)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1)",
+    "&:hover": {
+      background: "rgba(255,255,255,0.24)",
+      transform: "translateY(-1px)",
+    },
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(0.35, 0.9),
+      marginRight: theme.spacing(0.6),
+    },
+  },
+
+  healthDot: {
+    width: 9,
+    height: 9,
+    minWidth: 9,
+    borderRadius: "50%",
+    boxShadow: "0 0 0 4px rgba(255,255,255,0.08)",
+  },
+
+  healthSignalIcon: {
+    fontSize: 20,
+    color: "rgba(255,255,255,0.95)",
+  },
+
+  healthPillText: {
+    fontSize: 13,
+    fontWeight: 800,
+    letterSpacing: "0.01em",
+    color: "white",
+    whiteSpace: "nowrap",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 11,
+    },
+  },
+
+  healthPopoverPaper: {
+    marginTop: theme.spacing(0.8),
+    minWidth: 250,
+    padding: theme.spacing(0.8, 1.2),
+    borderRadius: 4,
+    background: "rgba(88, 88, 88, 0.94)",
+    color: "white",
+    boxShadow: "0 12px 28px rgba(0, 0, 0, 0.24)",
+    border: "none",
+    overflow: "visible",
+    "&:before": {
+      content: '""',
+      position: "absolute",
+      top: -7,
+      left: 42,
+      width: 0,
+      height: 0,
+      borderLeft: "7px solid transparent",
+      borderRight: "7px solid transparent",
+      borderBottom: "7px solid rgba(88, 88, 88, 0.94)",
+    },
+  },
+
+  healthPopoverHeader: {
+    display: "none",
+  },
+
+  healthPopoverTitle: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: "white",
+  },
+
+  healthPopoverRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: theme.spacing(1.5),
+    padding: theme.spacing(0.35, 0),
+  },
+
+  healthPopoverLabel: {
+    fontSize: 13,
+    fontWeight: 800,
+    color: "rgba(255,255,255,0.86)",
+  },
+
+  healthPopoverValue: {
+    fontSize: 13,
+    fontWeight: 900,
+    textAlign: "right",
   },
 
   // Menu hambúrguer com animação sutil
@@ -472,6 +590,13 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
   const [announcements, setAnnouncements] = useState([]);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
   const [showBirthdayModal, setShowBirthdayModal] = useState(false);
+  const [healthAnchorEl, setHealthAnchorEl] = useState(null);
+  const [connectionHealth, setConnectionHealth] = useState({
+    latency: null,
+    quality: "Verificando",
+    apiStatus: "Verificando",
+    socketStatus: "Conectado",
+  });
 
   const theme = useTheme();
   const { colorMode } = useContext(ColorModeContext);
@@ -490,6 +615,71 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
   );
 
   const settings = useSettings();
+
+  const resolveLatencyQuality = useCallback((latency) => {
+    if (latency == null) {
+      return "Verificando";
+    }
+
+    if (latency <= 120) {
+      return "Excelente";
+    }
+
+    if (latency <= 220) {
+      return "Bom";
+    }
+
+    if (latency <= 450) {
+      return "Regular";
+    }
+
+    if (latency <= 800) {
+      return "Ruim";
+    }
+
+    return "Pessimo";
+  }, []);
+
+  const resolveLatencyColor = useCallback((quality) => {
+    if (quality === "Excelente" || quality === "Bom") {
+      return "#22c55e";
+    }
+
+    if (quality === "Regular" || quality === "Verificando") {
+      return "#facc15";
+    }
+
+    return "#ef4444";
+  }, []);
+
+  const isSocketConnected = useCallback(() => {
+    const rawSocket = socket?.socket || socket;
+    return Boolean(rawSocket?.connected);
+  }, [socket]);
+
+  const measureConnectionHealth = useCallback(async () => {
+    const startedAt = typeof performance !== "undefined" ? performance.now() : Date.now();
+    let apiStatus = "Conectado";
+    let latency = null;
+
+    try {
+      await api.get("/version", {
+        params: { health: Date.now() },
+      });
+
+      const finishedAt = typeof performance !== "undefined" ? performance.now() : Date.now();
+      latency = Math.round(finishedAt - startedAt);
+    } catch (error) {
+      apiStatus = "Instável";
+    }
+
+    setConnectionHealth({
+      latency,
+      quality: resolveLatencyQuality(latency),
+      apiStatus,
+      socketStatus: isSocketConnected() ? "Conectado" : "Desconectado",
+    });
+  }, [isSocketConnected, resolveLatencyQuality]);
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
@@ -657,6 +847,36 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
     }
   }, [socket, user?.companyId]);
 
+  useEffect(() => {
+    measureConnectionHealth();
+    const interval = setInterval(measureConnectionHealth, 30000);
+
+    return () => clearInterval(interval);
+  }, [measureConnectionHealth]);
+
+  useEffect(() => {
+    if (!socket) {
+      return undefined;
+    }
+
+    const syncSocketHealth = () => {
+      setConnectionHealth((prevState) => ({
+        ...prevState,
+        socketStatus: isSocketConnected() ? "Conectado" : "Desconectado",
+      }));
+    };
+
+    const rawSocket = socket?.socket || socket;
+    rawSocket.on("connect", syncSocketHealth);
+    rawSocket.on("disconnect", syncSocketHealth);
+    syncSocketHealth();
+
+    return () => {
+      rawSocket.off("connect", syncSocketHealth);
+      rawSocket.off("disconnect", syncSocketHealth);
+    };
+  }, [isSocketConnected, socket]);
+
   const handleUpdateStart = () => {
     setUpdateInProgress(true);
   };
@@ -726,6 +946,14 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
     window.location.reload(false);
   };
 
+  const handleOpenHealthPopover = (event) => {
+    setHealthAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseHealthPopover = () => {
+    setHealthAnchorEl(null);
+  };
+
   const handleMenuItemClick = () => {
     const { innerWidth: width } = window;
     if (width <= 600) {
@@ -778,6 +1006,18 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
   const filteredLanguageOptions = LANGUAGE_OPTIONS.filter((lang) =>
     enabledLanguages.includes(lang.code)
   );
+
+  const healthPopoverOpen = Boolean(healthAnchorEl);
+  const healthDotColor =
+    connectionHealth.apiStatus === "Conectado"
+      ? resolveLatencyColor(connectionHealth.quality)
+      : "#ef4444";
+  const healthSummaryText =
+    connectionHealth.latency != null
+      ? `${connectionHealth.latency}ms`
+      : connectionHealth.apiStatus === "Conectado"
+        ? "Online"
+        : "Offline";
 
   if (loading || updateInProgress) {
     return <BackdropLoading />;
@@ -858,7 +1098,100 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
           </Typography>
 
           {!hideMenu && (
-            <>
+            <div className={classes.toolbarActions}>
+              <button
+                type="button"
+                onClick={handleOpenHealthPopover}
+                className={classes.healthPillButton}
+              >
+                <SignalWifi4BarRounded className={classes.healthSignalIcon} />
+                <span
+                  className={classes.healthDot}
+                  style={{ backgroundColor: healthDotColor }}
+                />
+                <span className={classes.healthPillText}>{healthSummaryText}</span>
+              </button>
+
+              <Popover
+                open={healthPopoverOpen}
+                anchorEl={healthAnchorEl}
+                onClose={handleCloseHealthPopover}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "center",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "center",
+                }}
+                classes={{ paper: classes.healthPopoverPaper }}
+              >
+                <div className={classes.healthPopoverHeader}>
+                  <NetworkCheckRounded style={{ fontSize: 18, color: "#84cc16" }} />
+                  <Typography className={classes.healthPopoverTitle}>
+                    Integridade da conexÃ£o
+                  </Typography>
+                </div>
+                <div className={classes.healthPopoverRow}>
+                  <Typography className={classes.healthPopoverLabel}>
+                    Latencia Atual:
+                  </Typography>
+                  <Typography
+                    className={classes.healthPopoverValue}
+                    style={{ color: resolveLatencyColor(connectionHealth.quality) }}
+                  >
+                    {connectionHealth.latency != null
+                      ? `${connectionHealth.latency}ms - ${connectionHealth.quality}`
+                      : connectionHealth.quality}
+                  </Typography>
+                </div>
+                <div className={classes.healthPopoverRow} style={{ display: "none" }}>
+                  <Typography className={classes.healthPopoverLabel}>
+                    LatÃªncia atual:
+                  </Typography>
+                  <Typography
+                    className={classes.healthPopoverValue}
+                    style={{ color: connectionHealth.latency != null ? "#84cc16" : "#facc15" }}
+                  >
+                    {connectionHealth.latency != null
+                      ? `${connectionHealth.latency}ms - ${connectionHealth.quality}`
+                      : connectionHealth.quality}
+                  </Typography>
+                </div>
+                <div className={classes.healthPopoverRow}>
+                  <Typography className={classes.healthPopoverLabel}>
+                    Status API:
+                  </Typography>
+                  <Typography
+                    className={classes.healthPopoverValue}
+                    style={{
+                      color:
+                        connectionHealth.apiStatus === "Conectado"
+                          ? "#22c55e"
+                          : "#f87171",
+                    }}
+                  >
+                    {connectionHealth.apiStatus}
+                  </Typography>
+                </div>
+                <div className={classes.healthPopoverRow}>
+                  <Typography className={classes.healthPopoverLabel}>
+                    Status Socket:
+                  </Typography>
+                  <Typography
+                    className={classes.healthPopoverValue}
+                    style={{
+                      color:
+                        connectionHealth.socketStatus === "Conectado"
+                          ? "#22c55e"
+                          : "#f87171",
+                    }}
+                  >
+                    {connectionHealth.socketStatus}
+                  </Typography>
+                </div>
+              </Popover>
+
               <VersionControl
                 onUpdateStart={handleUpdateStart}
                 onUpdateComplete={handleUpdateComplete}
@@ -1006,7 +1339,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                   </MenuItem>
                 </Menu>
               </div>
-            </>
+            </div>
           )}
         </Toolbar>
       </AppBar>

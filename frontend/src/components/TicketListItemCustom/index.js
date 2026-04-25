@@ -173,6 +173,16 @@ const useStyles = makeStyles((theme) => ({
     lineHeight: 1.15,
     fontSize: "0.82rem",
   },
+  ticketOpenedTime: {
+    color: theme.mode === "light" ? "#b45309" : "#fde68a",
+    fontWeight: 700,
+    fontSize: "0.72rem",
+    whiteSpace: "nowrap",
+    marginLeft: theme.spacing(0.4),
+  },
+  ticketOpenedTimeNow: {
+    color: "#16a34a",
+  },
 
   lastMessageTime: {
     justifySelf: "flex-end",
@@ -428,6 +438,8 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
   const [showIntegrationOnClose, setShowIntegrationOnClose] = useState(false);
 
   const [imageModalOpen, setImageModalOpen] = useState(false); // Estado para o modal da imagem
+  const [avatarSrc, setAvatarSrc] = useState(ticket?.contact?.urlPicture || ticket?.contact?.profilePicUrl || "");
+  const [now, setNow] = useState(Date.now());
 
   const { ticketId } = useParams();
   const isMounted = useRef(true);
@@ -440,6 +452,31 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
     return () => {
       isMounted.current = false;
     };
+  }, []);
+
+  useEffect(() => {
+    setAvatarSrc(ticket?.contact?.urlPicture || ticket?.contact?.profilePicUrl || "");
+  }, [ticket?.contact?.id, ticket?.contact?.urlPicture, ticket?.contact?.profilePicUrl]);
+
+  useEffect(() => {
+    const refreshAvatar = async () => {
+      if (!ticket?.contact?.isGroup || !ticket?.contact?.id || avatarSrc) return;
+
+      try {
+        const { data } = await api.post(`/contacts/${ticket.contact.id}/refresh-avatar`);
+        setAvatarSrc(data?.urlPicture || data?.profilePicUrl || "");
+      } catch (error) {}
+    };
+
+    refreshAvatar();
+  }, [ticket?.contact?.id, ticket?.contact?.isGroup, avatarSrc]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Função para abrir modal da imagem
@@ -469,10 +506,51 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
 
   const handleImageClick = (e) => {
     e.stopPropagation(); // Prevenir que o clique no avatar selecione o ticket
-    if (ticket?.contact?.urlPicture) {
+    if (avatarSrc) {
       setImageModalOpen(true);
     }
   };
+
+  const renderTicketOpenedTime = () => {
+    const referenceDate = ticket?.updatedAt || ticket?.lastMessageAt || ticket?.createdAt;
+
+    if (!referenceDate) {
+      return null;
+    }
+
+    const lastInteractionAt = parseISO(referenceDate);
+    const diffInMinutes = Math.max(0, Math.floor((now - lastInteractionAt.getTime()) / 60000));
+
+    if (diffInMinutes < 1) {
+      return {
+        label: "agora mesmo",
+        isNow: true,
+      };
+    }
+
+    if (diffInMinutes < 60) {
+      return {
+        label: `${diffInMinutes} min atrás`,
+        isNow: false,
+      };
+    }
+
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) {
+      return {
+        label: `${diffInHours} h atrás`,
+        isNow: false,
+      };
+    }
+
+    const diffInDays = Math.floor(diffInHours / 24);
+    return {
+      label: `${diffInDays} d atrás`,
+      isNow: false,
+    };
+  };
+
+  const ticketOpenedTime = renderTicketOpenedTime();
 
   // Função para fechar modal da imagem
   const handleImageModalClose = () => {
@@ -931,7 +1009,7 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
               height: "40px",
               borderRadius: "50%",
             }}
-            src={`${ticket?.contact?.urlPicture}`}
+            src={avatarSrc || undefined}
             className={classes.clickableAvatar}
             onClick={handleImageClick}
           />
@@ -968,6 +1046,15 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
                     >
                       {truncate(ticket.contact?.name, 60)}
                     </Typography>
+                    {ticketOpenedTime && (
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        className={`${classes.ticketOpenedTime} ${ticketOpenedTime.isNow ? classes.ticketOpenedTimeNow : ""}`}
+                      >
+                        ({ticketOpenedTime.label})
+                      </Typography>
+                    )}
                   </span>
                 </span>
               }
@@ -1394,7 +1481,7 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
       >
         <DialogContent className={classes.imageModalContent}>
           <img 
-            src={ticket?.contact?.urlPicture} 
+            src={avatarSrc} 
             alt={ticket?.contact?.name || "Foto do contato"}
             className={classes.expandedImage}
           />

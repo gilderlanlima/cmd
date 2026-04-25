@@ -1,4 +1,3 @@
-// src/services/UserServices/ShowUserService.ts - ATUALIZADO COM NOVA COLUNA
 import User from "../../models/User";
 import AppError from "../../errors/AppError";
 import Queue from "../../models/Queue";
@@ -44,7 +43,11 @@ const ShowUserService = async (
       "showFlow",
       "finalizacaoComValorVendaAtiva",
       "birthDate",
-      "allowSeeMessagesInPendingTickets" // 🆕 INCLUIR NO ATTRIBUTES
+      "allowSeeMessagesInPendingTickets",
+      "followMeEnabled",
+      "followMePhone",
+      "followMeWhatsappId",
+      "followMeSchedule"
     ],
     include: [
       { model: Queue, as: "queues", attributes: ["id", "name", "color"] },

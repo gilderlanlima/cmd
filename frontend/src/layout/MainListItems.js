@@ -197,6 +197,25 @@ const useStyles = makeStyles((theme) => ({
     }
   },
 
+  sectionDivider: {
+    margin: "10px 0 2px",
+  },
+
+  sectionHeader: {
+    color: theme.mode === "light" ? "#8a8f98" : "#c5cad3",
+    position: "static",
+    minHeight: "auto",
+    paddingTop: 4,
+    paddingBottom: 2,
+    fontSize: "0.64rem",
+    fontWeight: 800,
+    lineHeight: "16px",
+    letterSpacing: "0.12em",
+    textTransform: "uppercase",
+    backgroundColor: "transparent !important",
+    zIndex: "auto",
+  },
+
   // Efeitos suaves para expand/collapse
   expandIcon: {
     transition: "transform 0.3s ease",
@@ -404,8 +423,9 @@ const MainListItems = ({ collapsed, drawerClose }) => {
   const [showWallets, setShowWallets] = useState(false);
 
   const isFlowbuilderRouteActive =
-    location.pathname.startsWith("/phrase-lists");
-  location.pathname.startsWith("/flowbuilders");
+    location.pathname.startsWith("/phrase-lists") ||
+    location.pathname.startsWith("/flowbuilders") ||
+    location.pathname.startsWith("/plugins/floup");
 
   useEffect(() => {
     // INSERIR ESSE EFFECT INTEIRO
@@ -591,8 +611,19 @@ const MainListItems = ({ collapsed, drawerClose }) => {
     }
   };
 
+  const SectionHeader = ({ title }) =>
+    collapsed ? null : (
+      <>
+        <Divider className={classes.sectionDivider} />
+        <ListSubheader inset className={classes.sectionHeader}>
+          {title}
+        </ListSubheader>
+      </>
+    );
+
   return (
     <div onClick={drawerClose}>
+      <SectionHeader title="Principal" />
       <Can
         role={
           (user.profile === "user" && user.showDashboard === "enabled") ||
@@ -717,6 +748,8 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         tooltip={collapsed}
       />
 
+      <SectionHeader title="Atendimento" />
+
       {showWavoipCall && (
         <ListItemLink
           to="/call-historicals"
@@ -724,24 +757,6 @@ const MainListItems = ({ collapsed, drawerClose }) => {
           icon={<HistoryToggleOffIcon />}
           tooltip={collapsed}
         />
-      )}
-
-      <ListItemLink
-        to="/quick-messages"
-        primary={i18n.t("mainDrawer.listItems.quickMessages")}
-        icon={<BoltRoundedIcon />}
-        tooltip={collapsed}
-      />
-
-      {showKanban && (
-        <>
-          <ListItemLink
-            to="/kanban"
-            primary={i18n.t("mainDrawer.listItems.kanban")}
-            icon={<ViewKanban />}
-            tooltip={collapsed}
-          />
-        </>
       )}
 
       {user.showContacts === "enabled" && (
@@ -764,6 +779,15 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         </>
       )}
 
+      {showKanban && (
+        <ListItemLink
+          to="/kanban"
+          primary={i18n.t("mainDrawer.listItems.kanban")}
+          icon={<ViewKanban />}
+          tooltip={collapsed}
+        />
+      )}
+
       <ListItemLink
         to="/tags"
         primary={i18n.t("mainDrawer.listItems.tags")}
@@ -771,13 +795,12 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         tooltip={collapsed}
       />
 
-      {/* 
       <ListItemLink
-        to="/todolist"
-        primary={i18n.t("ToDoList")}
-        icon={<EventAvailableIcon />}
-      /> 
-      */}
+        to="/quick-messages"
+        primary={i18n.t("mainDrawer.listItems.quickMessages")}
+        icon={<BoltRoundedIcon />}
+        tooltip={collapsed}
+      />
 
       {hasHelps && (
         <ListItemLink
@@ -787,6 +810,12 @@ const MainListItems = ({ collapsed, drawerClose }) => {
           tooltip={collapsed}
         />
       )}
+
+      {(user?.showCampaign === "enabled" && showCampaigns) ||
+        user.super ||
+        showExternalApi ? (
+        <SectionHeader title="Comunicação" />
+      ) : null}
 
       {user?.showCampaign === "enabled" && showCampaigns && (
         <>
@@ -859,6 +888,34 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         </>
       )}
 
+      {user.super && (
+        <ListItemLink
+          to="/announcements"
+          primary={i18n.t("mainDrawer.listItems.annoucements")}
+          icon={<FeedRoundedIcon />}
+          tooltip={collapsed}
+        />
+      )}
+
+      {showExternalApi && (
+        <Can
+          role={user.profile}
+          perform="dashboard:view"
+          yes={() => (
+            <ListItemLink
+              to="/messages-api"
+              primary={i18n.t("mainDrawer.listItems.messagesAPI")}
+              icon={<ApiRoundedIcon />}
+              tooltip={collapsed}
+            />
+          )}
+        />
+      )}
+
+      {user.showFlow === "enabled" || showOpenAi || showIntegrations ? (
+        <SectionHeader title="Automação" />
+      ) : null}
+
       {/* FLOWBUILDER */}
       {user.showFlow === "enabled" && (
         <>
@@ -925,14 +982,44 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 icon={<ShapeLine />}
               />
 
-                <ListItemLink
-                  to="/plugins/floup"
-                  primary={"Follow UP (Templates)"}
-                  icon={<Webhook />}
-                />
+              <ListItemLink
+                to="/plugins/floup"
+                primary={"Follow UP (Templates)"}
+                icon={<Webhook />}
+              />
             </List>
           </Collapse>
         </>
+      )}
+
+      {showOpenAi && (
+        <Can
+          role={user.profile}
+          perform="dashboard:view"
+          yes={() => (
+            <ListItemLink
+              to="/prompts"
+              primary={i18n.t("mainDrawer.listItems.prompts")}
+              icon={<AllInclusive />}
+              tooltip={collapsed}
+            />
+          )}
+        />
+      )}
+
+      {showIntegrations && (
+        <Can
+          role={user.profile}
+          perform="dashboard:view"
+          yes={() => (
+            <ListItemLink
+              to="/queue-integration"
+              primary={i18n.t("mainDrawer.listItems.queueIntegration")}
+              icon={<HubRounded />}
+              tooltip={collapsed}
+            />
+          )}
+        />
       )}
 
       <Can
@@ -944,36 +1031,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         perform="dashboard:view"
         yes={() => (
           <>
-            <Divider />
-            <ListSubheader inset>
-              {i18n.t("mainDrawer.listItems.administration")}
-            </ListSubheader>
-
-            {user.super && (
-              <ListItemLink
-                to="/announcements"
-                primary={i18n.t("mainDrawer.listItems.annoucements")}
-                    icon={<FeedRoundedIcon />}
-                tooltip={collapsed}
-              />
-            )}
-
-            {showExternalApi && (
-              <>
-                <Can
-                  role={user.profile}
-                  perform="dashboard:view"
-                  yes={() => (
-                    <ListItemLink
-                      to="/messages-api"
-                      primary={i18n.t("mainDrawer.listItems.messagesAPI")}
-                      icon={<ApiRoundedIcon />}
-                      tooltip={collapsed}
-                    />
-                  )}
-                />
-              </>
-            )}
+            <SectionHeader title={i18n.t("mainDrawer.listItems.administration")} />
 
             <Can
               role={user.profile}
@@ -981,7 +1039,7 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               yes={() => (
                 <ListItemLink
                   to="/users"
-                  primary={i18n.t("mainDrawer.listItems.users")}
+                  primary={"Equipe"}
                   icon={<GroupRoundedIcon />}
                   tooltip={collapsed}
                 />
@@ -1027,35 +1085,6 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               )}
             />
 
-            {showOpenAi && (
-              <Can
-                role={user.profile}
-                perform="dashboard:view"
-                yes={() => (
-                  <ListItemLink
-                    to="/prompts"
-                    primary={i18n.t("mainDrawer.listItems.prompts")}
-                    icon={<AllInclusive />}
-                    tooltip={collapsed}
-                  />
-                )}
-              />
-            )}
-
-            {showIntegrations && (
-              <Can
-                role={user.profile}
-                perform="dashboard:view"
-                yes={() => (
-                  <ListItemLink
-                    to="/queue-integration"
-                    primary={i18n.t("mainDrawer.listItems.queueIntegration")}
-                  icon={<HubRounded />}
-                    tooltip={collapsed}
-                  />
-                )}
-              />
-            )}
             <Can
               role={
                 user.profile === "user" && user.allowConnections === "enabled"
@@ -1077,10 +1106,21 @@ const MainListItems = ({ collapsed, drawerClose }) => {
               <ListItemLink
                 to="/allConnections"
                 primary={i18n.t("mainDrawer.listItems.allConnections")}
-                  icon={<LanRounded />}
+                icon={<LanRounded />}
                 tooltip={collapsed}
               />
             )}
+            {user.super && (
+              <ListItemLink
+                to="/companies"
+                primary={i18n.t("mainDrawer.listItems.companies")}
+                icon={<DomainRoundedIcon />}
+                tooltip={collapsed}
+              />
+            )}
+
+            <SectionHeader title="Sistema" />
+
             <Can
               role={user.profile}
               perform="dashboard:view"
@@ -1105,14 +1145,6 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 />
               )}
             />
-            {user.super && (
-              <ListItemLink
-                to="/companies"
-                primary={i18n.t("mainDrawer.listItems.companies")}
-                  icon={<DomainRoundedIcon />}
-                tooltip={collapsed}
-              />
-            )}
           </>
         )}
       />

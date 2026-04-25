@@ -40,6 +40,7 @@ const SendWhatsAppMessage = async ({
   if (!contactNumber) {
     throw new AppError("Contato do ticket não encontrado");
   }
+  ticket.contact = contactNumber;
 
   // Sempre envie para o JID tradicional
   let jid = `${contactNumber.number}@${ticket.isGroup ? "g.us" : "s.whatsapp.net"}`;

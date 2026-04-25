@@ -91,6 +91,24 @@ class User extends Model<User> {
   @Column(DataType.JSONB)
   workingHours: Record<string, any> | null;
 
+  @Default(false)
+  @Column
+  followMeEnabled: boolean;
+
+  @Default("")
+  @Column
+  followMePhone: string;
+
+  @ForeignKey(() => Whatsapp)
+  @Column
+  followMeWhatsappId: number;
+
+  @BelongsTo(() => Whatsapp)
+  followMeWhatsapp: Whatsapp;
+
+  @Column(DataType.JSONB)
+  followMeSchedule: Record<string, any> | null;
+
   @Default("")
   @Column
   color: string;

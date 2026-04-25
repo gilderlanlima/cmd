@@ -381,39 +381,47 @@ const App = () => {
       });
     getPublicSetting("appLogoLight")
       .then((file) => {
-        setAppLogoLight(
-          file ? getBackendUrl() + "/public/" + file : defaultLogoLight
-        );
+        const resolvedLogoLight =
+          file ? getBackendUrl() + "/public/" + file : defaultLogoLight;
+        setAppLogoLight(resolvedLogoLight);
+        window.localStorage.setItem("appLogoLightUrl", resolvedLogoLight);
       })
       .catch((error) => {
         console.log("Error reading setting", error);
+        window.localStorage.setItem("appLogoLightUrl", defaultLogoLight);
       });
     getPublicSetting("appLogoDark")
       .then((file) => {
-        setAppLogoDark(
-          file ? getBackendUrl() + "/public/" + file : defaultLogoDark
-        );
+        const resolvedLogoDark =
+          file ? getBackendUrl() + "/public/" + file : defaultLogoDark;
+        setAppLogoDark(resolvedLogoDark);
+        window.localStorage.setItem("appLogoDarkUrl", resolvedLogoDark);
       })
       .catch((error) => {
         console.log("Error reading setting", error);
+        window.localStorage.setItem("appLogoDarkUrl", defaultLogoDark);
       });
     getPublicSetting("appLogoFavicon")
       .then((file) => {
+        const resolvedFavicon =
+          file ? getBackendUrl() + "/public/" + file : defaultLogoFavicon;
         setFaviconCacheSeed(`${file || "default"}-${Date.now()}`);
-        setAppLogoFavicon(
-          file ? getBackendUrl() + "/public/" + file : defaultLogoFavicon
-        );
+        setAppLogoFavicon(resolvedFavicon);
+        window.localStorage.setItem("appLogoFaviconUrl", resolvedFavicon);
       })
       .catch((error) => {
         console.log("Error reading setting", error);
+        window.localStorage.setItem("appLogoFaviconUrl", defaultLogoFavicon);
       });
     getPublicSetting("appName")
       .then((name) => {
         setAppName(name || "CRM Ideia no Bolso");
+        window.localStorage.setItem("appName", name || "CRM Ideia no Bolso");
       })
       .catch((error) => {
         console.log("Error reading setting", error);
         setAppName("CRM Ideia no Bolso");
+        window.localStorage.setItem("appName", "CRM Ideia no Bolso");
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

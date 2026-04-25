@@ -311,7 +311,11 @@ export const storeFacebook = async (
 
       const acessTokenPage = await getAccessTokenFromPage(access_token);
 
-      if (instagram_business_account && addInstagram) {
+      if (addInstagram) {
+        if (!instagram_business_account) {
+          continue;
+        }
+
         const {
           id: instagramId,
           username,
@@ -333,7 +337,7 @@ export const storeFacebook = async (
           queueIds: [],
           isMultidevice: false
         });
-
+      } else {
         pages.push({
           companyId,
           name,
@@ -349,31 +353,20 @@ export const storeFacebook = async (
           queueIds: [],
           isMultidevice: false
         });
-
-        await subscribeApp(id, acessTokenPage);
       }
 
-      if (!instagram_business_account) {
-        pages.push({
-          companyId,
-          name,
-          facebookUserId: facebookUserId,
-          facebookPageUserId: id,
-          facebookUserToken: acessTokenPage,
-          tokenMeta: facebookUserToken,
-          isDefault: false,
-          channel: "facebook",
-          status: "CONNECTED",
-          greetingMessage: "",
-          farewellMessage: "",
-          queueIds: [],
-          isMultidevice: false
-        });
-
-        await subscribeApp(page.id, acessTokenPage);
-      }
+      await subscribeApp(id, acessTokenPage);
     }
 
+    if (pages.length === 0) {
+      return res.status(400).json({
+        error: addInstagram
+          ? "Nenhuma conta comercial do Instagram vinculada foi encontrada nas paginas selecionadas."
+          : "Nenhuma pagina do Facebook foi encontrada para conectar."
+      });
+    }
+
+    const syncedConnections: Whatsapp[] = [];
     for await (const pageConection of pages) {
       const exist = await Whatsapp.findOne({
         where: {
@@ -385,10 +378,16 @@ export const storeFacebook = async (
         await exist.update({
           ...pageConection
         });
+        syncedConnections.push(exist);
+        io.of(String(companyId)).emit(`company-${companyId}-whatsapp`, {
+          action: "update",
+          whatsapp: exist
+        });
       }
 
       if (!exist) {
         const { whatsapp } = await CreateWhatsAppService(pageConection);
+        syncedConnections.push(whatsapp);
 
         io.of(String(companyId)).emit(`company-${companyId}-whatsapp`, {
           action: "update",
@@ -396,7 +395,13 @@ export const storeFacebook = async (
         });
       }
     }
-    return res.status(200);
+
+    return res.status(200).json({
+      message: addInstagram
+        ? "Conta do Instagram conectada com sucesso."
+        : "Messenger do Facebook conectado com sucesso.",
+      connections: syncedConnections
+    });
   } catch (error) {
     console.log(error);
     return res.status(400).json({

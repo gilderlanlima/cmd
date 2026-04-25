@@ -47,6 +47,7 @@ import SearchContactMessagesService from "../services/ContactServices/SearchCont
 import BulkDeleteContactsService from "../services/ContactServices/BulkDeleteContactsService";
 import DeleteAllContactsService from "../services/ContactServices/DeleteAllContactsService";
 import GetDefaultWhatsApp from "../helpers/GetDefaultWhatsApp";
+import RefreshContactAvatarService from "../services/ContactServices/RefreshContactAvatarService";
 import Contact from "../models/Contact";
 import Tag from "../models/Tag";
 import ContactTag from "../models/ContactTag";
@@ -703,6 +704,27 @@ export const getGroupParticipants = async (
       message: error.message
     });
   }
+};
+
+export const refreshAvatar = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const { contactId } = req.params;
+  const { companyId } = req.user;
+
+  const contact = await RefreshContactAvatarService({
+    contactId: Number(contactId),
+    companyId
+  });
+
+  const io = getIO();
+  io.of(String(companyId)).emit(`company-${companyId}-contact`, {
+    action: "update",
+    contact
+  });
+
+  return res.status(200).json(contact);
 };
 
 export const searchMessages = async (

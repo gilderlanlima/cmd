@@ -70,9 +70,15 @@ const SendWhatsAppOficialMessage = async ({
   let bodyTicket = "";
   let mediaType: string;
 
-  const bodyMsg = body ? formatBody(body, ticket) : null;
-
   type = !type ? getTypeMessage(typeMessage) : type;
+
+  const contact = await Contact.findByPk(ticket.contactId)
+  if (!contact) {
+    throw new AppError("Contato do ticket não encontrado");
+  }
+  ticket.contact = contact;
+
+  const bodyMsg = body ? formatBody(body, ticket) : null;
 
   switch (type) {
     case 'video':
@@ -130,8 +136,6 @@ const SendWhatsAppOficialMessage = async ({
     default:
       throw new Error(`Tipo ${type} não configurado para enviar mensagem a Meta`);
   }
-
-  const contact = await Contact.findByPk(ticket.contactId)
 
   let vcard;
 

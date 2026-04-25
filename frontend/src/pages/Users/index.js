@@ -223,7 +223,7 @@ useEffect(() => {
   const handleDeleteUser = async (userId) => {
     try {
       await api.delete(`/users/${userId}`);
-      toast.success(i18n.t("users.toasts.deleted"));
+      toast.success("Membro da equipe excluído com sucesso.");
     } catch (err) {
       toastError(err);
     }
@@ -304,7 +304,7 @@ const renderProfileImage = (user) => {
   const handleBackfillChats = async () => {
     if (
       !window.confirm(
-        "Tem certeza que deseja gerar chats para todos os usuários existentes? Isso pode demorar e criar muitos chats."
+        "Tem certeza que deseja gerar chats para todos os membros da equipe existentes? Isso pode demorar e criar muitos chats."
       )
     ) {
       return;
@@ -333,7 +333,7 @@ const renderProfileImage = (user) => {
         onClose={() => setConfirmModalOpen(false)}
         onConfirm={() => handleDeleteUser(deletingUser.id)}
       >
-        {i18n.t("users.confirmationModal.deleteMessage")}
+        {"Todos os dados do membro da equipe serão perdidos. Os atendimentos abertos deste membro serão movidos para o setor."}
       </ConfirmationModal>
       <UserModal
         open={userModalOpen}
@@ -347,7 +347,7 @@ const renderProfileImage = (user) => {
         <>
           <MainHeader>
             <Title>
-              {i18n.t("users.title")} ({users.length})
+              {"Equipe"} ({users.length})
             </Title>
             <MainHeaderButtonsWrapper>
               <TextField
@@ -368,7 +368,7 @@ const renderProfileImage = (user) => {
                 color="primary"
                 onClick={handleOpenUserModal}
               >
-                {i18n.t("users.buttons.add")}
+                {"Adicionar membro da equipe"}
               </Button>
               {loggedInUser.profile === "admin" && showInternalChat && (
                 <Button

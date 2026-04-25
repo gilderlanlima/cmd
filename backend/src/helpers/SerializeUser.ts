@@ -34,16 +34,17 @@ interface SerializedUser {
   showContacts: string;
   showCampaign: string;
   showFlow: string;
+  followMeEnabled?: boolean;
+  followMePhone?: string;
+  followMeWhatsappId?: number;
+  followMeSchedule?: Record<string, any> | null;
 }
 
 export const SerializeUser = async (user: User): Promise<SerializedUser> => {
-  // Gera um token de 32 bytes
   const generateToken = (userId: number | string): string => {
-    // Gerar o token com base no userId e sua chave secreta
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
+    return jwt.sign({ userId }, process.env.JWT_SECRET, {
       expiresIn: "1h"
     });
-    return token;
   };
 
   return {
@@ -70,11 +71,16 @@ export const SerializeUser = async (user: User): Promise<SerializedUser> => {
     token: generateToken(user.id),
     allowGroup: user.allowGroup,
     allowRealTime: user.allowRealTime,
-    allowSeeMessagesInPendingTickets: user.allowSeeMessagesInPendingTickets || "enabled",
+    allowSeeMessagesInPendingTickets:
+      user.allowSeeMessagesInPendingTickets || "enabled",
     allowConnections: user.allowConnections,
     finalizacaoComValorVendaAtiva: user.finalizacaoComValorVendaAtiva,
     showContacts: user.showContacts,
     showCampaign: user.showCampaign,
-    showFlow: user.showFlow
+    showFlow: user.showFlow,
+    followMeEnabled: user.followMeEnabled,
+    followMePhone: user.followMePhone,
+    followMeWhatsappId: user.followMeWhatsappId,
+    followMeSchedule: user.followMeSchedule
   };
 };

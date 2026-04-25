@@ -557,6 +557,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const history = useHistory();
+  const [avatarSrc, setAvatarSrc] = useState(contact?.urlPicture || contact?.profilePicUrl || "");
 
 	const [modalOpen, setModalOpen] = useState(false);
 	const [blockingContact, setBlockingContact] = useState(contact.active);
@@ -617,6 +618,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 
 	useEffect(() => {
 		setAcceptAudio(contact.acceptAudioMessage);
+		setAvatarSrc(contact?.urlPicture || contact?.profilePicUrl || "");
 		setOpenForm(false);
 		setTabValue(0);
 		// Limpar pesquisa ao trocar de contato
@@ -634,9 +636,22 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 		}
 	}, [open, contact]);
 
+	useEffect(() => {
+		const refreshAvatar = async () => {
+			if (!open || !contact?.isGroup || !contact?.id || avatarSrc) return;
+
+			try {
+				const { data } = await api.post(`/contacts/${contact.id}/refresh-avatar`);
+				setAvatarSrc(data?.urlPicture || data?.profilePicUrl || "");
+			} catch (error) {}
+		};
+
+		refreshAvatar();
+	}, [open, contact?.id, contact?.isGroup, avatarSrc]);
+
 	// Função para abrir modal da imagem
 	const handleImageClick = () => {
-		if (contact?.urlPicture) {
+		if (avatarSrc) {
 			setImageModalOpen(true);
 		}
 	};
@@ -1334,7 +1349,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 						<Paper square variant="outlined" className={classes.contactHeader}>
 							{/* Avatar redondo e menor - CLICÁVEL */}
 							<Avatar
-								src={contact?.urlPicture}
+								src={avatarSrc || undefined}
 								alt={contact.name}
 								className={classes.contactAvatar}
 								onClick={handleImageClick}
@@ -1835,7 +1850,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 			>
 				<DialogContent className={classes.imageModalContent}>
 					<img
-						src={contact?.urlPicture}
+						src={avatarSrc}
 						alt={contact?.name || "Foto do contato"}
 						className={classes.expandedImage}
 					/>

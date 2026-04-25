@@ -7,6 +7,7 @@ import ShowIntegrationService from "./ShowQueueIntegrationService";
 interface IntegrationData {
   type?: string;
   name?: string;
+  flowBuilderId?: number | null;
   projectName?: string;
   jsonContent?: string;
   language?: string;
@@ -39,6 +40,7 @@ const UpdateQueueIntegrationService = async ({
   const {
     type,
     name,
+    flowBuilderId,
     projectName,
     jsonContent,
     language,
@@ -63,6 +65,7 @@ const UpdateQueueIntegrationService = async ({
   await integration.update({
     type,
     name,
+    flowBuilderId,
     projectName,
     jsonContent,
     language,

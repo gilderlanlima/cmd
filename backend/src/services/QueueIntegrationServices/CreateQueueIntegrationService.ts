@@ -7,6 +7,7 @@ import QueueIntegrations from "../../models/QueueIntegrations";
 interface Request {
   type: string;
   name: string;
+  flowBuilderId?: number | null;
   projectName: string;
   jsonContent: string;
   language: string;
@@ -24,6 +25,7 @@ interface Request {
 const CreateQueueIntegrationService = async ({
   type,
   name,
+  flowBuilderId,
   projectName,
   jsonContent,
   language,
@@ -65,6 +67,7 @@ const CreateQueueIntegrationService = async ({
     {
       type,
       name,
+      flowBuilderId,
       projectName,
       jsonContent,
       language,

@@ -9,305 +9,144 @@ import {
   MicNone,
   Videocam,
 } from "@mui/icons-material";
-import React, { memo, useContext } from "react";
-
+import React, { memo } from "react";
 import { Handle } from "react-flow-renderer";
-import { useNodeStorage } from "../../../stores/useNodeStorage";
 import { Typography } from "@mui/material";
+import { useNodeStorage } from "../../../stores/useNodeStorage";
+import {
+  flowNodePalettes,
+  getHandleArrowStyle,
+  getHandleStyle,
+  getNodeActionIconStyle,
+  getNodeActionsStyle,
+  getNodeBodyStyle,
+  getNodeHeaderStyle,
+  getNodeIconWrapStyle,
+  getNodePreviewCenterStyle,
+  getNodePreviewStyle,
+  getNodePreviewTextStyle,
+  getNodeShellStyle,
+  getNodeTitleGroupStyle,
+  getNodeTitleStyle,
+} from "./flowNodeStyles";
+
+const resolveItemMeta = (item, elements) => {
+  const current = elements.filter((itemLoc) => itemLoc.number === item)[0];
+
+  if (!current) {
+    return {
+      icon: <LibraryBooks style={{ color: flowNodePalettes.content.accent }} />,
+      text: "Bloco sem conteúdo",
+    };
+  }
+
+  if (item.includes("message")) {
+    return {
+      icon: <Message style={{ color: flowNodePalettes.content.accent }} />,
+      text: current.value,
+    };
+  }
+
+  if (item.includes("interval")) {
+    return {
+      icon: <AccessTime style={{ color: flowNodePalettes.content.accent }} />,
+      text: `${current.value} segundos`,
+    };
+  }
+
+  if (item.includes("img")) {
+    return {
+      icon: <Image style={{ color: flowNodePalettes.content.accent }} />,
+      text: current.original,
+    };
+  }
+
+  if (item.includes("audio")) {
+    return {
+      icon: <MicNone style={{ color: flowNodePalettes.content.accent }} />,
+      text: current.original,
+    };
+  }
+
+  if (item.includes("video")) {
+    return {
+      icon: <Videocam style={{ color: flowNodePalettes.content.accent }} />,
+      text: current.original,
+    };
+  }
+
+  return {
+    icon: <LibraryBooks style={{ color: flowNodePalettes.content.accent }} />,
+    text: current.original,
+  };
+};
 
 export default memo(({ data, isConnectable, id }) => {
   const storageItems = useNodeStorage();
+  const palette = flowNodePalettes.content;
+
   return (
-    <div
-      style={{
-        backgroundColor: "#FEFAFA",
-        padding: "8px",
-        borderRadius: "8px",
-        border: "1px solid rgba(236, 88, 88, 0.25)",
-        boxShadow: "rgba(0, 0, 0, 0.05) 0px 3px 5px",
-      }}
-    >
+    <div style={getNodeShellStyle(palette)}>
       <Handle
         type="target"
         position="left"
-        style={{
-          background: "#9a00ed",
-          width: "18px",
-          height: "18px",
-          top: "20px",
-          left: "-12px",
-          cursor: "pointer",
-        }}
+        style={getHandleStyle(palette.handle, "target")}
         onConnect={(params) => console.log("handle onConnect", params)}
         isConnectable={isConnectable}
       >
-        <ArrowForwardIos
-          sx={{
-            color: "#ffff",
-            width: "10px",
-            height: "10px",
-            marginLeft: "2.9px",
-            marginBottom: "1px",
-            pointerEvents: "none",
-          }}
-        />
+        <ArrowForwardIos sx={getHandleArrowStyle()} />
       </Handle>
-      <div
-        style={{
-          display: "flex",
-          position: "absolute",
-          right: 5,
-          top: 5,
-          cursor: "pointer",
-          gap: 6,
-        }}
-      >
-        <ContentCopy
-          onClick={() => {
-            storageItems.setNodesStorage(id);
-            storageItems.setAct("duplicate");
-          }}
-          sx={{ width: "12px", height: "12px", color: "#EC5858" }}
-        />
 
-        <Delete
-          onClick={() => {
-            storageItems.setNodesStorage(id);
-            storageItems.setAct("delete");
-          }}
-          sx={{ width: "12px", height: "12px", color: "#EC5858" }}
-        />
-      </div>
-      <div
-        style={{
-          color: "#ededed",
-          fontSize: "16px",
-          flexDirection: "row",
-          display: "flex",
-        }}
-      >
-        <LibraryBooks
-          sx={{
-            width: "16px",
-            height: "16px",
-            marginRight: "4px",
-            marginTop: "4px",
-            color: "#EC5858",
-          }}
-        />
-        <div style={{ color: "#232323", fontSize: "16px" }}>Conteúdo</div>
-      </div>
-      <div style={{ color: "#232323", fontSize: "12px", width: 180 }}>
-        {data.seq.map((item) => (          
-          <div
-            style={{
-              backgroundColor: "#F6EEEE",
-              marginBottom: "3px",
-              borderRadius: "5px",
-            }}
-          >
-            {item.includes("message") && (
-              <div style={{ gap: "5px", padding: "6px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    position: "relative",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Message sx={{ color: "#EC5858" }} />
-                </div>
-                <Typography
-                  textAlign={"center"}
-                  sx={{
-                    textOverflow: "ellipsis",
-                    fontSize: "10px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                  }}
-                >
-                  {
-                    data.elements.filter(
-                      (itemLoc) => itemLoc.number === item
-                    )[0].value
-                  }
-                </Typography>
-              </div>
-            )}
-            {item.includes("interval") && (
-              <div style={{ gap: "5px", padding: "6px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    position: "relative",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                  }}
-                >
-                  <AccessTime sx={{ color: "#EC5858" }} />
-                </div>
-                <Typography
-                  textAlign={"center"}
-                  sx={{
-                    textOverflow: "ellipsis",
-                    fontSize: "10px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                  }}
-                >
-                  {
-                    data.elements.filter(
-                      (itemLoc) => itemLoc.number === item
-                    )[0].value
-                  }{" "}
-                  segundos
-                </Typography>
-              </div>
-            )}
-            {item.includes("img") && (
-              <div style={{ gap: "5px", padding: "6px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    position: "relative",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Image sx={{ color: "#EC5858" }} />
-                </div>
-                <Typography
-                  textAlign={"center"}
-                  sx={{
-                    textOverflow: "ellipsis",
-                    fontSize: "10px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                  }}
-                >
-                  {
-                    data.elements.filter(
-                      (itemLoc) => itemLoc.number === item
-                    )[0].original
-                  }
-                </Typography>
-              </div>
-            )}
-            {item.includes("audio") && (
-              <div style={{ gap: "5px", padding: "6px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    position: "relative",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                  }}
-                >
-                  <MicNone sx={{ color: "#EC5858" }} />
-                </div>
-                <Typography
-                  textAlign={"center"}
-                  sx={{
-                    textOverflow: "ellipsis",
-                    fontSize: "10px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                  }}
-                >
-                  {
-                    data.elements.filter(
-                      (itemLoc) => itemLoc.number === item
-                    )[0].original
-                  }
-                </Typography>
-              </div>
-            )}
-            {item.includes("video") && (
-              <div style={{ gap: "5px", padding: "6px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    position: "relative",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Videocam sx={{ color: "#EC5858" }} />
-                </div>
-                <Typography
-                  textAlign={"center"}
-                  sx={{
-                    textOverflow: "ellipsis",
-                    fontSize: "10px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                  }}
-                >
-                  {
-                    data.elements.filter(
-                      (itemLoc) => itemLoc.number === item
-                    )[0].original
-                  }
-                </Typography>
-              </div>
-            )}
-            {item.includes("document") && (
-              <div style={{ gap: "5px", padding: "6px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    position: "relative",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                  }}
-                >
-                  <LibraryBooks sx={{ color: "#EC5858" }} />
-                </div>
-                <Typography
-                  textAlign={"center"}
-                  sx={{
-                    textOverflow: "ellipsis",
-                    fontSize: "10px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                  }}
-                >
-                  {
-                    data.elements.filter(
-                      (itemLoc) => itemLoc.number === item
-                    )[0].original
-                  }
-                </Typography>
-              </div>
-            )}
+      <div style={getNodeHeaderStyle()}>
+        <div style={getNodeTitleGroupStyle()}>
+          <div style={getNodeIconWrapStyle(palette)}>
+            <LibraryBooks style={{ width: 13, height: 13 }} />
           </div>
-        ))}
+          <div style={getNodeTitleStyle()}>Conteúdo</div>
+        </div>
+
+        <div style={getNodeActionsStyle()}>
+          <ContentCopy
+            onClick={() => {
+              storageItems.setNodesStorage(id);
+              storageItems.setAct("duplicate");
+            }}
+            sx={getNodeActionIconStyle(palette)}
+          />
+
+          <Delete
+            onClick={() => {
+              storageItems.setNodesStorage(id);
+              storageItems.setAct("delete");
+            }}
+            sx={getNodeActionIconStyle(palette)}
+          />
+        </div>
       </div>
+
+      <div style={getNodeBodyStyle()}>
+        {data.seq.map((item) => {
+          const meta = resolveItemMeta(item, data.elements);
+
+          return (
+            <div key={item} style={getNodePreviewStyle(palette)}>
+              <div style={getNodePreviewCenterStyle()}>{meta.icon}</div>
+              <Typography textAlign="center" sx={getNodePreviewTextStyle(2)}>
+                {meta.text}
+              </Typography>
+            </div>
+          );
+        })}
+      </div>
+
       <Handle
         type="source"
         position="right"
         id="a"
-        style={{
-          background: "#9a00ed",
-          width: "18px",
-          height: "18px",
-          top: "90%",
-          right: "-11px",
-          cursor: "pointer",
-        }}
+        style={{ ...getHandleStyle(palette.handle, "source"), top: "88%" }}
         isConnectable={isConnectable}
       >
-        <ArrowForwardIos
-          sx={{
-            color: "#ffff",
-            width: "10px",
-            height: "10px",
-            marginLeft: "2.9px",
-            marginBottom: "1px",
-            pointerEvents: "none",
-          }}
-        />
+        <ArrowForwardIos sx={getHandleArrowStyle()} />
       </Handle>
     </div>
   );

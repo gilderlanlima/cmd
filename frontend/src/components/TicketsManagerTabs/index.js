@@ -452,6 +452,8 @@ const TicketsManagerTabs = () => {
   const [isHoveredSort, setIsHoveredSort] = useState(false);
 
   const [isFilterActive, setIsFilterActive] = useState(false);
+  const openTabsCount = user.allowGroup ? 4 : 3;
+  const openTabWidth = `${100 / openTabsCount}%`;
 
   useEffect(() => {
     setSelectedQueuesMessage(selectedQueueIds);
@@ -1097,6 +1099,7 @@ const TicketsManagerTabs = () => {
             value={"open"}
             name="open"
             classes={{ root: classes.tabPanelItem }}
+            style={{ minWidth: openTabWidth, maxWidth: openTabWidth }}
           />
 
           {/* AGUARDANDO */}
@@ -1137,6 +1140,7 @@ const TicketsManagerTabs = () => {
             value={"pending"}
             name="pending"
             classes={{ root: classes.tabPanelItem }}
+            style={{ minWidth: openTabWidth, maxWidth: openTabWidth }}
           />
 
           {/* GRUPOS */}
@@ -1178,6 +1182,7 @@ const TicketsManagerTabs = () => {
               value={"group"}
               name="group"
               classes={{ root: classes.tabPanelItem }}
+              style={{ minWidth: openTabWidth, maxWidth: openTabWidth }}
             />
           )}
           <Tab
@@ -1218,6 +1223,7 @@ const TicketsManagerTabs = () => {
             value={"chat-internal"}
             name="chat-internal"
             classes={{ root: classes.tabPanelItem }}
+            style={{ minWidth: openTabWidth, maxWidth: openTabWidth }}
           />
         </Tabs>
 

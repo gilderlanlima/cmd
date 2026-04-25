@@ -9,6 +9,7 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { AuthContext } from "../../context/Auth/AuthContext";
+import api from "../../services/api";
 
 const useStyles = makeStyles((theme) => ({
     // Estilos para o modal da imagem
@@ -41,11 +42,29 @@ const TicketInfo = ({ contact, ticket, onClick }) => {
     const [amount, setAmount] = useState("");
     const { user } = useContext(AuthContext);
     const [imageModalOpen, setImageModalOpen] = useState(false); // Estado para o modal da imagem
+    const [avatarSrc, setAvatarSrc] = useState(contact?.urlPicture || contact?.profilePicUrl || "");
+
+    React.useEffect(() => {
+        setAvatarSrc(contact?.urlPicture || contact?.profilePicUrl || "");
+    }, [contact?.id, contact?.urlPicture, contact?.profilePicUrl]);
+
+    React.useEffect(() => {
+        const refreshAvatar = async () => {
+            if (!contact?.isGroup || !contact?.id || avatarSrc) return;
+
+            try {
+                const { data } = await api.post(`/contacts/${contact.id}/refresh-avatar`);
+                setAvatarSrc(data?.urlPicture || data?.profilePicUrl || "");
+            } catch (error) {}
+        };
+
+        refreshAvatar();
+    }, [contact?.id, contact?.isGroup, avatarSrc]);
 
     // Função para abrir modal da imagem
     const handleImageClick = (e) => {
         e.stopPropagation(); // Prevenir que o clique no avatar execute outros handlers
-        if (contact?.urlPicture) {
+        if (avatarSrc) {
             setImageModalOpen(true);
         }
     };
@@ -64,7 +83,7 @@ const TicketInfo = ({ contact, ticket, onClick }) => {
                 subheaderTypographyProps={{ noWrap: true }}
                 avatar={
                     <Avatar 
-                        src={contact?.urlPicture} 
+                        src={avatarSrc || undefined} 
                         alt="contact_image" 
                         className={classes.clickableAvatar}
                         onClick={handleImageClick}
@@ -107,7 +126,7 @@ const TicketInfo = ({ contact, ticket, onClick }) => {
             >
                 <DialogContent className={classes.imageModalContent}>
                     <img 
-                        src={contact?.urlPicture} 
+                        src={avatarSrc} 
                         alt={contact?.name || "Foto do contato"}
                         className={classes.expandedImage}
                     />

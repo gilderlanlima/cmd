@@ -646,7 +646,7 @@ export class ReceibedWhatsAppService {
             }
 
             // ✅ VERIFICAÇÃO DE CAMPANHAS E FLUXOS (mesma lógica do wbotMessageListener)
-            if (!ticket.imported && !ticket.isGroup && ticket.isBot !== false) {
+            if (!ticket.imported && !ticket.isGroup && ticket.isBot !== false && !ticket.queueId) {
                 // Verificar se ticket.integrationId existe antes de continuar
                 if (!ticket.integrationId) {
                     logger.info("[WHATSAPP OFICIAL] Ticket sem integração, pulando verificação de campanhas");
@@ -902,7 +902,8 @@ export class ReceibedWhatsAppService {
             if (
                 !ticket.imported &&
                 !ticket.isGroup &&
-                ticket.status === "pending"
+                ticket.status === "pending" &&
+                !ticket.queueId
             ) {
                 // Aguardar um pouco para garantir que outros processamentos terminaram
                 setTimeout(async () => {
@@ -910,6 +911,12 @@ export class ReceibedWhatsAppService {
                         await ticket.reload({
                             include: [{ model: Contact, as: "contact" }]
                         });
+
+                        // Se o ticket ja entrou em um setor, nao reinicia a integracao padrao
+                        if (ticket.queueId) {
+                            logger.info(`[WHATSAPP OFICIAL] Ticket ${ticket.id} ja possui setor (${ticket.queueId}) - nao vai reiniciar o flowbuilder`);
+                            return;
+                        }
 
                         // Só verificar se não entrou em fluxo
                         if (!ticket.flowWebhook || !ticket.lastFlowId) {

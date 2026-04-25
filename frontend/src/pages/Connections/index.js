@@ -213,7 +213,9 @@ const Connections = () => {
           facebookUserToken: accessToken,
         })
         .then((response) => {
-          toast.success(i18n.t("connections.facebook.success"));
+          toast.success(
+            response?.data?.message || i18n.t("connections.facebook.success")
+          );
         })
         .catch((error) => {
           toastError(error);
@@ -232,12 +234,44 @@ const Connections = () => {
           facebookUserToken: accessToken,
         })
         .then((response) => {
-          toast.success(i18n.t("connections.facebook.success"));
+          toast.success(
+            response?.data?.message || i18n.t("connections.facebook.success")
+          );
         })
         .catch((error) => {
           toastError(error);
         });
     }
+  };
+
+  const getMetaConnectionBlockReason = () => {
+    if (!process.env.REACT_APP_FACEBOOK_APP_ID) {
+      return "A integração Meta não está configurada neste ambiente. Cadastre o Facebook App ID e o App Secret para liberar Messenger e Instagram.";
+    }
+
+    const currentHost = window.location.hostname;
+    const isLocalhost =
+      currentHost === "localhost" ||
+      currentHost === "127.0.0.1" ||
+      currentHost === "::1";
+
+    if (window.location.protocol !== "https:" && !isLocalhost) {
+      return "A Meta exige ambiente HTTPS para abrir o login web. Neste ambiente HTTP a janela de conexão não será carregada.";
+    }
+
+    return null;
+  };
+
+  const handleMetaLoginClick = (renderProps, popupState) => {
+    const blockReason = getMetaConnectionBlockReason();
+
+    if (blockReason) {
+      toast.error(blockReason);
+      popupState.close();
+      return;
+    }
+
+    renderProps.onClick();
   };
 
   useEffect(() => {
@@ -519,6 +553,11 @@ const Connections = () => {
         {(whatsApp.channel === "whatsapp" && whatsApp.status === "OPENING") && (
           <Button size="small" variant="outlined" disabled color="default">
             {i18n.t("connections.buttons.connecting")}
+          </Button>
+        )}
+        {["facebook", "instagram"].includes(whatsApp.channel) && (
+          <Button size="small" variant="outlined" disabled color="primary">
+            Conectado via Meta
           </Button>
         )}
       </>
@@ -879,7 +918,12 @@ const Connections = () => {
                               render={(renderProps) => (
                                 <MenuItem
                                   disabled={planConfig?.plan?.useFacebook ? false : true}
-                                  onClick={renderProps.onClick}
+                                  onClick={() =>
+                                    handleMetaLoginClick(
+                                      renderProps,
+                                      popupState
+                                    )
+                                  }
                                 >
                                   <Facebook
                                     fontSize="small"
@@ -888,7 +932,7 @@ const Connections = () => {
                                       color: "#3b5998",
                                     }}
                                   />
-                                  Facebook
+                                  Messenger Facebook
                                 </MenuItem>
                               )}
                             />
@@ -905,7 +949,12 @@ const Connections = () => {
                               render={(renderProps) => (
                                 <MenuItem
                                   disabled={planConfig?.plan?.useInstagram ? false : true}
-                                  onClick={renderProps.onClick}
+                                  onClick={() =>
+                                    handleMetaLoginClick(
+                                      renderProps,
+                                      popupState
+                                    )
+                                  }
                                 >
                                   <Instagram
                                     fontSize="small"
@@ -914,7 +963,7 @@ const Connections = () => {
                                       color: "#e1306c",
                                     }}
                                   />
-                                  Instagram
+                                  Instagram Direct
                                 </MenuItem>
                               )}
                             />

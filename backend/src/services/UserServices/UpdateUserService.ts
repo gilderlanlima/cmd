@@ -1,10 +1,10 @@
-// src/services/UserServices/UpdateUserService.ts - ATUALIZADO COM NOVA COLUNA
 import * as Yup from "yup";
 
 import AppError from "../../errors/AppError";
 import ShowUserService from "./ShowUserService";
 import Company from "../../models/Company";
 import User from "../../models/User";
+import { normalizeFollowMePhone } from "../FollowMeServices/FollowMeHelpers";
 
 interface UserData {
   email?: string;
@@ -35,7 +35,11 @@ interface UserData {
   profileImage?: string;
   finalizacaoComValorVendaAtiva?: boolean;
   birthDate?: Date | string;
-  allowSeeMessagesInPendingTickets?: string; // 🆕 NOVO CAMPO ADICIONADO
+  allowSeeMessagesInPendingTickets?: string;
+  followMeEnabled?: boolean;
+  followMePhone?: string;
+  followMeWhatsappId?: number;
+  followMeSchedule?: Record<string, any> | null;
 }
 
 interface Request {
@@ -59,11 +63,10 @@ const UpdateUserService = async ({
   requestUserId
 }: Request): Promise<Response | undefined> => {
   const user = await ShowUserService(userId, companyId);
-
   const requestUser = await User.findByPk(requestUserId);
 
   if (requestUser.super === false && userData.companyId !== companyId) {
-    throw new AppError("O usuário não pertence à esta empresa");
+    throw new AppError("O usuario nao pertence a esta empresa");
   }
 
   const schema = Yup.object().shape({
@@ -72,7 +75,9 @@ const UpdateUserService = async ({
     email: Yup.string().email(),
     profile: Yup.string(),
     password: Yup.string(),
-    birthDate: Yup.date().nullable().max(new Date(), "Data de nascimento não pode ser no futuro"),
+    birthDate: Yup.date()
+      .nullable()
+      .max(new Date(), "Data de nascimento nao pode ser no futuro")
   });
 
   const oldUserEmail = user.email;
@@ -105,29 +110,32 @@ const UpdateUserService = async ({
     profileImage,
     finalizacaoComValorVendaAtiva,
     birthDate,
-    allowSeeMessagesInPendingTickets
+    allowSeeMessagesInPendingTickets,
+    followMeEnabled,
+    followMePhone,
+    followMeWhatsappId,
+    followMeSchedule
   } = userData;
 
   try {
-    await schema.validate({ 
-      email, 
-      password, 
-      profile, 
-      name, 
+    await schema.validate({
+      email,
+      password,
+      profile,
+      name,
       birthDate
     });
   } catch (err: any) {
     throw new AppError(err.message);
   }
 
-  // Processar data de nascimento
   let processedBirthDate: Date | null = user.birthDate;
   if (birthDate !== undefined) {
-    if (birthDate === null || birthDate === '') {
+    if (birthDate === null || birthDate === "") {
       processedBirthDate = null;
-    } else if (typeof birthDate === 'string') {
-      const dateOnly = birthDate.split('T')[0];
-      processedBirthDate = new Date(dateOnly + 'T12:00:00');
+    } else if (typeof birthDate === "string") {
+      const dateOnly = birthDate.split("T")[0];
+      processedBirthDate = new Date(`${dateOnly}T12:00:00`);
     } else if (birthDate instanceof Date) {
       const year = birthDate.getFullYear();
       const month = birthDate.getMonth();
@@ -163,11 +171,14 @@ const UpdateUserService = async ({
     showFlow,
     finalizacaoComValorVendaAtiva,
     birthDate: processedBirthDate,
-    allowSeeMessagesInPendingTickets
+    allowSeeMessagesInPendingTickets,
+    followMeEnabled,
+    followMePhone: normalizeFollowMePhone(followMePhone),
+    followMeWhatsappId: followMeWhatsappId || null,
+    followMeSchedule
   });
 
   await user.$set("queues", queueIds);
-
   await user.reload();
 
   const company = await Company.findByPk(user.companyId);
@@ -179,7 +190,7 @@ const UpdateUserService = async ({
     });
   }
 
-  const serializedUser = {
+  return {
     id: user.id,
     name: user.name,
     email: user.email,
@@ -207,10 +218,12 @@ const UpdateUserService = async ({
     showFlow: user.showFlow,
     finalizacaoComValorVendaAtiva: user.finalizacaoComValorVendaAtiva,
     birthDate: user.birthDate,
-    allowSeeMessagesInPendingTickets: user.allowSeeMessagesInPendingTickets
-  };
-
-  return serializedUser;
+    allowSeeMessagesInPendingTickets: user.allowSeeMessagesInPendingTickets,
+    followMeEnabled: user.followMeEnabled,
+    followMePhone: user.followMePhone,
+    followMeWhatsappId: user.followMeWhatsappId,
+    followMeSchedule: user.followMeSchedule
+  } as any;
 };
 
 export default UpdateUserService;

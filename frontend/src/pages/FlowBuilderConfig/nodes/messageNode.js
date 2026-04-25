@@ -2,116 +2,83 @@ import {
   ArrowForwardIos,
   ContentCopy,
   Delete,
-  Message
+  Message,
 } from "@mui/icons-material";
 import React, { memo } from "react";
-
 import { Handle } from "react-flow-renderer";
 import { useNodeStorage } from "../../../stores/useNodeStorage";
+import {
+  flowNodePalettes,
+  getHandleArrowStyle,
+  getHandleStyle,
+  getNodeActionIconStyle,
+  getNodeActionsStyle,
+  getNodeBodyStyle,
+  getNodeHeaderStyle,
+  getNodeIconWrapStyle,
+  getNodePreviewStyle,
+  getNodePreviewTextStyle,
+  getNodeShellStyle,
+  getNodeTitleGroupStyle,
+  getNodeTitleStyle,
+} from "./flowNodeStyles";
 
 export default memo(({ data, isConnectable, id }) => {
   const storageItems = useNodeStorage();
+  const palette = flowNodePalettes.content;
 
   return (
-    <div
-      style={{ backgroundColor: "#555", padding: "8px", borderRadius: "8px" }}
-    >
+    <div style={getNodeShellStyle(palette)}>
       <Handle
         type="target"
         position="left"
-        style={{
-          background: "#9a00ed",
-          width: "18px",
-          height: "18px",
-          top: "20px",
-          left: "-12px",
-          cursor: 'pointer'
-        }}
-        onConnect={params => console.log("handle onConnect", params)}
+        style={getHandleStyle(palette.handle, "target")}
+        onConnect={(params) => console.log("handle onConnect", params)}
         isConnectable={isConnectable}
       >
-        <ArrowForwardIos
-          sx={{
-            color: "#ffff",
-            width: "10px",
-            height: "10px",
-            marginLeft: "3.5px",
-            marginBottom: "1px",
-            pointerEvents: "none"
-          }}
-        />
+        <ArrowForwardIos sx={getHandleArrowStyle()} />
       </Handle>
-      <div
-        style={{
-          display: "flex",
-          position: "absolute",
-          right: 5,
-          top: 5,
-          cursor: "pointer",
-          gap: 6
-        }}
-      >
-        <ContentCopy
-          onClick={() => {
-            storageItems.setNodesStorage(id);
-            storageItems.setAct("duplicate");
-          }}
-          sx={{ width: "12px", height: "12px", color: "#ffff" }}
-        />
 
-        <Delete
-          onClick={() => {
-            storageItems.setNodesStorage(id);
-            storageItems.setAct("delete");
-          }}
-          sx={{ width: "12px", height: "12px", color: "#ffff" }}
-        />
+      <div style={getNodeHeaderStyle()}>
+        <div style={getNodeTitleGroupStyle()}>
+          <div style={getNodeIconWrapStyle(palette)}>
+            <Message style={{ width: 13, height: 13 }} />
+          </div>
+          <div style={getNodeTitleStyle()}>Conteúdo</div>
+        </div>
+
+        <div style={getNodeActionsStyle()}>
+          <ContentCopy
+            onClick={() => {
+              storageItems.setNodesStorage(id);
+              storageItems.setAct("duplicate");
+            }}
+            sx={getNodeActionIconStyle(palette)}
+          />
+          <Delete
+            onClick={() => {
+              storageItems.setNodesStorage(id);
+              storageItems.setAct("delete");
+            }}
+            sx={getNodeActionIconStyle(palette)}
+          />
+        </div>
       </div>
-      <div
-        style={{
-          color: "#ededed",
-          fontSize: "16px",
-          flexDirection: "row",
-          display: "flex"
-        }}
-      >
-        <Message
-          sx={{
-            width: "16px",
-            height: "16px",
-            marginRight: "4px",
-            marginTop: "4px"
-          }}
-        />
-        <div style={{ color: "#ededed", fontSize: "16px" }}>Mensagem</div>
+
+      <div style={getNodeBodyStyle()}>
+        <div style={getNodePreviewStyle(palette)}>
+          <div style={getNodePreviewTextStyle(3)}>{data.label}</div>
+        </div>
       </div>
-      <div style={{ color: "#ededed", fontSize: "12px", width: 180 }}>
-        {data.label}
-      </div>
+
       <Handle
         type="source"
         position="right"
         id="a"
-        style={{
-          background: "#9a00ed",
-          width: "18px",
-          height: "18px",
-          top: "70%",
-          right: "-11px",
-          cursor: 'pointer'
-        }}
+        style={getHandleStyle(palette.handle, "source")}
         isConnectable={isConnectable}
       >
-        <ArrowForwardIos
-          sx={{
-            color: "#ffff",
-            width: "10px",
-            height: "10px",
-            marginLeft: "2.9px",
-            marginBottom: "1px",
-            pointerEvents: "none"
-          }}
-        />
+        <ArrowForwardIos sx={getHandleArrowStyle()} />
       </Handle>
     </div>
   );

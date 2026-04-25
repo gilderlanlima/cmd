@@ -115,6 +115,33 @@ const deriveLegacyWorkingRange = (workingHours) => {
   };
 };
 
+const createDefaultFollowMeSchedule = () =>
+  WORKING_DAYS.reduce((acc, day) => {
+    acc[day.key] = {
+      enabled: true,
+      start: "00:00",
+      end: "23:59"
+    };
+    return acc;
+  }, {});
+
+const normalizeFollowMeSchedule = (schedule) => {
+  const defaults = createDefaultFollowMeSchedule();
+
+  if (!schedule || typeof schedule !== "object") {
+    return defaults;
+  }
+
+  return WORKING_DAYS.reduce((acc, day) => {
+    acc[day.key] = {
+      enabled: schedule?.[day.key]?.enabled ?? defaults[day.key].enabled,
+      start: schedule?.[day.key]?.start || defaults[day.key].start,
+      end: schedule?.[day.key]?.end || defaults[day.key].end,
+    };
+    return acc;
+  }, {});
+};
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -208,6 +235,10 @@ const UserModal = ({ open, onClose, userId }) => {
     password: "",
     birthDate: "",
     workingHours: createDefaultWorkingHours(),
+    followMeEnabled: false,
+    followMePhone: "",
+    followMeWhatsappId: "",
+    followMeSchedule: createDefaultFollowMeSchedule(),
     profile: "user",
     startWork: "00:00",
     endWork: "23:59",
@@ -258,7 +289,11 @@ const UserModal = ({ open, onClose, userId }) => {
           farewellMessage: data.farewellMessage || "",
           // Formatar a data corretamente
           birthDate: formatDateForInput(data.birthDate),
-          workingHours: normalizeWorkingHours(data.workingHours, data.startWork, data.endWork)
+          workingHours: normalizeWorkingHours(data.workingHours, data.startWork, data.endWork),
+          followMeEnabled: Boolean(data.followMeEnabled),
+          followMePhone: data.followMePhone || "",
+          followMeWhatsappId: data.followMeWhatsappId || "",
+          followMeSchedule: normalizeFollowMeSchedule(data.followMeSchedule)
         }));
         const userQueueIds = data.queues?.map((queue) => queue.id);
         setSelectedQueueIds(userQueueIds);
@@ -320,6 +355,8 @@ const UserModal = ({ open, onClose, userId }) => {
     const userData = {
       ...values,
       whatsappId,
+      followMeWhatsappId: values.followMeWhatsappId || null,
+      followMePhone: String(values.followMePhone || "").replace(/\D/g, ""),
       queueIds: selectedQueueIds,
       finalizacaoComValorVendaAtiva: values.finalizacaoComValorVendaAtiva === "true",
       birthDate: parseDateFromInput(values.birthDate),
@@ -366,7 +403,7 @@ const UserModal = ({ open, onClose, userId }) => {
       }
 
       handleClose();
-      toast.success(i18n.t("userModal.success"));
+      toast.success("Membro da equipe salvo com sucesso.");
 
       // Recarregar página se for o usuário logado para atualizar a interface
       if (userId === loggedInUser.id) {
@@ -389,9 +426,7 @@ const UserModal = ({ open, onClose, userId }) => {
         scroll="paper"
       >
         <DialogTitle id="form-dialog-title">
-          {userId
-            ? `${i18n.t("userModal.title.edit")}`
-            : `${i18n.t("userModal.title.add")}`}
+          {userId ? "Editar membro da equipe" : "Adicionar membro da equipe"}
         </DialogTitle>
         <Formik
           initialValues={user}
@@ -427,6 +462,10 @@ const UserModal = ({ open, onClose, userId }) => {
                   <Tab
                     label={i18n.t("userModal.tabs.workingHours")}
                     value={"workingHours"}
+                  />
+                  <Tab
+                    label={"Plantão / Siga-Me"}
+                    value={"followMe"}
                   />
                 </Tabs>
               </Paper>
@@ -749,6 +788,119 @@ const UserModal = ({ open, onClose, userId }) => {
                                   variant="outlined"
                                   margin="dense"
                                   disabled={!values.workingHours?.[day.key]?.enabled}
+                                />
+                              </Grid>
+                            </Grid>
+                          </Paper>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </TabPanel>
+                  <TabPanel
+                    className={classes.container}
+                    value={tab}
+                    name={"followMe"}
+                  >
+                    <Typography variant="subtitle1" style={{ fontWeight: 700, marginBottom: 8 }}>
+                      Siga-Me e plantão
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" style={{ marginBottom: 16 }}>
+                      Defina em qual número pessoal o usuário será avisado quando entrarem novas mensagens no período de plantão.
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={4}>
+                        <FormControlLabel
+                          control={(
+                            <Switch
+                              color="primary"
+                              checked={Boolean(values.followMeEnabled)}
+                              onChange={(event) => setFieldValue("followMeEnabled", event.target.checked)}
+                            />
+                          )}
+                          label="Ativar Siga-Me"
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <FormControl
+                          variant="outlined"
+                          margin="dense"
+                          fullWidth
+                        >
+                          <InputLabel>Conexão do plantão</InputLabel>
+                          <Field
+                            as={Select}
+                            name="followMeWhatsappId"
+                            label="Conexão do plantão"
+                            disabled={!values.followMeEnabled}
+                          >
+                            <MenuItem value={""}>Todas as conexões</MenuItem>
+                            {whatsApps.map((whatsapp) => (
+                              <MenuItem key={whatsapp.id} value={whatsapp.id}>
+                                {whatsapp.name}
+                              </MenuItem>
+                            ))}
+                          </Field>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <Field
+                          as={TextField}
+                          label="Telefone pessoal"
+                          name="followMePhone"
+                          variant="outlined"
+                          margin="dense"
+                          fullWidth
+                          disabled={!values.followMeEnabled}
+                          helperText="Recebe alerta com ticket, contato e mensagem."
+                        />
+                      </Grid>
+                    </Grid>
+                    <Grid container spacing={2}>
+                      {WORKING_DAYS.map((day) => (
+                        <Grid item xs={12} key={`followMe-${day.key}`}>
+                          <Paper style={{ padding: 16, borderRadius: 14 }}>
+                            <Grid container spacing={2} alignItems="center">
+                              <Grid item xs={12} md={4}>
+                                <FormControlLabel
+                                  control={(
+                                    <Switch
+                                      color="primary"
+                                      checked={Boolean(values.followMeSchedule?.[day.key]?.enabled)}
+                                      onChange={(event) =>
+                                        setFieldValue(`followMeSchedule.${day.key}.enabled`, event.target.checked)
+                                      }
+                                      disabled={!values.followMeEnabled}
+                                    />
+                                  )}
+                                  label={day.label}
+                                />
+                              </Grid>
+                              <Grid item xs={6} md={4}>
+                                <Field
+                                  as={TextField}
+                                  label="Início"
+                                  type="time"
+                                  name={`followMeSchedule.${day.key}.start`}
+                                  InputLabelProps={{ shrink: true }}
+                                  inputProps={{ step: 600 }}
+                                  fullWidth
+                                  variant="outlined"
+                                  margin="dense"
+                                  disabled={!values.followMeEnabled || !values.followMeSchedule?.[day.key]?.enabled}
+                                />
+                              </Grid>
+                              <Grid item xs={6} md={4}>
+                                <Field
+                                  as={TextField}
+                                  label="Fim"
+                                  type="time"
+                                  name={`followMeSchedule.${day.key}.end`}
+                                  InputLabelProps={{ shrink: true }}
+                                  inputProps={{ step: 600 }}
+                                  fullWidth
+                                  variant="outlined"
+                                  margin="dense"
+                                  disabled={!values.followMeEnabled || !values.followMeSchedule?.[day.key]?.enabled}
                                 />
                               </Grid>
                             </Grid>

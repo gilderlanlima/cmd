@@ -81,6 +81,7 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
   const initialState = {
     type: "typebot",
     name: "",
+    flowBuilderId: "",
     projectName: "",
     jsonContent: "",
     language: "",
@@ -95,6 +96,19 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
   };
 
   const [integration, setIntegration] = useState(initialState);
+  const [flowBuilders, setFlowBuilders] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await api.get("/flowbuilder");
+        const flows = Array.isArray(data) ? data : data?.flows || [];
+        setFlowBuilders(flows);
+      } catch (err) {
+        toastError(err);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -102,7 +116,11 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
       try {
         const { data } = await api.get(`/queueIntegration/${integrationId}`);
         setIntegration((prevState) => {
-          return { ...prevState, ...data };
+          return {
+            ...prevState,
+            ...data,
+            flowBuilderId: data.flowBuilderId || data.projectName || ""
+          };
         });
       } catch (err) {
         toastError(err);
@@ -113,6 +131,7 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
       setIntegration({
         type: "dialogflow",
         name: "",
+        flowBuilderId: "",
         projectName: "",
         jsonContent: "",
         language: "",
@@ -145,11 +164,18 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
 
   const handleSaveDialogflow = async (values) => {
     try {
+      if (values.type === "flowbuilder") {
+        const selectedFlow = flowBuilders.find(
+          (flow) => String(flow.id) === String(values.flowBuilderId)
+        );
+        values.name = values.name || selectedFlow?.name || "";
+        values.projectName = values.flowBuilderId ? String(values.flowBuilderId) : values.name;
+      }
+
       if (
         values.type === "n8n" ||
         values.type === "webhook" ||
-        values.type === "typebot" ||
-        values.type === "flowbuilder"
+        values.type === "typebot"
       )
         values.projectName = values.name;
       if (integrationId) {
@@ -190,7 +216,7 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
             }, 400);
           }}
         >
-          {({ touched, errors, isSubmitting, values }) => (
+          {({ touched, errors, isSubmitting, values, setFieldValue }) => (
             <Form>
               <Paper square className={classes.mainPaper} elevation={1}>
                 <DialogContent dividers>
@@ -351,20 +377,62 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
                     )}
 
                     {values.type === "flowbuilder" && (
-                      <Grid item xs={12} md={6} xl={6}>
-                        <Field
-                          as={TextField}
-                          label={i18n.t("queueIntegrationModal.form.name")}
-                          autoFocus
-                          name="name"
-                          fullWidth
-                          error={touched.name && Boolean(errors.name)}
-                          helpertext={touched.name && errors.name}
-                          variant="outlined"
-                          margin="dense"
-                          className={classes.textField}
-                        />
-                      </Grid>
+                      <>
+                        <Grid item xs={12} md={6} xl={6}>
+                          <FormControl
+                            variant="outlined"
+                            className={classes.formControl}
+                            margin="dense"
+                            fullWidth
+                          >
+                            <InputLabel id="flowBuilderId-selection-label">
+                              Fluxo do FlowBuilder
+                            </InputLabel>
+                            <Field
+                              as={Select}
+                              label="Fluxo do FlowBuilder"
+                              name="flowBuilderId"
+                              labelId="flowBuilderId-selection-label"
+                              id="flowBuilderId"
+                              required
+                              value={values.flowBuilderId || ""}
+                              onChange={(event) => {
+                                const flowId = event.target.value;
+                                const selectedFlow = flowBuilders.find(
+                                  (flow) => String(flow.id) === String(flowId)
+                                );
+
+                                setFieldValue("flowBuilderId", flowId);
+                                setFieldValue("projectName", String(flowId));
+                                if (selectedFlow) {
+                                  setFieldValue("name", selectedFlow.name);
+                                }
+                              }}
+                            >
+                              <MenuItem value="">Selecione um fluxo</MenuItem>
+                              {flowBuilders.map((flow) => (
+                                <MenuItem key={flow.id} value={flow.id}>
+                                  {flow.name}
+                                </MenuItem>
+                              ))}
+                            </Field>
+                          </FormControl>
+                        </Grid>
+                        <Grid item xs={12} md={6} xl={6}>
+                          <Field
+                            as={TextField}
+                            label={i18n.t("queueIntegrationModal.form.name")}
+                            autoFocus
+                            name="name"
+                            fullWidth
+                            error={touched.name && Boolean(errors.name)}
+                            helpertext={touched.name && errors.name}
+                            variant="outlined"
+                            margin="dense"
+                            className={classes.textField}
+                          />
+                        </Grid>
+                      </>
                     )}
 
                     {values.type === "typebot" && (

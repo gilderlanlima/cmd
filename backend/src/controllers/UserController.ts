@@ -78,6 +78,10 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     showFlow,
     birthDate,
     allowSeeMessagesInPendingTickets = "enabled",
+    followMeEnabled = false,
+    followMePhone,
+    followMeWhatsappId,
+    followMeSchedule,
     document // CNPJ da empresa
 
   } = req.body;
@@ -225,7 +229,11 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
       showCampaign,
       showFlow,
       birthDate,
-      allowSeeMessagesInPendingTickets
+      allowSeeMessagesInPendingTickets,
+      followMeEnabled,
+      followMePhone,
+      followMeWhatsappId,
+      followMeSchedule
     });
 
     const userData = await User.findByPk(user.id);

@@ -26,7 +26,7 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
-  const { type, name, projectName, jsonContent, language, urlN8N,
+  const { type, name, flowBuilderId, projectName, jsonContent, language, urlN8N,
     typebotExpires,
     typebotKeywordFinish,
     typebotSlug,
@@ -36,7 +36,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     typebotRestartMessage } = req.body;
   const { companyId } = req.user;
   const queueIntegration = await CreateQueueIntegrationService({
-    type, name, projectName, jsonContent, language, urlN8N, companyId,
+    type, name, flowBuilderId, projectName, jsonContent, language, urlN8N, companyId,
     typebotExpires,
     typebotKeywordFinish,
     typebotSlug,

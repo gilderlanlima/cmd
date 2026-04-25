@@ -38,6 +38,7 @@ export const initIO = (httpServer: Server): SocketIO => {
 
     const token_api_oficial = process.env.TOKEN_API_OFICIAL || "";
     const token = Array.isArray(socket?.handshake?.query?.token) ? socket.handshake.query.token[1] : socket?.handshake?.query?.token?.split(" ")[1];
+    const companyId = socket.nsp.name.split("/")[1];
 
     if (!token) {
       return socket.disconnect();
@@ -46,7 +47,6 @@ export const initIO = (httpServer: Server): SocketIO => {
     if (token !== token_api_oficial) {
       try {
         const decoded = verify(token, authConfig.secret);
-        const companyId = socket.nsp.name.split("/")[1]
 
         const decodedPayload = decoded as JwtPayload;
         const companyIdToken = decodedPayload.companyId;
@@ -65,6 +65,8 @@ export const initIO = (httpServer: Server): SocketIO => {
       logger.info(`Client connected namespace ${socket.nsp.name}`);
       logger.info(`Conectado com sucesso na API OFICIAL`);
     }
+
+    socket.join(`company-${companyId}`);
 
     //  ADICIONAR: Eventos de heartbeat e gerenciamento de usuários
     const handleHeartbeat = async (socket: any) => {

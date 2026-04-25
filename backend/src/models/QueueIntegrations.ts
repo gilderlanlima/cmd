@@ -14,6 +14,7 @@ import {
 } from "sequelize-typescript";
 import Queue from "./Queue";
 import Company from "./Company";
+import { FlowBuilderModel } from "./FlowBuilder";
 
 @Table
 class QueueIntegrations extends Model<QueueIntegrations> {
@@ -27,6 +28,13 @@ class QueueIntegrations extends Model<QueueIntegrations> {
 
     @Column(DataType.TEXT)
     name: string;
+
+    @ForeignKey(() => FlowBuilderModel)
+    @Column
+    flowBuilderId: number;
+
+    @BelongsTo(() => FlowBuilderModel)
+    flowBuilder: FlowBuilderModel;
     
     @Column(DataType.TEXT)
     projectName: string;

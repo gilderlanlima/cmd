@@ -57,7 +57,6 @@ import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import CompareArrows from "@mui/icons-material/CompareArrows";
 
 import ReactFlow, {
-  MiniMap,
   Controls,
   Background,
   useNodesState,
@@ -141,12 +140,16 @@ const useStyles = makeStyles(theme => ({
     flexDirection: "column",
     height: "100vh",
     overflow: "hidden",
-    backgroundColor: theme.palette.background.default
+    background:
+      theme.palette.type === "dark"
+        ? "#111827"
+        : "linear-gradient(180deg, #fcfcff 0%, #f7f8fc 100%)"
   },
   header: {
     flexShrink: 0,
     backgroundColor: theme.palette.background.paper,
-    borderBottom: `1px solid ${theme.palette.divider}`
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)"
   },
   content: {
     flex: 1,
@@ -156,8 +159,11 @@ const useStyles = makeStyles(theme => ({
   },
   // Sidebar colapsável para desktop
   sidebar: {
-    width: props => props.sidebarOpen ? 300 : 60,
-    backgroundColor: theme.palette.background.paper,
+    width: props => props.sidebarOpen ? 280 : 68,
+    background:
+      theme.palette.type === "dark"
+        ? "#111827"
+        : "linear-gradient(180deg, #ffffff 0%, #fbfbfe 100%)",
     borderRight: `1px solid ${theme.palette.divider}`,
     transition: "width 0.3s ease",
     display: "flex",
@@ -168,28 +174,44 @@ const useStyles = makeStyles(theme => ({
     }
   },
   sidebarHeader: {
-    padding: theme.spacing(1),
+    padding: theme.spacing(1.2),
     borderBottom: `1px solid ${theme.palette.divider}`,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     minHeight: 56,
-    backgroundColor: theme.palette.background.paper
+    backgroundColor: "transparent"
   },
   sidebarContent: {
     flex: 1,
     overflowY: "auto",
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: "transparent",
     ...theme.scrollbarStyles
   },
   flowContainer: {
     flex: 1,
     position: "relative",
-    backgroundColor: theme.palette.type === 'dark' ? '#121212' : '#F8F9FA',
+    background:
+      theme.palette.type === "dark"
+        ? "#0f172a"
+        : "radial-gradient(circle at 1px 1px, rgba(99, 102, 241, 0.12) 1px, transparent 0)",
+    backgroundSize: theme.palette.type === "dark" ? "auto" : "18px 18px",
     '& .react-flow__controls': {
       zIndex: 1100, // Garantir que fique acima de outros elementos
       bottom: theme.spacing(2),
       left: theme.spacing(2),
+      borderRadius: 14,
+      overflow: "hidden",
+      boxShadow: "0 14px 30px rgba(15, 23, 42, 0.12)",
+      border: `1px solid ${theme.palette.divider}`,
+      '& button': {
+        backgroundColor: theme.palette.background.paper,
+        color: theme.palette.text.primary,
+        borderBottom: `1px solid ${theme.palette.divider}`,
+      },
+      '& button:hover': {
+        backgroundColor: theme.palette.action.hover,
+      },
       [theme.breakpoints.down('md')]: {
         display: 'none' // Ocultar em mobile já que temos controles customizados
       }
@@ -303,19 +325,19 @@ const useStyles = makeStyles(theme => ({
     }
   },
   categoryHeader: {
-    padding: theme.spacing(1),
-    backgroundColor: theme.palette.action.hover,
+    padding: theme.spacing(1.1, 1.3),
+    backgroundColor: "rgba(99, 102, 241, 0.06)",
     fontWeight: "bold",
     color: theme.palette.text.primary,
     cursor: "pointer",
     userSelect: "none",
     '&:hover': {
-      backgroundColor: theme.palette.action.selected,
+      backgroundColor: "rgba(99, 102, 241, 0.1)",
     }
   },
   quickActions: {
     position: "fixed",
-    top: 120,
+    top: 116,
     right: theme.spacing(2),
     display: "flex",
     flexDirection: "column",
@@ -328,7 +350,7 @@ const useStyles = makeStyles(theme => ({
   quickActionButton: {
     backgroundColor: theme.palette.background.paper,
     backdropFilter: "blur(10px)",
-    boxShadow: theme.shadows[3],
+    boxShadow: "0 16px 28px rgba(15, 23, 42, 0.14)",
     color: theme.palette.text.primary,
     border: `1px solid ${theme.palette.divider}`,
     "&:hover": {
@@ -365,9 +387,10 @@ const useStyles = makeStyles(theme => ({
   },
   categoryCard: {
     backgroundColor: theme.palette.background.paper,
-    borderRadius: 8,
+    borderRadius: 12,
     border: `1px solid ${theme.palette.divider}`,
-    marginBottom: theme.spacing(1)
+    marginBottom: theme.spacing(1),
+    boxShadow: "0 10px 24px rgba(15, 23, 42, 0.05)"
   },
   categoryTitle: {
     fontWeight: "bold",
@@ -711,8 +734,9 @@ export const FlowBuilderConfig = () => {
   const storageItems = useNodeStorage();
 
   const connectionLineStyle = {
-    stroke: theme.palette.primary.main,
-    strokeWidth: isMobileDevice() ? "8px" : "6px"
+    stroke: "#3559d9",
+    strokeWidth: isMobileDevice() ? 6 : 4,
+    strokeLinecap: "round"
   };
 
   // Inicializar sistema de variáveis globais
@@ -1533,7 +1557,7 @@ export const FlowBuilderConfig = () => {
       <div className={classes.root}>
         <div className={classes.header}>
           <MainHeader>
-            <Title>Editor de Fluxos</Title>
+            <Title>Flow Builder</Title>
           </MainHeader>
         </div>
         <div className={classes.loadingContainer}>
@@ -1548,7 +1572,7 @@ export const FlowBuilderConfig = () => {
       {/* Header */}
       <div className={classes.header}>
         <MainHeader>
-          <Title>Editor de Fluxos</Title>
+          <Title>Flow Builder</Title>
         </MainHeader>
       </div>
 
@@ -1590,20 +1614,21 @@ export const FlowBuilderConfig = () => {
             fitView
             connectionLineStyle={connectionLineStyle}
             style={{
-              //backgroundImage: `url(${imgBackground})`,
-              //backgroundSize: "cover"
-              backgroundColor: "#F8F9FA"
+              background: "transparent"
             }}
             edgeTypes={edgeTypes}
             variant={"cross"}
             defaultEdgeOptions={{
-              style: { color: "#ff0000", strokeWidth: "6px" },
+              style: {
+                stroke: "#3559d9",
+                strokeWidth: 3.5,
+                strokeLinecap: "round"
+              },
               animated: false
             }}
           >
             <Controls />
-            <MiniMap />
-            <Background variant="dots" gap={12} size={-1} />
+            <Background variant="dots" gap={18} size={1.2} color="rgba(99, 102, 241, 0.18)" />
           </ReactFlow>
 
         </div>

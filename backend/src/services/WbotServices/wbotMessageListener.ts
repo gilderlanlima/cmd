@@ -97,6 +97,8 @@ import os from "os";
 import request from "request";
 import { Session } from "../../libs/wbot";
 import { getGroupMetadataCache, groupMetadataCache, updateGroupMetadataCache } from "../../utils/RedisGroupCache";
+import NotifyOnDutyUsersService from "../FollowMeServices/NotifyOnDutyUsersService";
+import HandleFollowMeReplyCommandService from "../FollowMeServices/HandleFollowMeReplyCommandService";
 
 let ffmpegPath: string;
 if (os.platform() === "win32") {
@@ -2662,7 +2664,100 @@ export const flowbuilderIntegration = async (
     companyId
   );
 
+  // Se o ticket ja foi direcionado para um setor e o fluxo nao esta aguardando
+  // resposta/continuidade, nao devemos reiniciar o fluxo padrao da conexao.
+  if (
+    queueIntegration?.type === "flowbuilder" &&
+    ticket.queueId &&
+    !ticket.flowWebhook &&
+    !ticket.flowStopped &&
+    !ticket.lastFlowId
+  ) {
+    logger.info(
+      `[FLOWBUILDER INTEGRATION] Ticket ${ticket.id} ja possui setor (${ticket.queueId}) e nao esta em fluxo aguardando input. Ignorando reinicio do menu.`
+    );
+    return false;
+  }
+
   // DEBUG - Verificar configurações de fluxo
+  if (
+    queueIntegration?.type === "flowbuilder" &&
+    !ticket.flowWebhook &&
+    !ticket.flowStopped &&
+    !ticket.lastFlowId
+  ) {
+    const flowBuilderId =
+      Number(queueIntegration.flowBuilderId || queueIntegration.projectName) || null;
+
+    const flow = await FlowBuilderModel.findOne({
+      where: {
+        company_id: companyId,
+        ...(flowBuilderId
+          ? { id: flowBuilderId }
+          : {
+              [Op.or]: [
+                { name: queueIntegration.name },
+                { name: queueIntegration.projectName }
+              ]
+            })
+      }
+    });
+
+    if (!flow) {
+      logger.error(
+        `[FLOWBUILDER INTEGRATION] Fluxo nao encontrado para integracao ${queueIntegration.id} (${queueIntegration.name})`
+      );
+      return false;
+    }
+
+    const nodes: INodes[] = flow.flow && flow.flow["nodes"];
+    const connections: IConnections[] = flow.flow && flow.flow["connections"];
+
+    if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {
+      logger.error(
+        `[FLOWBUILDER INTEGRATION] Fluxo ${flow.id} nao possui nos validos`
+      );
+      return false;
+    }
+
+    const mountDataContact = {
+      number: contact.number,
+      name: contact.name,
+      email: contact.email || ""
+    };
+
+    await ticket.update({
+      flowWebhook: true,
+      flowStopped: null,
+      lastFlowId: null,
+      hashFlowId: null,
+      dataWebhook: null,
+      isBot: true,
+      status: "pending",
+      integrationId: queueIntegration.id
+    });
+
+    await ActionsWebhookService(
+      whatsapp.id,
+      flow.id,
+      ticket.companyId,
+      nodes,
+      connections,
+      nodes[0].id,
+      null,
+      "",
+      "",
+      null,
+      ticket.id,
+      mountDataContact
+    );
+
+    logger.info(
+      `[FLOWBUILDER INTEGRATION] Fluxo ${flow.id} (${flow.name}) iniciado pela integracao ${queueIntegration.id} no ticket ${ticket.id}`
+    );
+    return true;
+  }
+
   console.log(
     `[FLOW-DEBUG] Configurações de fluxo - flowIdNotPhrase: ${whatsapp.flowIdNotPhrase}, flowIdWelcome: ${whatsapp.flowIdWelcome}`
   );
@@ -3817,6 +3912,7 @@ const handleMessage = async (
 
     console.log("[DEBUG RODRIGO] msgContact", JSON.stringify(msgContact, null, 2))
     const isGroup = msg.key.remoteJid?.endsWith("@g.us");
+    const senderNumber = String(msgContact?.id || "").replace(/\D/g, "");
 
     // IGNORAR MENSAGENS DE GRUPO
     // const msgIsGroupBlock = await Settings.findOne({
@@ -3824,6 +3920,20 @@ const handleMessage = async (
     // });
     // console.log("GETTING WHATSAPP SHOW WHATSAPP 2384", wbot.id, companyId)
     const whatsapp = await ShowWhatsAppService(wbot.id!, companyId);
+
+    if (!msg.key.fromMe && !isGroup) {
+      const followMeReplyHandled = await HandleFollowMeReplyCommandService({
+        bodyMessage,
+        senderNumber,
+        companyId,
+        whatsappId: whatsapp.id,
+        wbot
+      });
+
+      if (followMeReplyHandled) {
+        return;
+      }
+    }
 
     if (!whatsapp.allowGroup && isGroup) return;
 
@@ -3941,6 +4051,17 @@ const handleMessage = async (
       userId,
       whatsappId: whatsapp?.id
     });
+
+    if (!msg.key.fromMe && !ticket.isGroup) {
+      await NotifyOnDutyUsersService({
+        ticket,
+        contact,
+        bodyMessage,
+        whatsappId: whatsapp.id,
+        senderNumber,
+        wbot
+      });
+    }
 
     let bodyRollbackTag = "";
     let bodyNextTag = "";
@@ -4510,7 +4631,13 @@ const handleMessage = async (
       console.log(e);
     }
 
-    if (!msg.key.fromMe && !ticket.imported && !isGroup && ticket.isBot !== false) {
+    if (
+      !msg.key.fromMe &&
+      !ticket.imported &&
+      !isGroup &&
+      ticket.isBot !== false &&
+      !ticket.queueId
+    ) {
       // Verificar se ticket.integrationId existe antes de continuar
       if (!ticket.integrationId) {
         logger.info("[HANDLE MESSAGE] Ticket sem integração, pulando verificação de campanhas");
@@ -5038,7 +5165,8 @@ const handleMessage = async (
       !msg.key.fromMe &&
       !ticket.imported &&
       !isGroup &&
-      ticket.status === "pending"
+      ticket.status === "pending" &&
+      !ticket.queueId
     ) {
       // Aguardar um pouco para garantir que outros processamentos terminaram
       setTimeout(async () => {
@@ -5052,6 +5180,12 @@ const handleMessage = async (
 
           logger.info(`[TICKET RELOAD] ========== DEPOIS DO RELOAD ==========`);
           logger.info(`[TICKET RELOAD] Ticket ${ticket.id} - flowWebhook: ${ticket.flowWebhook}, lastFlowId: ${ticket.lastFlowId}, hashFlowId: ${ticket.hashFlowId}`);
+
+          // Se o ticket ja entrou em um setor, nao reinicia a integracao padrao
+          if (ticket.queueId) {
+            logger.info(`[TICKET RELOAD] Ticket ${ticket.id} ja possui setor (${ticket.queueId}) - nao vai reiniciar o flowbuilder`);
+            return;
+          }
 
           // Só verificar se não entrou em fluxo
           if (!ticket.flowWebhook || !ticket.lastFlowId) {
@@ -5490,7 +5624,9 @@ const wbotMessageListener = (wbot: Session, companyId: number): void => {
         return;
       }
 
-      const profilePicUrl = contact.imgUrl === ""
+      const profilePicUrl = isGroup
+        ? await wbot.profilePictureUrl(contact.id, "image").catch(() => null)
+        : contact.imgUrl === ""
         ? ""
         : await wbot.profilePictureUrl(contact.id).catch(() => null);
 
@@ -5572,12 +5708,11 @@ const wbotMessageListener = (wbot: Session, companyId: number): void => {
       const nameGroup = group.subject || number;
 
       let profilePicUrl: string = "";
-      // try {
-      //   profilePicUrl = await wbot.profilePictureUrl(group.id, "image");
-      // } catch (e) {
-      //   Sentry.captureException(e);
-      //   profilePicUrl = `${process.env.FRONTEND_URL}/nopicture.png`;
-      // }
+      try {
+        profilePicUrl = await wbot.profilePictureUrl(group.id, "image");
+      } catch (e) {
+        profilePicUrl = "";
+      }
       const contactData = {
         name: nameGroup,
         number: number,

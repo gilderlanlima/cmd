@@ -1,4 +1,3 @@
-// src/services/UserServices/CreateUserService.ts - ATUALIZADO COM NOVA COLUNA
 import * as Yup from "yup";
 
 import AppError from "../../errors/AppError";
@@ -6,6 +5,7 @@ import { SerializeUser } from "../../helpers/SerializeUser";
 import User from "../../models/User";
 import Plan from "../../models/Plan";
 import Company from "../../models/Company";
+import { normalizeFollowMePhone } from "../FollowMeServices/FollowMeHelpers";
 
 interface Request {
   email: string;
@@ -34,7 +34,11 @@ interface Request {
   showFlow?: string;
   finalizacaoComValorVendaAtiva?: boolean;
   birthDate?: Date | string;
-  allowSeeMessagesInPendingTickets?: string; // 🆕 NOVO CAMPO ADICIONADO
+  allowSeeMessagesInPendingTickets?: string;
+  followMeEnabled?: boolean;
+  followMePhone?: string;
+  followMeWhatsappId?: number;
+  followMeSchedule?: Record<string, any> | null;
 }
 
 interface Response {
@@ -71,7 +75,11 @@ const CreateUserService = async ({
   showFlow,
   finalizacaoComValorVendaAtiva,
   birthDate,
-  allowSeeMessagesInPendingTickets = "enabled" // 🆕 INCLUIR NO DESTRUCTURING COM VALOR PADRÃO
+  allowSeeMessagesInPendingTickets = "enabled",
+  followMeEnabled = false,
+  followMePhone,
+  followMeWhatsappId,
+  followMeSchedule
 }: Request): Promise<Response> => {
   if (companyId !== undefined) {
     const company = await Company.findOne({
@@ -90,7 +98,7 @@ const CreateUserService = async ({
 
       if (usersCount >= company.plan.users) {
         throw new AppError(
-          `Número máximo de usuários já alcançado: ${usersCount}`
+          `Numero maximo de usuarios ja alcancado: ${usersCount}`
         );
       }
     }
@@ -114,30 +122,33 @@ const CreateUserService = async ({
         }
       ),
     password: Yup.string().required().min(5),
-    birthDate: Yup.date().nullable().max(new Date(), "Data de nascimento não pode ser no futuro"),
-    // 🆕 VALIDAÇÃO PARA NOVA COLUNA
+    birthDate: Yup.date()
+      .nullable()
+      .max(new Date(), "Data de nascimento nao pode ser no futuro"),
     allowSeeMessagesInPendingTickets: Yup.string()
-      .oneOf(["enabled", "disabled"], "allowSeeMessagesInPendingTickets deve ser 'enabled' ou 'disabled'")
+      .oneOf(
+        ["enabled", "disabled"],
+        "allowSeeMessagesInPendingTickets deve ser 'enabled' ou 'disabled'"
+      )
       .default("enabled")
   });
 
   try {
-    await schema.validate({ 
-      email, 
-      password, 
-      name, 
+    await schema.validate({
+      email,
+      password,
+      name,
       birthDate
     });
   } catch (err) {
     throw new AppError(err.message);
   }
 
-  // Processar data de nascimento
   let processedBirthDate: Date | null = null;
   if (birthDate) {
-    if (typeof birthDate === 'string') {
-      const dateOnly = birthDate.split('T')[0];
-      processedBirthDate = new Date(dateOnly + 'T12:00:00');
+    if (typeof birthDate === "string") {
+      const dateOnly = birthDate.split("T")[0];
+      processedBirthDate = new Date(`${dateOnly}T12:00:00`);
     } else if (birthDate instanceof Date) {
       const year = birthDate.getFullYear();
       const month = birthDate.getMonth();
@@ -173,16 +184,19 @@ const CreateUserService = async ({
       showFlow,
       finalizacaoComValorVendaAtiva,
       birthDate: processedBirthDate,
-      allowSeeMessagesInPendingTickets // 🆕 INCLUIR NO CREATE
+      allowSeeMessagesInPendingTickets,
+      followMeEnabled,
+      followMePhone: normalizeFollowMePhone(followMePhone),
+      followMeWhatsappId: followMeWhatsappId || null,
+      followMeSchedule
     },
     { include: ["queues", "company"] }
   );
 
   await user.$set("queues", queueIds);
-
   await user.reload();
 
-  const serializedUser = SerializeUser(user);
+  const serializedUser = await SerializeUser(user);
 
   return serializedUser;
 };
