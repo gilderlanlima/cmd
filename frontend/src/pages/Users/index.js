@@ -39,6 +39,14 @@ import ForbiddenPage from "../../components/ForbiddenPage";
 import ChatBubbleOutlineIcon from "@material-ui/icons/ChatBubbleOutline";
 import { useHistory } from "react-router-dom";
 import usePlans from "../../hooks/usePlans";
+import { glob } from "goober";
+
+glob`
+  [role="tab"][aria-controls="simple-tabpanel-followMe"],
+  #simple-tabpanel-followMe {
+    display: none !important;
+  }
+`;
 
 const backendUrl = getBackendUrl();
 

@@ -27,6 +27,7 @@ import HelpCenterRoundedIcon from "@mui/icons-material/HelpCenterRounded";
 import ApiRoundedIcon from "@mui/icons-material/ApiRounded";
 import ViewKanban from "@mui/icons-material/ViewKanban";
 import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
+import AlarmOnRoundedIcon from "@mui/icons-material/AlarmOnRounded";
 import SellRoundedIcon from "@mui/icons-material/SellRounded";
 import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
 import CampaignRoundedIcon from "@mui/icons-material/CampaignRounded";
@@ -1041,6 +1042,19 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                   to="/users"
                   primary={"Equipe"}
                   icon={<GroupRoundedIcon />}
+                  tooltip={collapsed}
+                />
+              )}
+            />
+
+            <Can
+              role={user.profile}
+              perform="dashboard:view"
+              yes={() => (
+                <ListItemLink
+                  to="/on-duty"
+                  primary={"Plantão"}
+                  icon={<AlarmOnRoundedIcon />}
                   tooltip={collapsed}
                 />
               )}

@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "3.3.7",
+  "version": "3.3.8",
   "private": true,
   "dependencies": {
     "@date-io/date-fns": "^2.16.0",
@@ -103,9 +103,9 @@
   "scripts": {
     "start": "export NODE_OPTIONS='--openssl-legacy-provider' && react-scripts start",
     "start:dev": "set NODE_OPTIONS='--openssl-legacy-provider' && react-scripts start",
-    "build": "export NODE_OPTIONS='--max-old-space-size=4096 --openssl-legacy-provider' && react-scripts build",
-    "builddev": "export NODE_OPTIONS='--openssl-legacy-provider' && react-scripts build",
-    "winBuild": "react-scripts build",
+    "build": "export GENERATE_SOURCEMAP=false && export NODE_OPTIONS='--max-old-space-size=4096 --openssl-legacy-provider' && react-scripts build",
+    "builddev": "export GENERATE_SOURCEMAP=false && export NODE_OPTIONS='--openssl-legacy-provider' && react-scripts build",
+    "winBuild": "set GENERATE_SOURCEMAP=false && react-scripts build",
     "test": "export NODE_OPTIONS='--openssl-legacy-provider' && react-scripts test",
     "eject": "react-scripts eject"
   },

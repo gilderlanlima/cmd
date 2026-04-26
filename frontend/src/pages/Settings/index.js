@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
 import { makeStyles, Paper, Tabs, Tab } from "@material-ui/core";
-
-import TabPanel from "../../components/TabPanel";
 
 import SchedulesForm from "../../components/SchedulesForm";
 import CompaniesManager from "../../components/CompaniesManager";
@@ -19,8 +17,6 @@ import { toast } from "react-toastify";
 
 import useCompanies from "../../hooks/useCompanies";
 import { AuthContext } from "../../context/Auth/AuthContext";
-
-import OnlyForSuperUser from "../../components/OnlyForSuperUser";
 import useCompanySettings from "../../hooks/useSettings/companySettings";
 import useSettings from "../../hooks/useSettings";
 import ForbiddenPage from "../../components/ForbiddenPage";
@@ -76,33 +72,36 @@ const SettingsCustom = () => {
   const { getAll: getAllSettingsOld } = useSettings();
   const { user, socket } = useContext(AuthContext);
 
-  useEffect(() => {
-    async function findData() {
-      if (!user || !user.companyId) {
-        return;
-      }
-
-      setLoading(true);
-      try {
-        const companyId = user.companyId;
-
-        const company = await find(companyId);
-        const settingList = await getAllSettings(companyId);
-        const settingListOld = await getAllSettingsOld();
-
-        setCompany(company);
-        setSchedules(company.schedules);
-        setSettings(settingList);
-        setOldSettings(settingListOld);
-        setSchedulesEnabled(settingList.scheduleType === "company");
-        setCurrentUser(user);
-      } catch (e) {
-        toast.error(e);
-      }
-      setLoading(false);
+  const findData = useCallback(async () => {
+    if (!user || !user.companyId) {
+      return;
     }
+
+    setLoading(true);
+    try {
+      const companyId = user.companyId;
+
+      const [companyData, settingList, settingListOld] = await Promise.all([
+        find(companyId),
+        getAllSettings(companyId),
+        getAllSettingsOld()
+      ]);
+
+      setCompany(companyData);
+      setSchedules(companyData.schedules);
+      setSettings(settingList);
+      setOldSettings(settingListOld);
+      setSchedulesEnabled(settingList.scheduleType === "company");
+      setCurrentUser(user);
+    } catch (e) {
+      toast.error(e);
+    }
+    setLoading(false);
+  }, [find, getAllSettings, getAllSettingsOld, user]);
+
+  useEffect(() => {
     findData();
-  }, []);
+  }, [findData]);
 
   useEffect(() => {
     if (!socket || !user || !user.companyId) return;
@@ -113,7 +112,7 @@ const SettingsCustom = () => {
     return () => {
       socket.off(`company-${user.companyId}-settings`, onSettingsEvent);
     };
-  }, [socket, user]);
+  }, [getAllSettingsOld, socket, user]);
 
   const handleTabChange = (event, newValue) => {
     setTab(newValue);

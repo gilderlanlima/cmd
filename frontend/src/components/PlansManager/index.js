@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
     makeStyles,
     Paper,
@@ -95,21 +95,14 @@ export function PlanManagerForm(props) {
         setRecord(initialValue)
     }, [initialValue])
 
-    const handleSubmit = async (data) => {
-        onSubmit(data)
-    }
-
     return (
         <Formik
             enableReinitialize
             className={classes.fullWidth}
             initialValues={record}
-            onSubmit={(values, { resetForm }) =>
-                setTimeout(() => {
-                    handleSubmit(values)
-                    resetForm()
-                }, 500)
-            }
+            onSubmit={async (values) => {
+                await onSubmit(values)
+            }}
         >
             {(values) => (
                 <Form className={classes.fullWidth}>
@@ -598,6 +591,7 @@ export default function PlansManager() {
 
     const [showConfirmDialog, setShowConfirmDialog] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [loadingRecords, setLoadingRecords] = useState(false)
     const [records, setRecords] = useState([])
     const [record, setRecord] = useState({
         name: '',
@@ -623,28 +617,27 @@ export default function PlansManager() {
         wavoip: false
     })
 
-    useEffect(() => {
-        async function fetchData() {
-            await loadPlans()
+    const loadPlans = useCallback(async ({ showSpinner = false } = {}) => {
+        if (showSpinner) {
+            setLoadingRecords(true)
         }
-        fetchData()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [record])
-
-    const loadPlans = async () => {
-        setLoading(true)
         try {
             const planList = await list()
             setRecords(planList)
         } catch (e) {
             toast.error('Não foi possível carregar a lista de registros')
         }
-        setLoading(false)
-    }
+        if (showSpinner) {
+            setLoadingRecords(false)
+        }
+    }, [list])
+
+    useEffect(() => {
+        loadPlans({ showSpinner: true })
+    }, [loadPlans])
 
     const handleSubmit = async (data) => {
         setLoading(true)
-        console.log(data)
         try {
             if (data.id !== undefined) {
                 await update(data)
@@ -656,8 +649,9 @@ export default function PlansManager() {
             toast.success('Operação realizada com sucesso!')
         } catch (e) {
             toast.error('Não foi possível realizar a operação. Verifique se já existe uma plano com o mesmo nome ou se os campos foram preenchidos corretamente')
+        } finally {
+            setLoading(false)
         }
-        setLoading(false)
     }
 
     const handleDelete = async () => {
@@ -669,8 +663,10 @@ export default function PlansManager() {
             toast.success('Operação realizada com sucesso!')
         } catch (e) {
             toast.error('Não foi possível realizar a operação')
+        } finally {
+            setLoading(false)
+            setShowConfirmDialog(false)
         }
-        setLoading(false)
     }
 
     const handleOpenDeleteDialog = () => {
@@ -759,7 +755,7 @@ export default function PlansManager() {
                 </Grid>
                 <Grid xs={12} item>
                     <PlansManagerGrid
-                        records={records}
+                        records={loadingRecords ? [] : records}
                         onSelect={handleSelect}
                     />
                 </Grid>

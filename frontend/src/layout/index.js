@@ -837,10 +837,10 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
   // Status do usuário
   useEffect(() => {
     if (socket?.emit && user?.companyId) {
-      socket.emit("userStatus");
+      socket.emit("heartbeat");
 
       const interval = setInterval(() => {
-        socket?.emit && socket.emit("userStatus");
+        socket?.emit && socket.emit("heartbeat");
       }, 1000 * 60 * 5);
 
       return () => clearInterval(interval);

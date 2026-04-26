@@ -1,58 +1,63 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { Suspense, lazy, useEffect, useState, useContext } from "react";
 import { BrowserRouter, Switch } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import moment from "moment";
 
 import LoggedInLayout from "../layout";
-import Dashboard from "../pages/Dashboard/";
-import TicketResponsiveContainer from "../pages/TicketResponsiveContainer";
-import Signup from "../pages/Signup";
-import Login from "../pages/Login/";
-import Connections from "../pages/Connections/";
-import Settings from "../pages/Settings/";
-import Financeiro from "../pages/Financeiro/";
-import Users from "../pages/Users";
-import Contacts from "../pages/Contacts/";
-import ContactImportPage from "../pages/Contacts/import";
-import ChatMoments from "../pages/Moments";
-import Queues from "../pages/Queues/";
-import Tags from "../pages/Tags/";
-import MessagesAPI from "../pages/MessagesAPI/";
-import Helps from "../pages/Helps/";
-import ContactLists from "../pages/ContactLists/";
-import ContactListItems from "../pages/ContactListItems/";
-import Companies from "../pages/Companies/";
-import Wallets from "../pages/Wallets/";
-import QuickMessages from "../pages/QuickMessages/";
 import { AuthProvider, AuthContext } from "../context/Auth/AuthContext";
 import { TicketsContextProvider } from "../context/Tickets/TicketsContext";
 import { WhatsAppsProvider } from "../context/WhatsApp/WhatsAppsContext";
+import BackdropLoading from "../components/BackdropLoading";
 import Route from "./Route";
-import Schedules from "../pages/Schedules";
-import Campaigns from "../pages/Campaigns";
-import Broadcasts from "../pages/Broadcasts";
-import CampaignsConfig from "../pages/CampaignsConfig";
-import CampaignReport from "../pages/CampaignReport";
-import Annoucements from "../pages/Annoucements";
-import Chat from "../pages/Chat";
-import Prompts from "../pages/Prompts";
-import AllConnections from "../pages/AllConnections/";
-import Reports from "../pages/Reports";
-import RelatorioVendas from "../pages/RelatorioVendas";
-import Subscription from "../pages/Subscription/";
-import QueueIntegration from "../pages/QueueIntegration";
-import Files from "../pages/Files/";
-import ToDoList from "../pages/ToDoList/";
-import Kanban from "../pages/Kanban";
-import TagsKanban from "../pages/TagsKanban";
-import BirthdaySettingsPage from "../pages/BirthdaySettings";
-import CallHistoricals from "../pages/CallHistoricals";
-import { FlowBuilderConfig } from "../pages/FlowBuilderConfig";
-import FlowBuilder from "../pages/FlowBuilder";
-import FlowDefault from "../pages/FlowDefault";
-import CampaignsPhrase from "../pages/CampaignsPhrase";
-import Floup from "../pages/Floup";
-import FloupDashboard from "../pages/FloupDashboard";
+
+const Dashboard = lazy(() => import("../pages/Dashboard"));
+const TicketResponsiveContainer = lazy(() => import("../pages/TicketResponsiveContainer"));
+const Signup = lazy(() => import("../pages/Signup"));
+const Login = lazy(() => import("../pages/Login"));
+const Connections = lazy(() => import("../pages/Connections"));
+const Settings = lazy(() => import("../pages/Settings"));
+const Financeiro = lazy(() => import("../pages/Financeiro"));
+const Users = lazy(() => import("../pages/Users"));
+const OnDuty = lazy(() => import("../pages/OnDuty"));
+const Contacts = lazy(() => import("../pages/Contacts"));
+const ContactImportPage = lazy(() => import("../pages/Contacts/import"));
+const ChatMoments = lazy(() => import("../pages/Moments"));
+const Queues = lazy(() => import("../pages/Queues"));
+const Tags = lazy(() => import("../pages/Tags"));
+const MessagesAPI = lazy(() => import("../pages/MessagesAPI"));
+const Helps = lazy(() => import("../pages/Helps"));
+const ContactLists = lazy(() => import("../pages/ContactLists"));
+const ContactListItems = lazy(() => import("../pages/ContactListItems"));
+const Companies = lazy(() => import("../pages/Companies"));
+const Wallets = lazy(() => import("../pages/Wallets"));
+const QuickMessages = lazy(() => import("../pages/QuickMessages"));
+const Schedules = lazy(() => import("../pages/Schedules"));
+const Campaigns = lazy(() => import("../pages/Campaigns"));
+const Broadcasts = lazy(() => import("../pages/Broadcasts"));
+const CampaignsConfig = lazy(() => import("../pages/CampaignsConfig"));
+const CampaignReport = lazy(() => import("../pages/CampaignReport"));
+const Annoucements = lazy(() => import("../pages/Annoucements"));
+const Chat = lazy(() => import("../pages/Chat"));
+const Prompts = lazy(() => import("../pages/Prompts"));
+const AllConnections = lazy(() => import("../pages/AllConnections"));
+const Reports = lazy(() => import("../pages/Reports"));
+const RelatorioVendas = lazy(() => import("../pages/RelatorioVendas"));
+const QueueIntegration = lazy(() => import("../pages/QueueIntegration"));
+const Files = lazy(() => import("../pages/Files"));
+const ToDoList = lazy(() => import("../pages/ToDoList"));
+const Kanban = lazy(() => import("../pages/Kanban"));
+const TagsKanban = lazy(() => import("../pages/TagsKanban"));
+const BirthdaySettingsPage = lazy(() => import("../pages/BirthdaySettings"));
+const CallHistoricals = lazy(() => import("../pages/CallHistoricals"));
+const FlowBuilderConfig = lazy(() =>
+  import("../pages/FlowBuilderConfig").then(module => ({
+    default: module.FlowBuilderConfig
+  }))
+);
+const FlowBuilder = lazy(() => import("../pages/FlowBuilder"));
+const CampaignsPhrase = lazy(() => import("../pages/CampaignsPhrase"));
+const Floup = lazy(() => import("../pages/Floup"));
+const FloupDashboard = lazy(() => import("../pages/FloupDashboard"));
 
 const RoutesContent = () => {
   const [showCampaigns, setShowCampaigns] = useState(false);
@@ -84,11 +89,12 @@ const RoutesContent = () => {
 
   return (
     <TicketsContextProvider>
-      <Switch>
-        <Route exact path="/login" component={Login} />
-        <Route exact path="/signup" component={Signup} />
-        <WhatsAppsProvider>
-          <LoggedInLayout hideMenu={isCompanyExpired()}>
+      <Suspense fallback={<BackdropLoading />}>
+        <Switch>
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/signup" component={Signup} />
+          <WhatsAppsProvider>
+            <LoggedInLayout hideMenu={isCompanyExpired()}>
                 <Route
                   exact
                   path="/financeiro"
@@ -153,6 +159,7 @@ const RoutesContent = () => {
                 <Route exact path="/wallets" component={Wallets} isPrivate />
                 <Route exact path="/helps" component={Helps} isPrivate />
                 <Route exact path="/users" component={Users} isPrivate />
+                <Route exact path="/on-duty" component={OnDuty} isPrivate />
                 <Route
                   exact
                   path="/messages-api"
@@ -283,8 +290,9 @@ const RoutesContent = () => {
               </LoggedInLayout>
             </WhatsAppsProvider>
           </Switch>
-          <ToastContainer position="top-center" autoClose={3000} />
-        </TicketsContextProvider>
+        </Suspense>
+        <ToastContainer position="top-center" autoClose={3000} />
+      </TicketsContextProvider>
   );
 };
 

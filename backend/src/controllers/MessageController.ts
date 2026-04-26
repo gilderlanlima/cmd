@@ -47,6 +47,7 @@ type IndexQuery = {
   pageNumber: string;
   ticketTrakingId: string;
   selectedQueues?: string;
+  messageId?: string;
 };
 
 interface TokenPayload {
@@ -80,7 +81,7 @@ type MessageTemplateData = {
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const { ticketId } = req.params;
-  const { pageNumber, selectedQueues: queueIdsStringified } = req.query as IndexQuery;
+  const { pageNumber, selectedQueues: queueIdsStringified, messageId } = req.query as IndexQuery;
   const { companyId, profile } = req.user;
   let queues: number[] = [];
 
@@ -98,6 +99,7 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
   const { count, messages, ticket, hasMore } = await ListMessagesService({
     pageNumber,
+    targetMessageId: messageId,
     ticketId,
     companyId,
     queues,

@@ -14,6 +14,7 @@ interface Request {
   ticketId: string;
   companyId: number;
   pageNumber?: string;
+  targetMessageId?: string;
   queues?: number[];
   user?: User;
 }
@@ -27,6 +28,7 @@ interface Response {
 
 const ListMessagesService = async ({
   pageNumber = "1",
+  targetMessageId,
   ticketId,
   companyId,
   queues = [],
@@ -99,10 +101,47 @@ const ListMessagesService = async ({
 
   // await setMessagesAsRead(ticket);
   const limit = 20;
-  const offset = limit * (+pageNumber - 1);
+  const baseWhere = { ticketId: tickets, companyId };
+  let resolvedPageNumber = Number(pageNumber) || 1;
+
+  if (targetMessageId) {
+    const targetMessage = await Message.findOne({
+      where: {
+        id: targetMessageId,
+        companyId,
+        ticketId: tickets
+      },
+      attributes: ["id", "createdAt"]
+    });
+
+    if (targetMessage) {
+      const newerMessagesCount = await Message.count({
+        where: {
+          ...baseWhere,
+          [Op.or]: [
+            {
+              createdAt: {
+                [Op.gt]: targetMessage.createdAt
+              }
+            },
+            {
+              createdAt: targetMessage.createdAt,
+              id: {
+                [Op.gte]: targetMessage.id
+              }
+            }
+          ]
+        }
+      });
+
+      resolvedPageNumber = Math.max(1, Math.ceil(newerMessagesCount / limit));
+    }
+  }
+
+  const offset = limit * (resolvedPageNumber - 1);
 
   const { count, rows: messages } = await Message.findAndCountAll({
-    where: { ticketId: tickets, companyId },
+    where: baseWhere,
     attributes: ["id", "wid", "fromMe", "mediaUrl", "body", "mediaType", "ack", "createdAt", "ticketId", "isDeleted", "queueId", "isForwarded", "isEdited", "isPrivate", "companyId"],
     limit,
     include: [
@@ -140,7 +179,7 @@ const ListMessagesService = async ({
     distinct: true,
     offset,
     subQuery: false,
-    order: [["createdAt", "DESC"]] 
+    order: [["createdAt", "DESC"], ["id", "DESC"]] 
   });
 
   const hasMore = count > offset + messages.length;

@@ -54,7 +54,11 @@ const ListUsersService = async ({
       "startWork",
       "endWork",
       "profileImage",
-      "allowSeeMessagesInPendingTickets"
+      "allowSeeMessagesInPendingTickets",
+      "followMeEnabled",
+      "followMePhone",
+      "followMeWhatsappId",
+      "followMeSchedule"
     ],
     limit,
     offset,

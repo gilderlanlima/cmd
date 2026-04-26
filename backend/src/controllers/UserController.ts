@@ -7,6 +7,7 @@ import AppError from "../errors/AppError";
 import CreateUserService from "../services/UserServices/CreateUserService";
 import ListUsersService from "../services/UserServices/ListUsersService";
 import UpdateUserService from "../services/UserServices/UpdateUserService";
+import UpdateUserFollowMeService from "../services/UserServices/UpdateUserFollowMeService";
 import ShowUserService from "../services/UserServices/ShowUserService";
 import DeleteUserService from "../services/UserServices/DeleteUserService";
 import SimpleListService from "../services/UserServices/SimpleListService";
@@ -311,6 +312,41 @@ export const update = async (
   return res.status(200).json(user);
 };
 
+export const updateFollowMe = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  if (process.env.DEMO === "ON") {
+    throw new AppError("ERR_NO_PERMISSION", 403);
+  }
+
+  const { userId } = req.params;
+  const { companyId } = req.user;
+  const {
+    followMeEnabled,
+    followMePhone,
+    followMeWhatsappId,
+    followMeSchedule
+  } = req.body;
+
+  const user = await UpdateUserFollowMeService({
+    userId,
+    companyId,
+    followMeEnabled,
+    followMePhone,
+    followMeWhatsappId,
+    followMeSchedule
+  });
+
+  const io = getIO();
+  io.of(String(companyId)).emit(`company-${companyId}-user`, {
+    action: "update",
+    user
+  });
+
+  return res.status(200).json(user);
+};
+
 export const remove = async (
   req: Request,
   res: Response
@@ -561,6 +597,7 @@ export default {
   show,
   showEmail,
   update,
+  updateFollowMe,
   remove,
   list,
   mediaUpload,

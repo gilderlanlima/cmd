@@ -554,6 +554,8 @@ const MessagesList = ({
 
   useEffect(() => {
     targetMessageReachedRef.current = false;
+    dispatch({ type: "RESET" });
+    setPageNumber(1);
   }, [targetMessageId]);
 
   useEffect(() => {
@@ -567,7 +569,11 @@ const MessagesList = ({
         if (isNil(ticketId)) return;
         try {
           const { data } = await api.get("/messages/" + ticketId, {
-            params: { pageNumber, selectedQueues: JSON.stringify(selectedQueuesMessage) },
+            params: {
+              pageNumber,
+              messageId: targetMessageId || undefined,
+              selectedQueues: JSON.stringify(selectedQueuesMessage)
+            },
           });
 
           if (currentTicketId.current === ticketId) {
@@ -577,7 +583,7 @@ const MessagesList = ({
             setLoadingMore(false);
           }
 
-          if (pageNumber === 1 && data.messages.length > 1) {
+          if (pageNumber === 1 && data.messages.length > 1 && !targetMessageId) {
             scrollToBottom();
           }
         } catch (err) {
@@ -592,7 +598,7 @@ const MessagesList = ({
     return () => {
       clearTimeout(delayDebounceFn);
     };
-  }, [pageNumber, ticketId, selectedQueuesMessage]);
+  }, [pageNumber, ticketId, selectedQueuesMessage, targetMessageId]);
 
   useEffect(() => {
     if (ticketId === "undefined") {

@@ -27,6 +27,7 @@ import SendWhatsAppMedia, { getMessageOptions } from "./SendWhatsAppMedia";
 import CompaniesSettings from "../../models/CompaniesSettings";
 import TicketTraking from "../../models/TicketTraking";
 import CreateLogTicketService from "../TicketServices/CreateLogTicketService";
+import NotifyOnDutyUsersService from "../FollowMeServices/NotifyOnDutyUsersService";
 import { ENABLE_LID_DEBUG } from "../../config/debug";
 import logger from "../../utils/logger";
 
@@ -504,6 +505,31 @@ const sendDialog = async (
     if (typeBot === "list") {
       return await botList();
     }
+  }
+};
+
+const notifyOnDutyQueueSelection = async (
+  wbot: Session,
+  ticket: Ticket,
+  contact: Contact,
+  bodyMessage: string,
+  selectionLabel?: string | null
+) => {
+  try {
+    await NotifyOnDutyUsersService({
+      ticket,
+      contact,
+      bodyMessage,
+      whatsappId: ticket.whatsappId,
+      senderNumber: contact.number,
+      wbot,
+      notificationType: "queueSelection",
+      selectionLabel
+    });
+  } catch (error) {
+    logger.error(
+      `[FOLLOW ME] Erro ao notificar seleção do ticket ${ticket.id}: ${error.message}`
+    );
   }
 };
 
@@ -1576,6 +1602,13 @@ export const sayChatbot = async (
             status: "pending",
             queueId: null
           });
+          await notifyOnDutyQueueSelection(
+            wbot,
+            ticket,
+            contact,
+            String(selectedOption || "").trim(),
+            choosenQueue.name
+          );
         } catch (error) {
           await deleteAndCreateDialogStage(contact, choosenQueue.id, ticket);
         }
@@ -1588,18 +1621,25 @@ export const sayChatbot = async (
             },
             ticketId: ticket.id
           };
-          await UpdateTicketService({
-            ticketData: {
-              ...ticketUpdateAgent.ticketData
-            },
-            ticketId: ticketUpdateAgent.ticketId,
-            companyId: ticket.companyId
-          });
-        } catch (error) {
-          await deleteAndCreateDialogStage(contact, choosenQueue.id, ticket);
-        }
-      } else if (choosenQueue.queueType === "attendent") {
-        try {
+            await UpdateTicketService({
+              ticketData: {
+                ...ticketUpdateAgent.ticketData
+              },
+              ticketId: ticketUpdateAgent.ticketId,
+              companyId: ticket.companyId
+            });
+            await notifyOnDutyQueueSelection(
+              wbot,
+              ticket,
+              contact,
+              String(selectedOption || "").trim(),
+              choosenQueue.name
+            );
+          } catch (error) {
+            await deleteAndCreateDialogStage(contact, choosenQueue.id, ticket);
+          }
+        } else if (choosenQueue.queueType === "attendent") {
+          try {
           const ticketUpdateAgent = {
             ticketData: {
               queueId: choosenQueue.optQueueId,
@@ -1608,17 +1648,24 @@ export const sayChatbot = async (
             },
             ticketId: ticket.id
           };
-          await UpdateTicketService({
-            ticketData: {
-              ...ticketUpdateAgent.ticketData
-            },
-            ticketId: ticketUpdateAgent.ticketId,
-            companyId: ticket.companyId
-          });
-        } catch (error) {
-          await deleteAndCreateDialogStage(contact, choosenQueue.id, ticket);
+            await UpdateTicketService({
+              ticketData: {
+                ...ticketUpdateAgent.ticketData
+              },
+              ticketId: ticketUpdateAgent.ticketId,
+              companyId: ticket.companyId
+            });
+            await notifyOnDutyQueueSelection(
+              wbot,
+              ticket,
+              contact,
+              String(selectedOption || "").trim(),
+              choosenQueue.name
+            );
+          } catch (error) {
+            await deleteAndCreateDialogStage(contact, choosenQueue.id, ticket);
+          }
         }
-      }
 
       await deleteAndCreateDialogStage(contact, choosenQueue.id, ticket);
 
@@ -1711,18 +1758,25 @@ export const sayChatbot = async (
             },
             ticketId: ticket.id
           };
-          await UpdateTicketService({
-            ticketData: {
-              ...ticketUpdateAgent.ticketData
-            },
-            ticketId: ticketUpdateAgent.ticketId,
-            companyId: ticket.companyId
-          });
-        } catch (error) {
-          await deleteAndCreateDialogStage(contact, choosenQueue.id, ticket);
-        }
-      } else if (choosenQueue.queueType === "queue") {
-        try {
+            await UpdateTicketService({
+              ticketData: {
+                ...ticketUpdateAgent.ticketData
+              },
+              ticketId: ticketUpdateAgent.ticketId,
+              companyId: ticket.companyId
+            });
+            await notifyOnDutyQueueSelection(
+              wbot,
+              ticket,
+              contact,
+              String(selectedOption || "").trim(),
+              choosenQueue.name
+            );
+          } catch (error) {
+            await deleteAndCreateDialogStage(contact, choosenQueue.id, ticket);
+          }
+        } else if (choosenQueue.queueType === "queue") {
+          try {
           const ticketUpdateAgent = {
             ticketData: {
               queueId: choosenQueue.optQueueId,
@@ -1730,18 +1784,25 @@ export const sayChatbot = async (
             },
             ticketId: ticket.id
           };
-          await UpdateTicketService({
-            ticketData: {
-              ...ticketUpdateAgent.ticketData
-            },
-            ticketId: ticketUpdateAgent.ticketId,
-            companyId: ticket.companyId
-          });
-        } catch (error) {
-          await deleteAndCreateDialogStage(contact, choosenQueue.id, ticket);
-        }
-      } else if (choosenQueue.queueType === "attendent") {
-        try {
+            await UpdateTicketService({
+              ticketData: {
+                ...ticketUpdateAgent.ticketData
+              },
+              ticketId: ticketUpdateAgent.ticketId,
+              companyId: ticket.companyId
+            });
+            await notifyOnDutyQueueSelection(
+              wbot,
+              ticket,
+              contact,
+              String(selectedOption || "").trim(),
+              choosenQueue.name
+            );
+          } catch (error) {
+            await deleteAndCreateDialogStage(contact, choosenQueue.id, ticket);
+          }
+        } else if (choosenQueue.queueType === "attendent") {
+          try {
           const ticketUpdateAgent = {
             ticketData: {
               queueId: choosenQueue.optQueueId,
@@ -1750,17 +1811,24 @@ export const sayChatbot = async (
             },
             ticketId: ticket.id
           };
-          await UpdateTicketService({
-            ticketData: {
-              ...ticketUpdateAgent.ticketData
-            },
-            ticketId: ticketUpdateAgent.ticketId,
-            companyId: ticket.companyId
-          });
-        } catch (error) {
-          await deleteAndCreateDialogStage(contact, choosenQueue.id, ticket);
+            await UpdateTicketService({
+              ticketData: {
+                ...ticketUpdateAgent.ticketData
+              },
+              ticketId: ticketUpdateAgent.ticketId,
+              companyId: ticket.companyId
+            });
+            await notifyOnDutyQueueSelection(
+              wbot,
+              ticket,
+              contact,
+              String(selectedOption || "").trim(),
+              choosenQueue.name
+            );
+          } catch (error) {
+            await deleteAndCreateDialogStage(contact, choosenQueue.id, ticket);
+          }
         }
-      }
 
       await deleteAndCreateDialogStage(contact, choosenQueue.id, ticket);
 

@@ -5,18 +5,26 @@ import { getBackendUrl } from "../config";
 
 class SocketWorker {
   constructor(companyId , userId) {
-    const sessionToken = api.defaults.headers.Authorization
+    const sessionToken = api.defaults.headers.Authorization;
+    const shouldRecreateInstance =
+      !SocketWorker.instance ||
+      SocketWorker.instance.companyId !== companyId ||
+      SocketWorker.instance.userId !== userId ||
+      SocketWorker.instance.token !== sessionToken;
 
-    if (!SocketWorker.instance) {
-      this.companyId = companyId
-      this.userId = userId
-      this.token = sessionToken
+    if (shouldRecreateInstance) {
+      if (SocketWorker.instance?.socket) {
+        SocketWorker.instance.socket.disconnect();
+      }
+
+      this.companyId = companyId;
+      this.userId = userId;
+      this.token = sessionToken;
       this.socket = null;
+      this.eventListeners = {};
       this.configureSocket();
-      this.eventListeners = {}; // Armazena os ouvintes de eventos registrados
       SocketWorker.instance = this;
-
-    } 
+    }
 
     return SocketWorker.instance;
   }
@@ -29,9 +37,7 @@ class SocketWorker {
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: Infinity,
-      // transports: ["websocket", "polling", "flashsocket"],
-      // pingTimeout: 18000,
-      // pingInterval: 18000,
+      transports: ["websocket", "polling"],
       query: { userId: this.userId, token: this.token }
     });
 
@@ -89,7 +95,7 @@ class SocketWorker {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null
-      this.instance = null
+      SocketWorker.instance = null
       console.log("Socket desconectado manualmente");
     }
   }
@@ -107,6 +113,11 @@ class SocketWorker {
   connect() {
     if (!this.socket) {
       this.configureSocket();
+      return;
+    }
+
+    if (!this.socket.connected) {
+      this.socket.connect();
     }
   }
 

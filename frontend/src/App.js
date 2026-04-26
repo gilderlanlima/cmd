@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import api from "./services/api";
 import "react-toastify/dist/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { ptBR } from "@material-ui/core/locale";
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import { useMediaQuery } from "@material-ui/core";
 import ColorModeContext from "./layout/themeContext";
@@ -20,7 +19,6 @@ import "./styles/animations.css";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [locale, setLocale] = useState();
   const appColorLocalStorage =
     localStorage.getItem("primaryColorLight") ||
     localStorage.getItem("primaryColorDark") ||
@@ -345,15 +343,13 @@ const App = () => {
             }
             return appLogoLight;
           },
-        },
-        locale
+        }
       ),
     [
       appLogoLight,
       appLogoDark,
       appLogoFavicon,
       appName,
-      locale,
       mode,
       primaryColorDark,
       primaryColorLight, // Essas são as cores que vêm do tema dinâmico

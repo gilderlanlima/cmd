@@ -17,7 +17,6 @@ import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
-import whatsappIcon from "../../assets/nopicture.png";
 import { i18n } from "../../translate/i18n";
 
 import api from "../../services/api";
@@ -463,10 +462,6 @@ const UserModal = ({ open, onClose, userId }) => {
                     label={i18n.t("userModal.tabs.workingHours")}
                     value={"workingHours"}
                   />
-                  <Tab
-                    label={"Plantão / Siga-Me"}
-                    value={"followMe"}
-                  />
                 </Tabs>
               </Paper>
               <Paper className={classes.paper} elevation={0}>
@@ -788,119 +783,6 @@ const UserModal = ({ open, onClose, userId }) => {
                                   variant="outlined"
                                   margin="dense"
                                   disabled={!values.workingHours?.[day.key]?.enabled}
-                                />
-                              </Grid>
-                            </Grid>
-                          </Paper>
-                        </Grid>
-                      ))}
-                    </Grid>
-                  </TabPanel>
-                  <TabPanel
-                    className={classes.container}
-                    value={tab}
-                    name={"followMe"}
-                  >
-                    <Typography variant="subtitle1" style={{ fontWeight: 700, marginBottom: 8 }}>
-                      Siga-Me e plantão
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary" style={{ marginBottom: 16 }}>
-                      Defina em qual número pessoal o usuário será avisado quando entrarem novas mensagens no período de plantão.
-                    </Typography>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} md={4}>
-                        <FormControlLabel
-                          control={(
-                            <Switch
-                              color="primary"
-                              checked={Boolean(values.followMeEnabled)}
-                              onChange={(event) => setFieldValue("followMeEnabled", event.target.checked)}
-                            />
-                          )}
-                          label="Ativar Siga-Me"
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={4}>
-                        <FormControl
-                          variant="outlined"
-                          margin="dense"
-                          fullWidth
-                        >
-                          <InputLabel>Conexão do plantão</InputLabel>
-                          <Field
-                            as={Select}
-                            name="followMeWhatsappId"
-                            label="Conexão do plantão"
-                            disabled={!values.followMeEnabled}
-                          >
-                            <MenuItem value={""}>Todas as conexões</MenuItem>
-                            {whatsApps.map((whatsapp) => (
-                              <MenuItem key={whatsapp.id} value={whatsapp.id}>
-                                {whatsapp.name}
-                              </MenuItem>
-                            ))}
-                          </Field>
-                        </FormControl>
-                      </Grid>
-                      <Grid item xs={12} md={4}>
-                        <Field
-                          as={TextField}
-                          label="Telefone pessoal"
-                          name="followMePhone"
-                          variant="outlined"
-                          margin="dense"
-                          fullWidth
-                          disabled={!values.followMeEnabled}
-                          helperText="Recebe alerta com ticket, contato e mensagem."
-                        />
-                      </Grid>
-                    </Grid>
-                    <Grid container spacing={2}>
-                      {WORKING_DAYS.map((day) => (
-                        <Grid item xs={12} key={`followMe-${day.key}`}>
-                          <Paper style={{ padding: 16, borderRadius: 14 }}>
-                            <Grid container spacing={2} alignItems="center">
-                              <Grid item xs={12} md={4}>
-                                <FormControlLabel
-                                  control={(
-                                    <Switch
-                                      color="primary"
-                                      checked={Boolean(values.followMeSchedule?.[day.key]?.enabled)}
-                                      onChange={(event) =>
-                                        setFieldValue(`followMeSchedule.${day.key}.enabled`, event.target.checked)
-                                      }
-                                      disabled={!values.followMeEnabled}
-                                    />
-                                  )}
-                                  label={day.label}
-                                />
-                              </Grid>
-                              <Grid item xs={6} md={4}>
-                                <Field
-                                  as={TextField}
-                                  label="Início"
-                                  type="time"
-                                  name={`followMeSchedule.${day.key}.start`}
-                                  InputLabelProps={{ shrink: true }}
-                                  inputProps={{ step: 600 }}
-                                  fullWidth
-                                  variant="outlined"
-                                  margin="dense"
-                                  disabled={!values.followMeEnabled || !values.followMeSchedule?.[day.key]?.enabled}
-                                />
-                              </Grid>
-                              <Grid item xs={6} md={4}>
-                                <Field
-                                  as={TextField}
-                                  label="Fim"
-                                  type="time"
-                                  name={`followMeSchedule.${day.key}.end`}
-                                  InputLabelProps={{ shrink: true }}
-                                  inputProps={{ step: 600 }}
-                                  fullWidth
-                                  variant="outlined"
-                                  margin="dense"
-                                  disabled={!values.followMeEnabled || !values.followMeSchedule?.[day.key]?.enabled}
                                 />
                               </Grid>
                             </Grid>

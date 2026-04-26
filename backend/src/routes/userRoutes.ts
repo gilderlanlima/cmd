@@ -16,6 +16,7 @@ userRoutes.get("/users/list", isAuth, UserController.list);
 userRoutes.post("/users", isAuth, UserController.store);
 
 userRoutes.put("/users/:userId", isAuth, UserController.update);
+userRoutes.put("/users/:userId/follow-me", isAuth, UserController.updateFollowMe);
 
 userRoutes.get("/users/:userId", isAuth, UserController.show);
 

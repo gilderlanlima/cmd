@@ -4052,16 +4052,17 @@ const handleMessage = async (
       whatsappId: whatsapp?.id
     });
 
-    if (!msg.key.fromMe && !ticket.isGroup) {
-      await NotifyOnDutyUsersService({
-        ticket,
-        contact,
-        bodyMessage,
-        whatsappId: whatsapp.id,
-        senderNumber,
-        wbot
-      });
-    }
+      if (!msg.key.fromMe && !ticket.isGroup) {
+        await NotifyOnDutyUsersService({
+          ticket,
+          contact,
+          bodyMessage,
+          whatsappId: whatsapp.id,
+          senderNumber,
+          wbot,
+          isFirstUnreadMessage: Number(ticket.unreadMessages || 0) === 1
+        });
+      }
 
     let bodyRollbackTag = "";
     let bodyNextTag = "";

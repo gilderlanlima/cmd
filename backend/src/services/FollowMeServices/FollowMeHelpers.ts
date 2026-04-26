@@ -10,8 +10,19 @@ const FOLLOW_ME_DAYS = [
   "saturday"
 ];
 
-export const normalizeFollowMePhone = (phone?: string | null): string =>
-  String(phone || "").replace(/\D/g, "");
+export const normalizeFollowMePhone = (phone?: string | null): string => {
+  const digits = String(phone || "").replace(/\D/g, "");
+
+  if (!digits) {
+    return "";
+  }
+
+  if ((digits.length === 10 || digits.length === 11) && !digits.startsWith("55")) {
+    return `55${digits}`;
+  }
+
+  return digits;
+};
 
 export const createDefaultFollowMeSchedule = () =>
   FOLLOW_ME_DAYS.reduce((acc, day) => {
