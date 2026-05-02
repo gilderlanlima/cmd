@@ -2,6 +2,15 @@
 
 Este arquivo registra as releases publicadas do projeto com foco em melhorias, correcoes, evolucao visual e funcionalidades relevantes para comunicacao com clientes.
 
+## 3.3.7
+
+### Barra superior mais elegante e tickets sem rolagem horizontal
+
+- Refinos visuais na barra superior com icones menores, melhor alinhamento e espacos mais equilibrados.
+- Ajuste fino do seletor de idioma com bandeira mais centralizada e integrada ao mesmo grid visual dos demais icones.
+- Correcao da tela de `Tickets` para eliminar a barra de rolagem horizontal inferior.
+- Ajustes de largura e overflow no layout principal do atendimento para deixar a experiencia mais limpa e profissional.
+
 ## 3.3.6
 
 ### Tempo real, identidade visual e regras de plano mais consistentes

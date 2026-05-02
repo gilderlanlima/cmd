@@ -40,8 +40,28 @@ const useStyles = makeStyles(theme => ({
     },
     tableContainer: {
         width: '100%',
-        overflowX: "scroll",
+        overflowX: "hidden",
         ...theme.scrollbarStyles
+    },
+    compactTable: {
+        width: "100%",
+        tableLayout: "fixed",
+        "& .MuiTableCell-root": {
+            padding: "8px 4px",
+            fontSize: 12,
+            lineHeight: 1.25,
+            whiteSpace: "normal",
+            wordBreak: "break-word",
+            overflowWrap: "anywhere",
+            verticalAlign: "middle"
+        },
+        "& .MuiTableHead-root .MuiTableCell-root": {
+            fontSize: 11,
+            fontWeight: 700
+        },
+        "& .MuiIconButton-root": {
+            padding: 4
+        }
     },
     textfield: {
         width: '100%'
@@ -521,8 +541,8 @@ export function PlansManagerGrid(props) {
     return (
         <Paper className={classes.tableContainer}>
             <Table
-                className={classes.fullWidth}
-                // size="small"
+                className={classes.compactTable}
+                size="small"
                 padding="none"
                 aria-label="a dense table"
             >

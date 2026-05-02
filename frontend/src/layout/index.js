@@ -298,10 +298,10 @@ const useStyles = makeStyles((theme) => ({
 
   // BotÃµes da toolbar melhorados
   toolbarButton: {
-    color: "rgba(255, 255, 255, 0.9)",
+    color: "rgba(255, 255, 255, 0.94)",
     borderRadius: "8px",
-    padding: "8px",
-    margin: "0 2px",
+    padding: "6px",
+    margin: "0 1px",
     transition: "all 0.3s ease",
     "&:hover": {
       backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -315,17 +315,26 @@ const useStyles = makeStyles((theme) => ({
   toolbarActions: {
     display: "flex",
     alignItems: "center",
-    gap: theme.spacing(0.25),
+    gap: 4,
     flexShrink: 0,
+    "& .MuiIconButton-root": {
+      padding: 6,
+      margin: "0 2px",
+      borderRadius: 8,
+      color: "white",
+    },
+    "& .MuiSvgIcon-root": {
+      fontSize: 22,
+    },
   },
 
   healthPillButton: {
     display: "inline-flex",
     alignItems: "center",
-    gap: theme.spacing(0.65),
-    minHeight: 30,
-    marginRight: theme.spacing(1),
-    padding: theme.spacing(0.25, 1.15),
+    gap: theme.spacing(0.55),
+    minHeight: 28,
+    marginRight: theme.spacing(0.55),
+    padding: theme.spacing(0.2, 0.95),
     borderRadius: 999,
     border: "1px solid rgba(255,255,255,0.12)",
     background: "rgba(255,255,255,0.18)",
@@ -339,8 +348,8 @@ const useStyles = makeStyles((theme) => ({
       transform: "translateY(-1px)",
     },
     [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(0.35, 0.9),
-      marginRight: theme.spacing(0.6),
+      padding: theme.spacing(0.25, 0.75),
+      marginRight: theme.spacing(0.45),
     },
   },
 
@@ -353,7 +362,7 @@ const useStyles = makeStyles((theme) => ({
   },
 
   healthSignalIcon: {
-    fontSize: 20,
+    fontSize: 18,
     color: "rgba(255,255,255,0.95)",
   },
 
@@ -362,13 +371,13 @@ const useStyles = makeStyles((theme) => ({
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    width: 20,
-    height: 20,
+    width: 18,
+    height: 18,
     flexShrink: 0,
   },
 
   healthPillText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 800,
     letterSpacing: "0.01em",
     color: "white",
@@ -455,9 +464,14 @@ const useStyles = makeStyles((theme) => ({
       borderRadius: "8px",
       color: "rgba(255, 255, 255, 0.9)",
       fontSize: "18px",
-      padding: "8px 12px",
+      width: 34,
+      height: 34,
+      padding: 0,
       cursor: "pointer",
       transition: "all 0.3s ease",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
       "&:hover": {
         background: "rgba(255, 255, 255, 0.2)",
         transform: "translateY(-1px)",
@@ -479,10 +493,10 @@ const useStyles = makeStyles((theme) => ({
         color: "#374151",
         display: "block",
         width: "100%",
-        padding: "8px 12px",
+        padding: "6px 10px",
         textAlign: "left",
         borderRadius: "6px",
-        fontSize: "14px",
+        fontSize: "13px",
         fontWeight: 500,
         transition: "all 0.2s ease",
         "&:hover": {
@@ -1272,13 +1286,18 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                 <button
                   onClick={() => setShowOptions(!showOptions)}
                   style={{
-                    background: "none",
+                    background: "rgba(255, 255, 255, 0.1)",
                     border: "none",
                     color: "white",
                     cursor: "pointer",
-                    fontSize: "22px",
-                    paddingRight: "20px",
-                    paddingTop: "8px",
+                    width: 34,
+                    height: 34,
+                    padding: 0,
+                    borderRadius: 8,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "0 1px",
                   }}
                 >
                   <span
@@ -1286,7 +1305,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                       display: "inline-flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: "22px",
+                      fontSize: "18px",
                       lineHeight: 1,
                     }}
                     aria-label={activeLanguageOption.label}
@@ -1300,14 +1319,14 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                   <div
                     style={{
                       position: "absolute",
-                      top: "35px",
+                      top: "40px",
                       left: "0",
                       background: "#fff",
-                      boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                      boxShadow: "0 10px 24px rgba(0,0,0,0.16)",
                       borderRadius: "8px",
-                      padding: "8px",
+                      padding: "6px",
                       zIndex: 1000,
-                      minWidth: "120px",
+                      minWidth: "150px",
                       maxWidth: "200px",
                     }}
                   >
@@ -1321,21 +1340,21 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                           cursor: "pointer",
                           display: "block",
                           width: "100%",
-                          padding: "4px",
+                          padding: "3px",
                         }}
                       >
                         <span
                           style={{
                             display: "inline-flex",
                             alignItems: "center",
-                            justifyContent: "center",
+                            justifyContent: "flex-start",
                             gap: "8px",
                             width: "100%",
-                            fontSize: "15px",
+                            fontSize: "13px",
                             fontWeight: 500,
                           }}
                         >
-                          <span style={{ fontSize: "18px", lineHeight: 1 }}>
+                          <span style={{ fontSize: "16px", lineHeight: 1 }}>
                             {lang.flag}
                           </span>
                           <span>{lang.label}</span>
