@@ -22,15 +22,15 @@ import ToggleButton from "@material-ui/lab/ToggleButton";
 import {
   AddCircleOutlineRounded,
   AllInboxRounded,
-  ChatBubbleOutlineRounded,
   CheckCircleOutlineRounded,
-  ForumRounded,
   GroupsRounded,
   MarkChatReadRounded,
   SearchRounded,
+  SupportAgentRounded,
+  ScheduleRounded,
+  SpeakerNotesRounded,
   VisibilityOffOutlined,
   VisibilityOutlined,
-  WatchLaterRounded,
   FilterAltOff,
   FilterAlt,
 } from "@mui/icons-material";
@@ -1110,7 +1110,7 @@ const TicketsManagerTabs = () => {
                     badgeContent={openCount}
                     color="primary"
                   >
-                      <ChatBubbleOutlineRounded
+                      <SupportAgentRounded
                         style={{
                           fontSize: 20,
                           color: tabOpen === "open" ? theme.palette.primary.main : "inherit",
@@ -1151,7 +1151,7 @@ const TicketsManagerTabs = () => {
                     badgeContent={pendingCount}
                     color="primary"
                   >
-                    <WatchLaterRounded
+                    <ScheduleRounded
                       style={{
                         fontSize: 20,
                         color: tabOpen === "pending" ? theme.palette.primary.main : "inherit",
@@ -1235,7 +1235,7 @@ const TicketsManagerTabs = () => {
                         color="primary"
                         invisible={!internalChatCount}
                       >
-                        <ForumRounded
+                        <SpeakerNotesRounded
                           style={{
                             fontSize: 20,
                             color: tabOpen === "chat-internal" ? theme.palette.primary.main : "inherit",

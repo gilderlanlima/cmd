@@ -2,6 +2,13 @@
 
 Este arquivo registra as releases publicadas do projeto com foco em melhorias, correcoes, evolucao visual e funcionalidades relevantes para comunicacao com clientes.
 
+## 3.3.8
+
+### Icones dos tickets mais modernos e profissionais
+
+- Atualizacao dos icones das abas `Atendendo`, `Aguardando` e `Chat Interno` com visual mais atual, limpo e corporativo.
+- Ajuste fino da leitura visual da area de tickets para deixar a navegacao mais elegante e coerente com o restante do painel.
+
 ## 3.3.7
 
 ### Barra superior mais elegante e tickets sem rolagem horizontal
