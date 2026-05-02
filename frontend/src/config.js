@@ -16,6 +16,10 @@ function getRemoteBackendUrl(protocol, hostname, fallbackPort) {
         return "https://app-bk.ideianobolso.com";
     }
 
+    if (hostname === "painel.ideianobolso.com" || hostname === "www.painel.ideianobolso.com") {
+        return "https://painel.ideianobolso.com/api-proxy";
+    }
+
     return `${protocol}//${hostname}:${fallbackPort}`;
 }
 

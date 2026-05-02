@@ -54,6 +54,7 @@ import { QueueSelectedContext } from "../../context/QueuesSelected/QueuesSelecte
 import api from "../../services/api";
 import { TicketsContext } from "../../context/Tickets/TicketsContext";
 import { socketConnection } from "../../services/socket";
+import usePlans from "../../hooks/usePlans";
 
 const useStyles = makeStyles((theme) => ({
   ticketsWrapper: {
@@ -428,11 +429,13 @@ const TicketsManagerTabs = () => {
   const { profile } = user;
   const { setSelectedQueuesMessage } = useContext(QueueSelectedContext);
   const { tabOpen, setTabOpen } = useContext(TicketsContext);
+  const { getPlanCompany } = usePlans();
 
   const [openCount, setOpenCount] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
   const [groupingCount, setGroupingCount] = useState(0);
   const [internalChatCount, setInternalChatCount] = useState(0);
+  const [showInternalChat, setShowInternalChat] = useState(true);
 
   const userQueueIds = user.queues.map((q) => q.id);
   const [selectedQueueIds, setSelectedQueueIds] = useState(userQueueIds || []);
@@ -452,12 +455,46 @@ const TicketsManagerTabs = () => {
   const [isHoveredSort, setIsHoveredSort] = useState(false);
 
   const [isFilterActive, setIsFilterActive] = useState(false);
-  const openTabsCount = user.allowGroup ? 4 : 3;
+  const openTabsCount = 2 + (user.allowGroup ? 1 : 0) + (showInternalChat ? 1 : 0);
   const openTabWidth = `${100 / openTabsCount}%`;
 
   useEffect(() => {
     setSelectedQueuesMessage(selectedQueueIds);
   }, [selectedQueueIds]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function fetchPlanSettings() {
+      try {
+        const planConfigs = await getPlanCompany(undefined, user.companyId);
+
+        if (!mounted) {
+          return;
+        }
+
+        setShowInternalChat(planConfigs?.plan?.useInternalChat !== false);
+      } catch (error) {
+        if (mounted) {
+          setShowInternalChat(true);
+        }
+      }
+    }
+
+    if (user?.companyId) {
+      fetchPlanSettings();
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [getPlanCompany, user?.companyId]);
+
+  useEffect(() => {
+    if (!showInternalChat && tabOpen === "chat-internal") {
+      setTabOpen("open");
+    }
+  }, [showInternalChat, tabOpen, setTabOpen]);
 
   const loadInternalChatCount = useCallback(async () => {
     try {
@@ -1185,46 +1222,48 @@ const TicketsManagerTabs = () => {
               style={{ minWidth: openTabWidth, maxWidth: openTabWidth }}
             />
           )}
-          <Tab
-            label={
-                <Grid container alignItems="center" justifyContent="center" style={{ position: "relative", paddingTop: 10 }}>
+          {showInternalChat && (
+            <Tab
+              label={
+                  <Grid container alignItems="center" justifyContent="center" style={{ position: "relative", paddingTop: 10 }}>
+                    <Grid item>
+                      <Badge
+                        overlap="circular"
+                        max={999}
+                        classes={{ badge: classes.customBadge }}
+                        badgeContent={internalChatCount}
+                        color="primary"
+                        invisible={!internalChatCount}
+                      >
+                        <ForumRounded
+                          style={{
+                            fontSize: 20,
+                            color: tabOpen === "chat-internal" ? theme.palette.primary.main : "inherit",
+                          }}
+                        />
+                      </Badge>
+                    </Grid>
                   <Grid item>
-                    <Badge
-                      overlap="circular"
-                      max={999}
-                      classes={{ badge: classes.customBadge }}
-                      badgeContent={internalChatCount}
-                      color="primary"
-                      invisible={!internalChatCount}
+                    <Typography
+                      style={{
+                        marginLeft: 8,
+                        fontSize: 11,
+                        fontWeight: tabOpen === "chat-internal" ? 700 : 500,
+                        color: tabOpen === "chat-internal" ? theme.palette.primary.main : "inherit",
+                        transition: "all 0.2s ease",
+                      }}
                     >
-                      <ForumRounded
-                        style={{
-                          fontSize: 20,
-                          color: tabOpen === "chat-internal" ? theme.palette.primary.main : "inherit",
-                        }}
-                      />
-                    </Badge>
+                      {i18n.t("mainDrawer.listItems.chats")}
+                    </Typography>
                   </Grid>
-                <Grid item>
-                  <Typography
-                    style={{
-                      marginLeft: 8,
-                      fontSize: 11,
-                      fontWeight: tabOpen === "chat-internal" ? 700 : 500,
-                      color: tabOpen === "chat-internal" ? theme.palette.primary.main : "inherit",
-                      transition: "all 0.2s ease",
-                    }}
-                  >
-                    {i18n.t("mainDrawer.listItems.chats")}
-                  </Typography>
                 </Grid>
-              </Grid>
-            }
-            value={"chat-internal"}
-            name="chat-internal"
-            classes={{ root: classes.tabPanelItem }}
-            style={{ minWidth: openTabWidth, maxWidth: openTabWidth }}
-          />
+              }
+              value={"chat-internal"}
+              name="chat-internal"
+              classes={{ root: classes.tabPanelItem }}
+              style={{ minWidth: openTabWidth, maxWidth: openTabWidth }}
+            />
+          )}
         </Tabs>
 
         <Paper className={classes.ticketsWrapper}>
@@ -1257,7 +1296,7 @@ const TicketsManagerTabs = () => {
               setTabOpen={setTabOpen}
             />
           )}
-          {tabOpen === "chat-internal" && <InternalChatTicketsList />}
+          {showInternalChat && tabOpen === "chat-internal" && <InternalChatTicketsList />}
         </Paper>
       </TabPanel>
 

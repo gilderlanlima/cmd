@@ -5,7 +5,21 @@ import { getBackendUrl } from "../config";
 
 class SocketWorker {
   constructor(companyId , userId) {
-    const sessionToken = api.defaults.headers.Authorization;
+    const sessionToken =
+      api.defaults.headers.Authorization ||
+      (() => {
+        try {
+          const token = JSON.parse(localStorage.getItem("token"));
+          return token ? `Bearer ${token}` : "";
+        } catch (error) {
+          return "";
+        }
+      })();
+
+    if (!companyId || !userId || !sessionToken) {
+      return SocketWorker.instance || null;
+    }
+
     const shouldRecreateInstance =
       !SocketWorker.instance ||
       SocketWorker.instance.companyId !== companyId ||
@@ -31,13 +45,21 @@ class SocketWorker {
 
   configureSocket() {
     const backendUrl = getBackendUrl();
+    const socketBaseUrl = (() => {
+      try {
+        return new URL(backendUrl, window.location.origin).origin;
+      } catch (error) {
+        return backendUrl.replace(/\/+$/, "");
+      }
+    })();
 
-    this.socket = io(`${backendUrl}/${this?.companyId}` , {
+    this.socket = io(`${socketBaseUrl}/${this?.companyId}` , {
       autoConnect: true,
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: Infinity,
       transports: ["websocket", "polling"],
+      path: "/socket.io",
       query: { userId: this.userId, token: this.token }
     });
 
@@ -45,9 +67,13 @@ class SocketWorker {
       console.log("Conectado ao servidor Socket.IO");
     });
 
-    this.socket.on("disconnect", () => {
-      console.log("Desconectado do servidor Socket.IO");
+    this.socket.on("disconnect", (reason) => {
+      console.log("Desconectado do servidor Socket.IO", reason);
       this.reconnectAfterDelay();
+    });
+
+    this.socket.on("connect_error", (error) => {
+      console.error("Erro de conexão do Socket.IO", error?.message || error);
     });
   }
 
@@ -55,6 +81,9 @@ class SocketWorker {
   on(event, callback) {
 
     this.connect();
+    if (!this.socket) {
+      return;
+    }
     this.socket.on(event, callback);
 
     // Armazena o ouvinte no objeto de ouvintes
@@ -67,6 +96,9 @@ class SocketWorker {
   // Emite um evento
   emit(event, data) {
     this.connect();
+    if (!this.socket) {
+      return;
+    }
     this.socket.emit(event, data);
   }
 
@@ -74,6 +106,9 @@ class SocketWorker {
   off(event, callback) {
     // console.log(event, callback)
     this.connect();
+    if (!this.socket) {
+      return;
+    }
     if (this.eventListeners[event]) {
       // console.log("Desconectando do servidor Socket.IO:", event, callback);
       if (callback) {
@@ -113,6 +148,11 @@ class SocketWorker {
   connect() {
     if (!this.socket) {
       this.configureSocket();
+      return;
+    }
+
+    if (!this.socket.connected && !this.socket.active) {
+      this.socket.connect();
       return;
     }
 

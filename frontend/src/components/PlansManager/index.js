@@ -587,7 +587,7 @@ export function PlansManagerGrid(props) {
 
 export default function PlansManager() {
     const classes = useStyles()
-    const { list, save, update, remove } = usePlans()
+    const { getPlanList, save, update, remove } = usePlans()
 
     const [showConfirmDialog, setShowConfirmDialog] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -622,7 +622,7 @@ export default function PlansManager() {
             setLoadingRecords(true)
         }
         try {
-            const planList = await list()
+            const planList = await getPlanList()
             setRecords(planList)
         } catch (e) {
             toast.error('Não foi possível carregar a lista de registros')
@@ -630,7 +630,7 @@ export default function PlansManager() {
         if (showSpinner) {
             setLoadingRecords(false)
         }
-    }, [list])
+    }, [getPlanList])
 
     useEffect(() => {
         loadPlans({ showSpinner: true })

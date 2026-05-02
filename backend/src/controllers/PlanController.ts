@@ -105,11 +105,12 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const list = async (req: Request, res: Response): Promise<Response> => {
-  const {listPublic} = req.query as IndexQuery;
+  const { listPublic } = req.query as IndexQuery;
 
   const plans: Plan[] = await FindAllPlanService(listPublic);
+  const serializedPlans = plans.map(plan => plan.get({ plain: true }));
 
-  return res.status(200).json(plans);
+  return res.status(200).json(serializedPlans);
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {

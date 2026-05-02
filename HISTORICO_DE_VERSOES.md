@@ -2,6 +2,61 @@
 
 Este arquivo registra as releases publicadas do projeto com foco em melhorias, correcoes, evolucao visual e funcionalidades relevantes para comunicacao com clientes.
 
+## 3.3.6
+
+### Tempo real, identidade visual e regras de plano mais consistentes
+
+- Ajustes de `socket` no painel para fortalecer atualizacao em tempo real de mensagens, tickets e eventos operacionais.
+- Indicador de idioma refinado com bandeiras por pais e melhor alinhamento visual na barra superior.
+- Correcao do nome e dos icones do aplicativo instalado no navegador, exibindo `CRM Ideia no Bolso` com o favicon atual.
+- Aba `Chat Interno` em `Tickets` passou a respeitar o plano da empresa, desaparecendo quando o recurso estiver desabilitado.
+- Refinos tecnicos no carregamento de `Configuracoes > Planos` para estabilizar a experiencia no ambiente de teste.
+
+## 3.3.5
+
+### Integracao Meta pelo painel e consolidacao da base estavel
+
+- `d21c58b` - `fix(meta): move facebook and instagram app config to panel`
+- A configuracao de `Facebook` e `Instagram` passou a ser feita diretamente pelo painel, sem necessidade de editar `.env`.
+- Inclusao de fluxo pratico para cadastro de `App ID` e `Chave Secreta` da Meta na area de conexoes.
+- Consolidacao de correcoes funcionais e visuais da linha `3.3.x`, mantendo a base estavel de referencia.
+
+## 3.3.4
+
+### Painel reorganizado e experiencia visual mais madura
+
+- `9c4f38d` - `fix(ui): finaliza correcoes da release 3.3.4`
+- Reorganizacao do menu lateral com distribuicao mais clara por modulos.
+- Ajustes de layout em telas internas para reduzir quebras visuais e melhorar leitura.
+- Refinamento da barra superior e da experiencia geral de navegacao no CRM.
+
+## 3.3.3
+
+### Fluxos, conexoes e experiencia administrativa ampliada
+
+- `13b385f` - `feat(app): finaliza correcoes da release 3.3.3`
+- Melhorias no `FlowBuilder` e no reaproveitamento de fluxos dentro do CRM.
+- Evolucoes em integracoes, conexoes e experiencias administrativas do painel.
+- Ajustes de comportamento em modulos estrategicos para tornar a operacao mais fluida.
+
+## 3.3.2
+
+### Busca de mensagens e jornada de atendimento mais eficiente
+
+- `20dcc1c` - `fix(app): finaliza correcoes da release 3.3.2`
+- Busca de mensagens aprimorada para localizar e abrir o ponto correto dentro da conversa.
+- Melhorias no comportamento da navegacao entre tickets e historicos.
+- Refinos de usabilidade para tornar a pesquisa mais proxima da experiencia do WhatsApp.
+
+## 3.3.1
+
+### Interface modernizada com icones mais atuais
+
+- `63aaa99` - `feat(layout): moderniza icones da interface`
+- Atualizacao dos icones do menu lateral, barra superior e areas operacionais do sistema.
+- Visual mais moderno, jovem e profissional sem ruptura com o design existente.
+- Melhor coerencia visual entre modulos administrativos e operacionais.
+
 ## 3.2.2
 
 ### Chat interno com leitura mais clara

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useMemo, useCallback } from "react";
+﻿import React, { useState, useContext, useEffect, useMemo, useCallback } from "react";
 import clsx from "clsx";
 import {
   makeStyles,
@@ -103,8 +103,8 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 24,
     minHeight: 48,
     color: theme.palette.dark.main,
-    // Usa a cor primária do tema para o fundo do AppBar
-    background: theme.palette.primary.main, // Mudança principal aqui
+    // Usa a cor primÃ¡ria do tema para o fundo do AppBar
+    background: theme.palette.primary.main, // MudanÃ§a principal aqui
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Sombra sutil
     transition: "all 0.3s ease",
   },
@@ -118,9 +118,9 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("sm")]: {
       height: "48px",
     },
-    // ALTERAÇÃO: Removido o gradiente e definido fundo branco
+    // ALTERAÃ‡ÃƒO: Removido o gradiente e definido fundo branco
     backgroundColor: "#ffffff", // Fundo branco fixo
-    borderBottom: `1px solid ${theme.palette.divider}`, // Linha sutil para separação
+    borderBottom: `1px solid ${theme.palette.divider}`, // Linha sutil para separaÃ§Ã£o
     transition: "all 0.3s ease",
   },
 
@@ -247,7 +247,7 @@ const useStyles = makeStyles((theme) => ({
   },
 
   NotificationsPopOver: {
-    // Mantém original
+    // MantÃ©m original
   },
 
   logo: {
@@ -266,7 +266,7 @@ const useStyles = makeStyles((theme) => ({
         ? theme.calculatedLogoLight()
         : theme.calculatedLogoDark()) +
       ")",
-    transition: "all 0.3s ease", // Transição suave
+    transition: "all 0.3s ease", // TransiÃ§Ã£o suave
     "&:hover": {
       transform: "scale(1.02)", // Pequeno zoom no hover
     },
@@ -296,7 +296,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
   },
 
-  // Botões da toolbar melhorados
+  // BotÃµes da toolbar melhorados
   toolbarButton: {
     color: "rgba(255, 255, 255, 0.9)",
     borderRadius: "8px",
@@ -355,6 +355,16 @@ const useStyles = makeStyles((theme) => ({
   healthSignalIcon: {
     fontSize: 20,
     color: "rgba(255,255,255,0.95)",
+  },
+
+  healthSignalIconWrap: {
+    position: "relative",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 20,
+    height: 20,
+    flexShrink: 0,
   },
 
   healthPillText: {
@@ -421,7 +431,7 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "right",
   },
 
-  // Menu hambúrguer com animação sutil
+  // Menu hambÃºrguer com animaÃ§Ã£o sutil
   menuButton: {
     color: "white",
     "&:hover": {
@@ -652,6 +662,22 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
     return "#ef4444";
   }, []);
 
+  const resolveSignalLevel = useCallback((quality, apiStatus) => {
+    if (apiStatus !== "Conectado") {
+      return "low";
+    }
+
+    if (quality === "Excelente" || quality === "Bom") {
+      return "full";
+    }
+
+    if (quality === "Regular") {
+      return "medium";
+    }
+
+    return "low";
+  }, []);
+
   const isSocketConnected = useCallback(() => {
     const rawSocket = socket?.socket || socket;
     return Boolean(rawSocket?.connected);
@@ -670,7 +696,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
       const finishedAt = typeof performance !== "undefined" ? performance.now() : Date.now();
       latency = Math.round(finishedAt - startedAt);
     } catch (error) {
-      apiStatus = "Instável";
+      apiStatus = "InstÃ¡vel";
     }
 
     setConnectionHealth({
@@ -691,7 +717,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
           }
         });
 
-        // Filtra apenas os informativos ativos e não expirados
+        // Filtra apenas os informativos ativos e nÃ£o expirados
         const activeAnnouncements = data.records.filter(announcement => {
           const isActive = announcement.status === true || announcement.status === "true";
           const isNotExpired = !announcement.expiresAt || new Date(announcement.expiresAt) > new Date();
@@ -778,40 +804,40 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
     }
   }, [user?.companyId, user?.id, backendUrl]);
 
-  // Callbacks para eventos de aniversário
+  // Callbacks para eventos de aniversÃ¡rio
   const handleUserBirthday = useCallback((data) => {
-    console.log("🎂 Evento de aniversário de usuário recebido:", data);
+    console.log("ðŸŽ‚ Evento de aniversÃ¡rio de usuÃ¡rio recebido:", data);
     if (data.userId === +user?.id) {
       setShowBirthdayModal(true);
     }
   }, [user?.id]);
 
   const handleContactBirthday = useCallback((data) => {
-    console.log("🎂 Evento de aniversário de contato recebido:", data);
+    console.log("ðŸŽ‚ Evento de aniversÃ¡rio de contato recebido:", data);
     // Para contatos, apenas logamos por enquanto
-    // A mensagem já foi enviada automaticamente pelo backend
+    // A mensagem jÃ¡ foi enviada automaticamente pelo backend
   }, []);
 
-  // Verificar aniversários no login
+  // Verificar aniversÃ¡rios no login
   const checkBirthdaysOnLogin = useCallback(async () => {
     if (user?.id && user?.companyId) {
       try {
         const { data } = await api.get("/birthdays/today");
         const birthdayData = data.data;
 
-        // Verificar se o usuário atual faz aniversário hoje
+        // Verificar se o usuÃ¡rio atual faz aniversÃ¡rio hoje
         const userBirthday = birthdayData.users.find(u => u.id === +user.id);
         if (userBirthday) {
-          console.log("🎂 Usuário faz aniversário hoje! Mostrando modal...");
+          console.log("ðŸŽ‚ UsuÃ¡rio faz aniversÃ¡rio hoje! Mostrando modal...");
           setShowBirthdayModal(true);
         }
 
-        // Se há aniversariantes, mostrar notificação
+        // Se hÃ¡ aniversariantes, mostrar notificaÃ§Ã£o
         if (birthdayData.users.length > 0 || birthdayData.contacts.length > 0) {
-          console.log("🎂 Há aniversariantes hoje:", birthdayData);
+          console.log("ðŸŽ‚ HÃ¡ aniversariantes hoje:", birthdayData);
         }
       } catch (error) {
-        console.error("Erro ao verificar aniversários:", error);
+        console.error("Erro ao verificar aniversÃ¡rios:", error);
       }
     }
   }, [user?.id, user?.companyId]);
@@ -822,7 +848,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
   useSocketListener(socket, user, 'user-birthday', handleUserBirthday);
   useSocketListener(socket, user, 'contact-birthday', handleContactBirthday);
 
-  // Verificar aniversários quando o usuário faz login
+  // Verificar aniversÃ¡rios quando o usuÃ¡rio faz login
   useEffect(() => {
     if (user?.id && user?.companyId) {
       // Pequeno delay para garantir que o socket esteja conectado
@@ -834,7 +860,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
     }
   }, [user?.id, user?.companyId, checkBirthdaysOnLogin]);
 
-  // Status do usuário
+  // Status do usuÃ¡rio
   useEffect(() => {
     if (socket?.emit && user?.companyId) {
       socket.emit("heartbeat");
@@ -928,7 +954,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
         await Promise.all(registrations.map((registration) => registration.unregister()));
       }
     } catch (error) {
-      console.error("Erro ao limpar cache da aplicaÃ§Ã£o:", error);
+      console.error("Erro ao limpar cache da aplicaÃƒÂ§ÃƒÂ£o:", error);
     } finally {
       const currentUrl = new URL(window.location.href);
       currentUrl.searchParams.set("cacheReset", Date.now().toString());
@@ -968,10 +994,10 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
   };
 
   const LANGUAGE_OPTIONS = [
-    { code: "pt-BR", label: "Português" },
+    { code: "pt-BR", label: "PortuguÃªs" },
     { code: "en", label: "English" },
     { code: "es", label: "Spanish" },
-    { code: "ar", label: "عربي" },
+    { code: "ar", label: "Ø¹Ø±Ø¨ÙŠ" },
   ];
 
   const [enabledLanguages, setEnabledLanguages] = useState(["pt-BR", "en"]);
@@ -1006,12 +1032,49 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
   const filteredLanguageOptions = LANGUAGE_OPTIONS.filter((lang) =>
     enabledLanguages.includes(lang.code)
   );
+  const flag = (...codePoints) => String.fromCodePoint(...codePoints);
+  const LANGUAGE_META = {
+    "pt-BR": { label: "Português-BR", flag: flag(0x1F1E7, 0x1F1F7) },
+    en: { label: "English", flag: flag(0x1F1FA, 0x1F1F8) },
+    es: { label: "Español", flag: flag(0x1F1EA, 0x1F1F8) },
+    ar: { label: "العربية", flag: flag(0x1F1F8, 0x1F1E6) },
+  };
+  const decoratedLanguageOptions = filteredLanguageOptions.map((lang) => ({
+    ...lang,
+    label: LANGUAGE_META[lang.code]?.label || lang.label,
+    flag: LANGUAGE_META[lang.code]?.flag || flag(0x1F310),
+  }));
+  const activeLanguageOption =
+    decoratedLanguageOptions.find((lang) => lang.code === i18n.language) ||
+    decoratedLanguageOptions.find((lang) => lang.code === user?.language) ||
+    decoratedLanguageOptions[0] ||
+    { label: "Idioma", flag: flag(0x1F310) };
 
   const healthPopoverOpen = Boolean(healthAnchorEl);
   const healthDotColor =
     connectionHealth.apiStatus === "Conectado"
       ? resolveLatencyColor(connectionHealth.quality)
       : "#ef4444";
+  const signalLevel = resolveSignalLevel(
+    connectionHealth.quality,
+    connectionHealth.apiStatus
+  );
+  const signalIconStyle =
+    signalLevel === "medium"
+      ? {
+          color: "#f59e0b",
+          clipPath: "inset(45% 0 0 0)",
+          transform: "translateY(1px)",
+        }
+      : signalLevel === "low"
+        ? {
+            color: "#ef4444",
+            clipPath: "inset(72% 0 0 0)",
+            transform: "translateY(3px)",
+          }
+        : {
+            color: "rgba(255,255,255,0.95)",
+          };
   const healthSummaryText =
     connectionHealth.latency != null
       ? `${connectionHealth.latency}ms`
@@ -1104,7 +1167,12 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                 onClick={handleOpenHealthPopover}
                 className={classes.healthPillButton}
               >
-                <SignalWifi4BarRounded className={classes.healthSignalIcon} />
+                <span className={classes.healthSignalIconWrap}>
+                  <SignalWifi4BarRounded
+                    className={classes.healthSignalIcon}
+                    style={signalIconStyle}
+                  />
+                </span>
                 <span
                   className={classes.healthDot}
                   style={{ backgroundColor: healthDotColor }}
@@ -1129,7 +1197,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                 <div className={classes.healthPopoverHeader}>
                   <NetworkCheckRounded style={{ fontSize: 18, color: "#84cc16" }} />
                   <Typography className={classes.healthPopoverTitle}>
-                    Integridade da conexÃ£o
+                    Integridade da conexÃƒÂ£o
                   </Typography>
                 </div>
                 <div className={classes.healthPopoverRow}>
@@ -1147,7 +1215,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                 </div>
                 <div className={classes.healthPopoverRow} style={{ display: "none" }}>
                   <Typography className={classes.healthPopoverLabel}>
-                    LatÃªncia atual:
+                    LatÃƒÂªncia atual:
                   </Typography>
                   <Typography
                     className={classes.healthPopoverValue}
@@ -1213,7 +1281,19 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                     paddingTop: "8px",
                   }}
                 >
-                  <LanguageRounded />
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "22px",
+                      lineHeight: 1,
+                    }}
+                    aria-label={activeLanguageOption.label}
+                    title={activeLanguageOption.label}
+                  >
+                    {activeLanguageOption.flag}
+                  </span>
                 </button>
 
                 {showOptions && (
@@ -1231,7 +1311,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                       maxWidth: "200px",
                     }}
                   >
-                    {filteredLanguageOptions.map((lang) => (
+                    {decoratedLanguageOptions.map((lang) => (
                       <button
                         key={lang.code}
                         onClick={() => handleLanguageChange(lang.code)}
@@ -1244,7 +1324,22 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                           padding: "4px",
                         }}
                       >
-                        {lang.label}
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "8px",
+                            width: "100%",
+                            fontSize: "15px",
+                            fontWeight: 500,
+                          }}
+                        >
+                          <span style={{ fontSize: "18px", lineHeight: 1 }}>
+                            {lang.flag}
+                          </span>
+                          <span>{lang.label}</span>
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -1404,9 +1499,9 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
                           variant="body2"
                           color="textPrimary"
                         >
-                          Prioridade: {announcement.priority === 1 ? 'Alta' : announcement.priority === 2 ? 'Média' : 'Baixa'}
+                          Prioridade: {announcement.priority === 1 ? 'Alta' : announcement.priority === 2 ? 'MÃ©dia' : 'Baixa'}
                         </Typography>
-                        {` — ${new Date(announcement.createdAt).toLocaleDateString()}`}
+                        {` â€” ${new Date(announcement.createdAt).toLocaleDateString()}`}
                       </>
                     }
                   />
@@ -1425,7 +1520,7 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
         </DialogActions>
       </Dialog>
 
-      {/* Modal de Aniversário */}
+      {/* Modal de AniversÃ¡rio */}
       <BirthdayModal
         open={showBirthdayModal}
         onClose={() => setShowBirthdayModal(false)}
