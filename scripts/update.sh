@@ -26,12 +26,12 @@ printf '{"running":true,"startedAt":"%s","finishedAt":null,"exitCode":null}\n' "
   git pull origin main &&
 
   echo "--- backend: instalando dependências e buildando ---" &&
-  (cd backend && npm install --legacy-peer-deps && npm run build) &&
+  (cd backend && npm install --legacy-peer-deps --include=dev && npm run build) &&
 
   echo "--- frontend: instalando dependências e buildando ---" &&
   (
     cd frontend &&
-    npm install --legacy-peer-deps &&
+    npm install --legacy-peer-deps --include=dev &&
     # ajv-keywords e schema-utils podem instalar versões incompatíveis do
     # ajv (quebra o build com "Cannot find module 'ajv/dist/compile/codegen'").
     # Best-effort: se schema-utils trouxe uma versão própria do ajv, usa a
