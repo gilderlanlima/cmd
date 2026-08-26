@@ -104,14 +104,10 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     alignItems: "center",
     borderTop: "1px solid rgba(0, 0, 0, 0.12)",
-    [theme.breakpoints.down("sm")]: {
-      position: "fixed",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      width: "auto",
-      maxWidth: "100%",
-    },
+    width: "100%",
+    maxWidth: "100%",
+    minWidth: 0,
+    boxSizing: "border-box",
   },
   "@keyframes pulse": {
     "0%": {
