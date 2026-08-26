@@ -64,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
     height: "100dvh",
     minHeight: 0,
     width: "100%",
-    maxWidth: "100vw",
+    maxWidth: "100%",
     overflowX: "hidden",
     [theme.breakpoints.down("sm")]: {
       height: "calc(100vh - 56px)",
@@ -131,7 +131,10 @@ const useStyles = makeStyles((theme) => ({
 
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
-    maxWidth: "100vw",
+    left: 0,
+    right: 0,
+    width: "auto",
+    maxWidth: "100%",
     overflowX: "hidden",
     transition: theme.transitions.create(["width", "margin"], {
       easing: theme.transitions.easing.sharp,
