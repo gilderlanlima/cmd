@@ -44,7 +44,12 @@ printf '{"running":true,"startedAt":"%s","finishedAt":null,"exitCode":null}\n' "
   ) &&
 
   echo "--- publicando build do frontend ---" &&
-  if [ -n "$FRONTEND_SYNC_SCRIPT" ] && [ -x "$FRONTEND_SYNC_SCRIPT" ]; then
+  if [ -n "$FRONTEND_SYNC_SCRIPT" ]; then
+    # Nao checar "-x" aqui: o script e 700 (root:root) de proposito, entao
+    # o usuario que roda o update.sh nunca tem permissao de execucao direta
+    # nele mesmo podendo rodar via sudo -n - "-x" sempre falharia e a
+    # publicacao do frontend seria pulada silenciosamente (com um aviso
+    # enganoso dizendo "nao definido", mesmo estando definido).
     sudo -n "$FRONTEND_SYNC_SCRIPT"
   else
     echo "AVISO: FRONTEND_SYNC_SCRIPT não definido - publique o build do frontend manualmente."
