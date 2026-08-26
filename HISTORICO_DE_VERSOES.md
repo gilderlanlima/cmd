@@ -2,6 +2,11 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.11
+
+- `eee7861` - `fix: corrige causa raiz do scroll lateral - deteccao de largura de tela`
+- `6e8ddbb` - `chore: bump version to 3.3.11`
+
 ## 3.3.10
 
 - `afd61d2` - `fix: corrige scroll lateral real na lista de mensagens do ticket`
