@@ -2,6 +2,14 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.17
+
+- `7ae5795` - `feat: troca atualizacao automatica de pm2 para systemd + corrige charset do HTML`
+
+Primeiro deploy em producao (VPS Hostinger, wp.ideianobolso.com / wp-bk.ideianobolso.com).
+O painel de Atualizacoes passa a reiniciar o backend via systemd em vez de pm2 (pm2 nao
+funcionava nesta VPS) e agora tambem publica o build do frontend automaticamente.
+
 ## 3.3.16
 
 - `b07eed4` - `style: torna notificacao de versao mais discreta e remove referencias a GitHub/commit`
