@@ -21,7 +21,8 @@ const useStyles = makeStyles(theme => ({
     header: {
     },
     content: {
-        overflow: "auto"
+        overflowY: "auto",
+        overflowX: "hidden",
     },
     placeholderContainer: {
         display: "flex",

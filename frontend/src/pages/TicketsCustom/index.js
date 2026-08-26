@@ -21,21 +21,27 @@ const compactMaxTicketsManagerWidth = 460;
 const useStyles = makeStyles((theme) => ({
   chatContainer: {
     flex: 1,
+    minWidth: 0,
     padding: 2,
     height: "100%",
     minHeight: 0,
     overflowY: "hidden",
+    overflowX: "hidden",
   },
   chatPapper: {
     display: "flex",
     height: "100%",
     minHeight: 0,
+    minWidth: 0,
+    overflowX: "hidden",
   },
   contactsWrapper: {
     display: "flex",
     height: "100%",
     flexDirection: "column",
     overflowY: "hidden",
+    overflowX: "hidden",
+    flexShrink: 0,
     position: "relative",
     minWidth: `${minTicketsManagerWidth}px`,
     "@media (max-width: 1366px)": {
@@ -49,6 +55,7 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 0,
     flexDirection: "column",
     flexGrow: 1,
+    overflowX: "hidden",
   },
   welcomeMsg: {
     background: theme.palette.tabHeaderBackground,

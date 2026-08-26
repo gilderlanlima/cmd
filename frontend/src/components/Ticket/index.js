@@ -29,12 +29,17 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     height: "100%",
+    width: "100%",
+    minWidth: 0,
+    maxWidth: "100%",
     position: "relative",
     overflow: "hidden",
   },
 
   mainWrapper: {
     flex: 1,
+    minWidth: 0,
+    maxWidth: "100%",
     height: "100%",
     display: "flex",
     flexDirection: "column",

@@ -229,7 +229,8 @@ const Login = () => {
   ]);
 
   const handleChangeInput = (e) => {
-    setUser((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setUser((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
