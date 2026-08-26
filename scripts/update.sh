@@ -11,6 +11,11 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
 cd "$REPO_ROOT" || exit 1
 
+# NODE_ENV=production (herdado do processo do backend que dispara este
+# script) faz "npm install" pular devDependencies como typescript e
+# react-scripts, quebrando o build. O build precisa delas mesmo em produção.
+unset NODE_ENV
+
 STARTED_AT="$(date -Iseconds)"
 printf '{"running":true,"startedAt":"%s","finishedAt":null,"exitCode":null}\n' "$STARTED_AT" > "$STATUSFILE"
 

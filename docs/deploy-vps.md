@@ -53,9 +53,15 @@ StandardError=append:/home/crmideia/logs/app/backend-error.log
 WantedBy=multi-user.target
 ```
 
-**Gotcha**: sem o `Environment="PATH=..."` explícito incluindo o bin do
-`nvm`, o processo do backend (e portanto o `update.sh`, que ele spawna)
-não enxerga `node`/`npm` — serviços systemd não carregam `~/.bashrc`.
+**Gotchas**:
+- Sem o `Environment="PATH=..."` explícito incluindo o bin do `nvm`, o
+  processo do backend (e portanto o `update.sh`, que ele spawna) não
+  enxerga `node`/`npm` — serviços systemd não carregam `~/.bashrc`.
+- `NODE_ENV=production` (necessário para o app em runtime) é herdado
+  pelo `update.sh` via `env: process.env` (`RunSystemUpdateService.ts`)
+  e faz `npm install` pular devDependencies (`typescript`,
+  `react-scripts` etc.), quebrando o build. `update.sh` já dá
+  `unset NODE_ENV` logo no início por causa disso.
 
 ## Atualização automática (painel > Configurações > Atualizações)
 
