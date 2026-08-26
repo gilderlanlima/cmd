@@ -30,6 +30,33 @@ mesmo com o binário executável e sem restrição de AppArmor/ulimit
 detectada), trocamos para systemd, que é nativo do Ubuntu e não depende
 de um daemon Node adicional.
 
+## Unit systemd do backend (`/etc/systemd/system/crm-backend.service`, não versionado)
+
+```ini
+[Unit]
+Description=CRM Ideia no Bolso - Backend
+After=network.target postgresql.service redis-server.service
+
+[Service]
+Type=simple
+User=crmideia
+WorkingDirectory=/home/crmideia/htdocs/wp-bk.ideianobolso.com/repo/backend
+ExecStart=/home/crmideia/.nvm/versions/node/v20.20.2/bin/node dist/server.js
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+Environment="PATH=/home/crmideia/.nvm/versions/node/v20.20.2/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+StandardOutput=append:/home/crmideia/logs/app/backend.log
+StandardError=append:/home/crmideia/logs/app/backend-error.log
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Gotcha**: sem o `Environment="PATH=..."` explícito incluindo o bin do
+`nvm`, o processo do backend (e portanto o `update.sh`, que ele spawna)
+não enxerga `node`/`npm` — serviços systemd não carregam `~/.bashrc`.
+
 ## Atualização automática (painel > Configurações > Atualizações)
 
 `update.sh` roda como o usuário `crmideia` (mesmo usuário do backend) e
