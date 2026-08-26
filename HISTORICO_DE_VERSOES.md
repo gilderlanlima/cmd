@@ -2,6 +2,20 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.20
+
+- `5443206` - `fix: corrige erros de console no ambiente local`
+- `982cdd5` - `fix: corrige overflow de pagina inteira e fallback de avatar quebrado`
+- `53c2a79` - `fix: remove barras de rolagem duplicadas na tela de Configuracoes`
+- `2b94f01` - `style: adiciona respiro e visual de cartao ao grid de tickets`
+- `6d3e367` - `fix: painel de Atualizacoes agora compara contra a ultima release, nao o HEAD do main`
+
+Corrige um bug de layout profundo: o `<main>` da aplicacao nao era flex, entao paginas de
+altura total (como a de Tickets) nao descontavam o espaco do cabecalho e forcavam a pagina
+inteira a rolar. Corrige tambem 3 barras de rolagem duplicadas em Configuracoes, avatares
+quebrados (401) apos login sem foto de perfil, avisos de erro no console do chat, e o painel
+de Atualizacoes exibindo "atualizacao disponivel" incorretamente quando nao havia release nova.
+
 ## 3.3.19
 
 - `9c55862` - `fix: evita que NODE_ENV=production do backend quebre o build do update.sh`
