@@ -2,6 +2,11 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.13
+
+- `f67f748` - `fix: corrige overflow horizontal especifico do Firefox (botoes de acao e input de mensagem)`
+- `d29cd78` - `chore: bump version to 3.3.13`
+
 ## 3.3.12
 
 - `d807cd0` - `fix: remove uso de 100vw na AppBar principal (corta conteudo com scrollbar)`
