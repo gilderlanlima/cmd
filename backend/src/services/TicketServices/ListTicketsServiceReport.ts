@@ -69,7 +69,7 @@ export default async function ListTicketsServiceReport(
   LEFT JOIN (
         SELECT DISTINCT ON ("ticketId") *
         FROM "TicketTraking"
-        WHERE "companyId" = ${companyId}
+        WHERE "companyId" = :companyId
         ORDER BY "ticketId", "id" DESC
     ) tt ON t.id = tt."ticketId"
 	inner join "UserRatings" ur on
@@ -78,7 +78,7 @@ export default async function ListTicketsServiceReport(
     left join "Contacts" c on 
       t."contactId" = c.id 
     left join "ContactWallets" cw on 
-      c.id = cw."contactId" and cw."companyId" = ${companyId}
+      c.id = cw."contactId" and cw."companyId" = :companyId
     left join "Users" wallet_user on 
       cw."walletId" = wallet_user.id
     left join "Whatsapps" w on 
@@ -122,7 +122,7 @@ export default async function ListTicketsServiceReport(
   LEFT JOIN (
         SELECT DISTINCT ON ("ticketId") *
         FROM "TicketTraking"
-        WHERE "companyId" = ${companyId}
+        WHERE "companyId" = :companyId
         ORDER BY "ticketId", "id" DESC
     ) tt ON t.id = tt."ticketId"
 	left join "UserRatings" ur on
@@ -130,7 +130,7 @@ export default async function ListTicketsServiceReport(
     left join "Contacts" c on 
       t."contactId" = c.id 
     left join "ContactWallets" cw on 
-      c.id = cw."contactId" and cw."companyId" = ${companyId}
+      c.id = cw."contactId" and cw."companyId" = :companyId
     left join "Users" wallet_user on 
       cw."walletId" = wallet_user.id
     left join "Whatsapps" w on 
@@ -141,33 +141,42 @@ export default async function ListTicketsServiceReport(
       t."queueId" = q.id 
   -- filterPeriod`;
   }
-  let where = `where t."companyId" = ${companyId}`;
+  const replacements: Record<string, unknown> = { companyId, pageSize, offset };
 
-  if (_.has(params, "dateFrom")) {
-    where += ` and t."createdAt" >= '${params.dateFrom} 00:00:00'`;
+  let where = `where t."companyId" = :companyId`;
+
+  if (_.has(params, "dateFrom") && params.dateFrom) {
+    where += ` and t."createdAt" >= :dateFrom`;
+    replacements.dateFrom = `${params.dateFrom} 00:00:00`;
   }
 
-  if (_.has(params, "dateTo")) {
-    where += ` and t."createdAt" <= '${params.dateTo} 23:59:59'`;
+  if (_.has(params, "dateTo") && params.dateTo) {
+    where += ` and t."createdAt" <= :dateTo`;
+    replacements.dateTo = `${params.dateTo} 23:59:59`;
   }
 
   if (params.whatsappId !== undefined && params.whatsappId.length > 0) {
-    where += ` and t."whatsappId" in (${params.whatsappId})`;
+    where += ` and t."whatsappId" in (:whatsappId)`;
+    replacements.whatsappId = params.whatsappId;
   }
   if (params.users.length > 0) {
-    where += ` and t."userId" in (${params.users})`;
+    where += ` and t."userId" in (:users)`;
+    replacements.users = params.users;
   }
 
   if (params.queueIds.length > 0) {
-    where += ` and COALESCE(t."queueId",0) in (${params.queueIds})`;
+    where += ` and COALESCE(t."queueId",0) in (:queueIds)`;
+    replacements.queueIds = params.queueIds;
   }
 
   if (params.status.length > 0) {
-    where += ` and t."status" in ('${params.status.join("','")}')`;
+    where += ` and t."status" in (:status)`;
+    replacements.status = params.status;
   }
 
   if (params.contactId !== undefined && params.contactId !== "") {
-    where += ` and t."contactId" in (${params.contactId})`;
+    where += ` and t."contactId" in (:contactId)`;
+    replacements.contactId = params.contactId;
   }
 
   if (params.onlyRated === "true") {
@@ -181,14 +190,16 @@ export default async function ListTicketsServiceReport(
     ${where}  `;
 
   const totalTicketsResult = await sequelize.query(totalTicketsQuery, {
-    type: QueryTypes.SELECT
+    type: QueryTypes.SELECT,
+    replacements
   });
   const totalTickets = totalTicketsResult[0];
 
-  const paginatedQuery = `${finalQuery} ORDER BY t."createdAt" DESC LIMIT ${pageSize} OFFSET ${offset}`;
+  const paginatedQuery = `${finalQuery} ORDER BY t."createdAt" DESC LIMIT :pageSize OFFSET :offset`;
 
   const responseData: any[] = await sequelize.query(paginatedQuery, {
-    type: QueryTypes.SELECT
+    type: QueryTypes.SELECT,
+    replacements
   });
 
   return { tickets: responseData, totalTickets };

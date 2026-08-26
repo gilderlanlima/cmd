@@ -248,7 +248,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
         await whatsapp.save();
       }
     } catch (error) {
-      logger.info("ERROR", error);
+      logger.error("ERROR", error);
     }
   }
 
@@ -453,7 +453,7 @@ export const update = async (
         whatsappOficial
       );
     } catch (error) {
-      logger.info("ERROR", error);
+      logger.error("ERROR", error);
     }
   }
 
@@ -505,9 +505,7 @@ export const remove = async (
       action: "delete",
       whatsappId: +whatsappId
     });
-  }
-
-  if (whatsapp.channel === "whatsapp_oficial") {
+  } else if (whatsapp.channel === "whatsapp_oficial") {
     await Whatsapp.destroy({
       where: {
         id: +whatsappId
@@ -517,16 +515,14 @@ export const remove = async (
     try {
       await DeleteConnectionWhatsAppOficial(whatsapp.waba_webhook_id);
     } catch (error) {
-      logger.info("ERROR", error);
+      logger.error("ERROR", error);
     }
 
     io.of(String(companyId)).emit(`company-${companyId}-whatsapp`, {
       action: "delete",
       whatsappId: +whatsappId
     });
-  }
-
-  if (whatsapp.channel === "facebook" || whatsapp.channel === "instagram") {
+  } else if (whatsapp.channel === "facebook" || whatsapp.channel === "instagram") {
     const { facebookUserToken } = whatsapp;
 
     const getAllSameToken = await Whatsapp.findAll({
@@ -547,6 +543,21 @@ export const remove = async (
         whatsappId: whatsapp.id
       });
     }
+  } else {
+    // Canais sem sessão ativa em memória (telegram, tiktok, webchat, etc.):
+    // apenas remove o registro e notifica o frontend. Sem este bloco, o
+    // endpoint retornava 200 sem excluir nada, e a conexão continuava
+    // aparecendo na listagem mesmo após "exclusão" bem-sucedida.
+    await Whatsapp.destroy({
+      where: {
+        id: +whatsappId
+      }
+    });
+
+    io.of(String(companyId)).emit(`company-${companyId}-whatsapp`, {
+      action: "delete",
+      whatsappId: +whatsappId
+    });
   }
 
   return res.status(200).json({ message: "Session disconnected." });
@@ -630,9 +641,24 @@ export const removeAdmin = async (
       action: "delete",
       whatsappId: +whatsappId
     });
-  }
+  } else if (whatsapp.channel === "whatsapp_oficial") {
+    await Whatsapp.destroy({
+      where: {
+        id: +whatsappId
+      }
+    });
 
-  if (whatsapp.channel === "facebook" || whatsapp.channel === "instagram") {
+    try {
+      await DeleteConnectionWhatsAppOficial(whatsapp.waba_webhook_id);
+    } catch (error) {
+      logger.error("ERROR", error);
+    }
+
+    io.of(String(companyId)).emit(`admin-whatsapp`, {
+      action: "delete",
+      whatsappId: +whatsappId
+    });
+  } else if (whatsapp.channel === "facebook" || whatsapp.channel === "instagram") {
     const { facebookUserToken } = whatsapp;
 
     const getAllSameToken = await Whatsapp.findAll({
@@ -653,6 +679,18 @@ export const removeAdmin = async (
         whatsappId: whatsapp.id
       });
     }
+  } else {
+    // Canais sem sessão ativa em memória (telegram, tiktok, webchat, etc.)
+    await Whatsapp.destroy({
+      where: {
+        id: +whatsappId
+      }
+    });
+
+    io.of(String(companyId)).emit(`admin-whatsapp`, {
+      action: "delete",
+      whatsappId: +whatsappId
+    });
   }
 
   return res.status(200).json({ message: "Session disconnected." });

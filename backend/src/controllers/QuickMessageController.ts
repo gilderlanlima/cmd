@@ -176,12 +176,13 @@ export const findList = async (
 
 export const audioUpload = async (req: Request, res: Response): Promise<Response> => {
   const { id } = req.params;
+  const { companyId } = req.user;
   const files = req.files as Express.Multer.File[];
   const file = head(files);
 
   try {
     if (!file) throw new AppError("Nenhum arquivo recebido");
-    
+
     console.log("📁 Processando arquivo de áudio:", {
       originalname: file.originalname,
       filename: file.filename,
@@ -190,10 +191,10 @@ export const audioUpload = async (req: Request, res: Response): Promise<Response
     });
 
     const quickmessage = await QuickMessage.findByPk(id);
-    if (!quickmessage) {
+    if (!quickmessage || quickmessage.companyId !== companyId) {
       throw new AppError("Quick message não encontrada");
     }
-    
+
     // ✅ CORREÇÃO: Garantir que seja sempre salvo como tipo 'audio'
     // independente do mimetype original (webm, ogg, etc)
     await quickmessage.update({
@@ -226,12 +227,16 @@ export const mediaUpload = async (
   res: Response
 ): Promise<Response> => {
   const { id } = req.params;
+  const { companyId } = req.user;
   const files = req.files as Express.Multer.File[];
   const file = head(files);
 
   try {
     const quickmessage = await QuickMessage.findByPk(id);
-    
+    if (!quickmessage || quickmessage.companyId !== companyId) {
+      throw new AppError("Quick message não encontrada");
+    }
+
     // ✅ CORREÇÃO: Melhor detecção do tipo de mídia
     const fileExtension = path.extname(file.originalname).toLowerCase();
     let mediaType = 'document'; // padrão
@@ -278,6 +283,9 @@ export const deleteMedia = async (
 
   try {
     const quickmessage = await QuickMessage.findByPk(id);
+    if (!quickmessage || quickmessage.companyId !== companyId) {
+      throw new AppError("Quick message não encontrada");
+    }
     const filePath = path.resolve("public", `company${companyId}`, "quickMessage", quickmessage.mediaName);
     const fileExists = fs.existsSync(filePath);
     if (fileExists) {

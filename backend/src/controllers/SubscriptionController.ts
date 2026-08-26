@@ -274,8 +274,6 @@ export const createWebhook = async (
     url: Yup.string().required()
   });
 
-  console.log(req.body);
-
   try {
     await schema.validate(req.body, { abortEarly: false });
   } catch (err) {

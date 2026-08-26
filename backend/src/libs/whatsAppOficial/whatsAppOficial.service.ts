@@ -210,7 +210,6 @@ export const DeleteConnectionWhatsAppOficial = async (idWhatsapp: number) => {
 
 export const getTemplatesWhatsAppOficial = async (multi100_token: string) => {
     try {
-        console.log(`${urlApi}/v1/templates-whatsapp/${multi100_token}`)
         const res = await axios.get(`${urlApi}/v1/templates-whatsapp/${multi100_token}`,
             {
                 headers: {

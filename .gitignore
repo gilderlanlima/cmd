@@ -31,6 +31,7 @@ yarn.lock
 # OS / editor
 .DS_Store
 .idea/
+.claude/
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -40,5 +41,6 @@ yarn.lock
 # Project-specific
 backend/sessions/*
 backend/backups/*
+backend/update-logs/
 frontend/public/socket-admin
 api_transcricao/.space

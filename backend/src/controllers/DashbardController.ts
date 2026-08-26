@@ -86,8 +86,9 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
 export const reportsUsers = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const { initialDate, finalDate, companyId } = req.query as IndexQuery;
-    
+    const { initialDate, finalDate } = req.query as IndexQuery;
+    const { companyId } = req.user;
+
     if (!initialDate || !finalDate) {
       throw new AppError('Datas inicial e final são obrigatórias', 400);
     }
@@ -113,8 +114,9 @@ export const reportsUsers = async (req: Request, res: Response): Promise<Respons
 
 export const reportsDay = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const { initialDate, finalDate, companyId } = req.query as IndexQuery;
-    
+    const { initialDate, finalDate } = req.query as IndexQuery;
+    const { companyId } = req.user;
+
     if (!initialDate || !finalDate) {
       throw new AppError('Datas inicial e final são obrigatórias', 400);
     }

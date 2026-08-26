@@ -229,9 +229,9 @@ const Connections = () => {
   };
 
   useEffect(() => {
-    // const socket = socketManager.GetSocket();
+    if (!socket || !user?.companyId) return;
 
-    socket.on(`importMessages-${user.companyId}`, (data) => {
+    const onImportMessages = (data) => {
       if (data.action === "refresh") {
         setStatusImport([]);
         history.go(0);
@@ -239,9 +239,9 @@ const Connections = () => {
       if (data.action === "update") {
         setStatusImport(data.status);
       }
-    });
+    };
 
-    socket.on(`transferTickets-${user.companyId}`, (data) => {
+    const onTransferTickets = (data) => {
       if (data.action === "progress") {
         setTransferProgress({
           current: data.current,
@@ -260,12 +260,20 @@ const Connections = () => {
         setTransferProgress({ current: 0, total: 0, percentage: 0 });
         toast.error("Erro na transferência de tickets.");
       }
-    });
+    };
 
-    /* return () => {
-      socket.disconnect();
-    }; */
-  }, [whatsApps]);
+    const importEvent = `importMessages-${user.companyId}`;
+    const transferEvent = `transferTickets-${user.companyId}`;
+
+    socket.on(importEvent, onImportMessages);
+    socket.on(transferEvent, onTransferTickets);
+
+    return () => {
+      socket.off(importEvent, onImportMessages);
+      socket.off(transferEvent, onTransferTickets);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket, user?.companyId]);
 
   const handleStartWhatsAppSession = async (whatsAppId) => {
     try {

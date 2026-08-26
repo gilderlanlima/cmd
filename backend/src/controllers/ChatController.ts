@@ -1,6 +1,7 @@
 import * as Yup from "yup";
 import { Request, Response } from "express";
 import { getIO } from "../libs/socket";
+import AppError from "../errors/AppError";
 import path from "path";
 import fs from "fs";
 import { Op, Sequelize } from "sequelize";
@@ -139,6 +140,11 @@ export const update = async (
   const data = req.body;
   const { id } = req.params;
 
+  const existingChat = await Chat.findByPk(+id);
+  if (!existingChat || existingChat.companyId !== companyId) {
+    throw new AppError("ERR_NO_CHAT_FOUND", 404);
+  }
+
   const record = await UpdateService({
     ...data,
     id: +id
@@ -159,8 +165,13 @@ export const update = async (
 
 export const show = async (req: Request, res: Response): Promise<Response> => {
   const { id } = req.params;
+  const { companyId } = req.user;
 
   const record = await ShowFromUuidService(id);
+
+  if (record.companyId !== companyId) {
+    throw new AppError("ERR_NO_CHAT_FOUND", 404);
+  }
 
   return res.status(200).json(record);
 };
@@ -177,6 +188,11 @@ export const remove = async (
     return res.status(403).json({
       error: "Acesso negado. Apenas administradores podem deletar chats."
     });
+  }
+
+  const existingChat = await Chat.findByPk(id);
+  if (!existingChat || existingChat.companyId !== companyId) {
+    throw new AppError("ERR_NO_CHAT_FOUND", 404);
   }
 
   await DeleteService(id);
@@ -255,11 +271,18 @@ export const checkAsRead = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const { companyId } = req.user;
-  const { userId } = req.body;
+  const { companyId, id: userId } = req.user;
   const { id } = req.params;
 
+  const existingChat = await Chat.findByPk(id);
+  if (!existingChat || existingChat.companyId !== companyId) {
+    throw new AppError("ERR_NO_CHAT_FOUND", 404);
+  }
+
   const chatUser = await ChatUser.findOne({ where: { chatId: id, userId } });
+  if (!chatUser) {
+    throw new AppError("ERR_NO_CHAT_FOUND", 404);
+  }
   await chatUser.update({ unreads: 0 });
 
   const chat = await Chat.findByPk(id, {

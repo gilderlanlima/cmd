@@ -1,5 +1,6 @@
 import express from "express";
 import isAuth from "../middleware/isAuth";
+import isSuper from "../middleware/isSuper";
 
 import * as WhatsAppController from "../controllers/WhatsAppController";
 
@@ -15,7 +16,7 @@ const whatsappRoutes = express.Router();
 
 whatsappRoutes.get("/whatsapp/", isAuth, WhatsAppController.index);
 whatsappRoutes.get("/whatsapp/filter", isAuth, WhatsAppController.indexFilter);
-whatsappRoutes.get("/whatsapp/all", isAuth, WhatsAppController.listAll);
+whatsappRoutes.get("/whatsapp/all", isAuth, isSuper, WhatsAppController.listAll);
 whatsappRoutes.get("/whatsapp/sync-templates/:whatsappId", isAuth, WhatsAppController.syncTemplatesOficial);
 
 whatsappRoutes.post("/whatsapp/", isAuth, WhatsAppController.store);
@@ -32,10 +33,10 @@ whatsappRoutes.post("/whatsapp/:whatsappId/media-upload", isAuth, upload.array("
 whatsappRoutes.delete("/whatsapp/:whatsappId/media-upload", isAuth, deleteMedia);
 
 
-whatsappRoutes.delete("/whatsapp-admin/:whatsappId", isAuth, WhatsAppController.remove);
+whatsappRoutes.delete("/whatsapp-admin/:whatsappId", isAuth, isSuper, WhatsAppController.remove);
 
-whatsappRoutes.put("/whatsapp-admin/:whatsappId", isAuth, WhatsAppController.updateAdmin);
+whatsappRoutes.put("/whatsapp-admin/:whatsappId", isAuth, isSuper, WhatsAppController.updateAdmin);
 
-whatsappRoutes.get("/whatsapp-admin/:whatsappId", isAuth, WhatsAppController.showAdmin);
+whatsappRoutes.get("/whatsapp-admin/:whatsappId", isAuth, isSuper, WhatsAppController.showAdmin);
 
 export default whatsappRoutes;

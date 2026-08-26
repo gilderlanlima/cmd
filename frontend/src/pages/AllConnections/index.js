@@ -152,9 +152,13 @@ const AllConnections = () => {
   );
 
   const history = useHistory();
-  if (!user.super) {
-    history.push("/tickets");
-  }
+
+  useEffect(() => {
+    if (!user.super) {
+      history.push("/tickets");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user.super]);
 
   useEffect(() => {
     setLoadingWhatsapp(true);
@@ -301,6 +305,9 @@ const AllConnections = () => {
     if (confirmModalInfo.action === "delete") {
       try {
         await api.delete(`/whatsapp/${confirmModalInfo.whatsAppId}`);
+        setWhats((prevWhats) =>
+          prevWhats.filter((w) => w.id !== confirmModalInfo.whatsAppId)
+        );
         toast.success(i18n.t("connections.toasts.deleted"));
       } catch (err) {
         toastError(err);

@@ -9,6 +9,7 @@ import ShowInvoceService from "../services/InvoicesService/ShowInvoiceService";
 import UpdateInvoiceService from "../services/InvoicesService/UpdateInvoiceService";
 import DeleteInvoiceService from "../services/InvoicesService/DeleteInvoiceService";
 import CreateInvoiceService from "../services/InvoicesService/CreateInvoiceService";
+import User from "../models/User";
 
 type IndexQuery = {
   searchParam: string;
@@ -54,8 +55,16 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
 export const show = async (req: Request, res: Response): Promise<Response> => {
   const { id } = req.params;
+  const { companyId } = req.user;
 
   const invoice = await ShowInvoceService(id);
+
+  if (invoice.companyId !== companyId) {
+    const requestUser = await User.findByPk(req.user.id);
+    if (!requestUser?.super) {
+      throw new AppError("ERR_NO_PERMISSION", 403);
+    }
+  }
 
   return res.status(200).json(invoice);
 };

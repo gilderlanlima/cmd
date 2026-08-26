@@ -343,8 +343,16 @@ export const list = async (req: Request, res: Response): Promise<Response> => {
   const { companyId } = req.query;
   const { companyId: userCompanyId } = req.user;
 
+  let targetCompanyId = userCompanyId;
+  if (companyId && +companyId !== userCompanyId) {
+    const requestUser = await User.findByPk(req.user.id);
+    if (requestUser?.super) {
+      targetCompanyId = +companyId;
+    }
+  }
+
   const users = await SimpleListService({
-    companyId: companyId ? +companyId : userCompanyId
+    companyId: targetCompanyId
   });
 
   return res.status(200).json(users);

@@ -173,6 +173,9 @@ export const mediaUpload = async (
 
   try {
     const announcement = await Announcement.findByPk(id);
+    if (!announcement) {
+      throw new AppError("ERR_NO_ANNOUNCEMENT_FOUND", 404);
+    }
 
     await announcement.update({
       mediaPath: file.filename.replace('/', '-'),
@@ -201,6 +204,9 @@ export const deleteMedia = async (
   const { companyId } = req.user;
   try {
     const announcement = await Announcement.findByPk(id);
+    if (!announcement) {
+      throw new AppError("ERR_NO_ANNOUNCEMENT_FOUND", 404);
+    }
 
     const filePath = path.resolve("public", "announcements", announcement.mediaPath);
 

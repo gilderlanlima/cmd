@@ -518,11 +518,15 @@ export const mediaUpload = async (
   res: Response
 ): Promise<Response> => {
   const { id } = req.params;
+  const { companyId } = req.user;
   const files = req.files as Express.Multer.File[];
   const file = head(files);
 
   try {
     const campaign = await Campaign.findByPk(id);
+    if (!campaign || campaign.companyId !== companyId) {
+      throw new AppError("Campanha não encontrada", 404);
+    }
     campaign.mediaPath = file.filename;
     campaign.mediaName = file.originalname;
     await campaign.save();
@@ -541,6 +545,9 @@ export const deleteMedia = async (
 
   try {
     const campaign = await Campaign.findByPk(id);
+    if (!campaign || campaign.companyId !== companyId) {
+      throw new AppError("Campanha não encontrada", 404);
+    }
     const filePath = path.resolve("public", `company${companyId}`, campaign.mediaPath);
     const fileExists = fs.existsSync(filePath);
     if (fileExists) {
@@ -558,11 +565,12 @@ export const deleteMedia = async (
 
 export const previewRecurrence = async (req: Request, res: Response): Promise<Response> => {
   const { id } = req.params;
+  const { companyId } = req.user;
   const { recurrenceType, recurrenceInterval, recurrenceDaysOfWeek, recurrenceDayOfMonth } = req.query;
 
   try {
     const campaign = await Campaign.findByPk(id);
-    if (!campaign) {
+    if (!campaign || campaign.companyId !== companyId) {
       throw new AppError("Campanha não encontrada", 404);
     }
 
@@ -593,7 +601,7 @@ export const stopRecurrence = async (req: Request, res: Response): Promise<Respo
 
   try {
     const campaign = await Campaign.findByPk(id);
-    if (!campaign) {
+    if (!campaign || campaign.companyId !== companyId) {
       throw new AppError("Campanha não encontrada", 404);
     }
 

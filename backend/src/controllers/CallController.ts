@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import logger from "../utils/logger";
 import createCallHistorical from "../services/CallService/CreateCallService";
 import getHistorical from "../services/CallService/GetCallService";
 import GetWhatsappUserId from "../services/CallService/GetWhatsappUserId";
@@ -30,9 +31,9 @@ export const getHistoric = async (req: Request, res: Response) => {
 
         return res.status(200).json({ historical });
     } catch (error) {
-        return res.status(403).json({
-            error: error.message || String(error),
-            stack: error.stack 
+        logger.error("Error in getHistoric:", error);
+        return res.status(500).json({
+            error: "Erro ao buscar histórico de chamadas"
         });
     }
 }

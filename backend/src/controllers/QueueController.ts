@@ -6,6 +6,7 @@ import ListQueuesService from "../services/QueueService/ListQueuesService";
 import ShowQueueService from "../services/QueueService/ShowQueueService";
 import UpdateQueueService from "../services/QueueService/UpdateQueueService";
 import { isNil } from "lodash";
+import User from "../models/User";
 
 type QueueFilter = {
   companyId: number;
@@ -16,8 +17,11 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
   const { companyId: queryCompanyId } = req.query as unknown as QueueFilter;
   let companyId = userCompanyId;
 
-  if (!isNil(queryCompanyId)) {
-    companyId = +queryCompanyId;
+  if (!isNil(queryCompanyId) && +queryCompanyId !== userCompanyId) {
+    const requestUser = await User.findByPk(req.user.id);
+    if (requestUser?.super) {
+      companyId = +queryCompanyId;
+    }
   }
 
   const queues = await ListQueuesService({ companyId });

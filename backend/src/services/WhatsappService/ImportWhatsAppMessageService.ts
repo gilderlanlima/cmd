@@ -133,7 +133,12 @@ Mensagem ${i + 1} de ${qtd}
               action: "refresh",
             });
         }
-      } catch (error) { }
+      } catch (error) {
+        addLogs({
+          fileName: `processImportMessagesWppId${whatsappId}.txt`,
+          text: `Erro ao processar mensagem ${i + 1} de ${qtd}: ${error?.message || error}`
+        });
+      }
 
       i++
     }

@@ -147,11 +147,15 @@ export const mediaUpload = async (
   res: Response
 ): Promise<Response> => {
   const { id } = req.params;
+  const { companyId } = req.user;
   const files = req.files as Express.Multer.File[];
   const file = head(files);
 
   try {
     const schedule = await Schedule.findByPk(id);
+    if (!schedule || schedule.companyId !== companyId) {
+      throw new AppError("ERR_NO_SCHEDULE_FOUND", 404);
+    }
     schedule.mediaPath = file.filename;
     schedule.mediaName = file.originalname;
 
@@ -167,9 +171,13 @@ export const deleteMedia = async (
   res: Response
 ): Promise<Response> => {
   const { id } = req.params;
+  const { companyId } = req.user;
 
   try {
     const schedule = await Schedule.findByPk(id);
+    if (!schedule || schedule.companyId !== companyId) {
+      throw new AppError("ERR_NO_SCHEDULE_FOUND", 404);
+    }
     const filePath = path.resolve("public", schedule.mediaPath);
     const fileExists = fs.existsSync(filePath);
     if (fileExists) {
