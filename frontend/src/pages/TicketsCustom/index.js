@@ -22,18 +22,24 @@ const useStyles = makeStyles((theme) => ({
   chatContainer: {
     flex: 1,
     minWidth: 0,
-    padding: 2,
+    boxSizing: "border-box",
+    padding: theme.spacing(1),
     height: "100%",
     minHeight: 0,
     overflowY: "hidden",
     overflowX: "hidden",
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(0.5),
+    },
   },
   chatPapper: {
     display: "flex",
     height: "100%",
     minHeight: 0,
     minWidth: 0,
-    overflowX: "hidden",
+    overflow: "hidden",
+    borderRadius: 12,
+    boxShadow: "0 1px 4px rgba(0,0,0,0.12)",
   },
   contactsWrapper: {
     display: "flex",
