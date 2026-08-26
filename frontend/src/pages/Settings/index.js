@@ -63,7 +63,9 @@ const useStyles = makeStyles((theme) => ({
 
 const SettingsCustom = () => {
   const classes = useStyles();
-  const [tab, setTab] = useState("options");
+  const initialTab =
+    new URLSearchParams(window.location.search).get("tab") || "options";
+  const [tab, setTab] = useState(initialTab);
   const [schedules, setSchedules] = useState([]);
   const [company, setCompany] = useState({});
   const [loading, setLoading] = useState(false);

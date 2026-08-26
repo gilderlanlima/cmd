@@ -5,11 +5,38 @@ import { REPO_ROOT, BRANCH } from "../../config/systemUpdate";
 const execFileAsync = promisify(execFile);
 
 interface UpdateCheckResult {
-  currentCommit: string;
-  latestCommit: string;
+  currentVersion: string;
+  latestVersion: string;
   upToDate: boolean;
-  pendingCommits: string[];
+  changes: string[];
 }
+
+const CONVENTIONAL_PREFIX = /^[a-z]+(\([^)]*\))?:\s*/i;
+const NOISE_PREFIXES = ["chore", "docs", "test", "ci", "build"];
+
+const readVersionAt = async (ref: string): Promise<string> => {
+  try {
+    const { stdout } = await execFileAsync(
+      "git",
+      ["show", `${ref}:backend/package.json`],
+      { cwd: REPO_ROOT }
+    );
+    const { version } = JSON.parse(stdout);
+    return version || "0.0.0";
+  } catch {
+    return "0.0.0";
+  }
+};
+
+const describeChange = (subject: string): string | null => {
+  const match = subject.match(/^([a-z]+)(\([^)]*\))?:/i);
+  const type = match?.[1]?.toLowerCase();
+  if (type && NOISE_PREFIXES.includes(type)) {
+    return null;
+  }
+  const clean = subject.replace(CONVENTIONAL_PREFIX, "").trim();
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
+};
 
 const CheckForUpdatesService = async (): Promise<UpdateCheckResult> => {
   await execFileAsync("git", ["fetch", "origin", BRANCH, "--quiet"], {
@@ -29,22 +56,32 @@ const CheckForUpdatesService = async (): Promise<UpdateCheckResult> => {
 
   const currentCommit = currentOut.trim();
   const latestCommit = latestOut.trim();
+  const upToDate = currentCommit === latestCommit;
 
-  let pendingCommits: string[] = [];
-  if (currentCommit !== latestCommit) {
+  const currentVersion = await readVersionAt(currentCommit);
+  const latestVersion = upToDate
+    ? currentVersion
+    : await readVersionAt(latestCommit);
+
+  let changes: string[] = [];
+  if (!upToDate) {
     const { stdout: logOut } = await execFileAsync(
       "git",
-      ["log", `${currentCommit}..${latestCommit}`, "--pretty=format:%h %s"],
+      ["log", `${currentCommit}..${latestCommit}`, "--pretty=format:%s"],
       { cwd: REPO_ROOT }
     );
-    pendingCommits = logOut.split("\n").filter(Boolean);
+    changes = logOut
+      .split("\n")
+      .filter(Boolean)
+      .map(describeChange)
+      .filter((line): line is string => Boolean(line));
   }
 
   return {
-    currentCommit,
-    latestCommit,
-    upToDate: currentCommit === latestCommit,
-    pendingCommits
+    currentVersion,
+    latestVersion,
+    upToDate,
+    changes
   };
 };
 

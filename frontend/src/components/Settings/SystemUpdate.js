@@ -121,7 +121,7 @@ const SystemUpdate = () => {
               label={
                 updateInfo.upToDate
                   ? "Atualizado"
-                  : `${updateInfo.pendingCommits.length} atualização(ões) disponível(is)`
+                  : `Versão ${updateInfo.latestVersion} disponível`
               }
               color={updateInfo.upToDate ? "default" : "primary"}
             />
@@ -129,25 +129,40 @@ const SystemUpdate = () => {
         </Box>
 
         <Typography variant="body2" color="textSecondary">
-          Verifica o repositório no GitHub e permite atualizar o backend e o
-          frontend para a versão mais recente da branch principal.
+          Verifica se há uma nova versão do sistema e permite atualizar o
+          backend e o frontend automaticamente.
         </Typography>
 
         {updateInfo && (
           <Box mt={2}>
-            <Typography variant="caption" color="textSecondary">
-              Commit atual: {updateInfo.currentCommit?.slice(0, 7)}
-              {!updateInfo.upToDate &&
-                ` → mais recente: ${updateInfo.latestCommit?.slice(0, 7)}`}
+            <Typography variant="body2">
+              {updateInfo.upToDate ? (
+                <>Você está usando a versão mais recente: <strong>{updateInfo.currentVersion}</strong></>
+              ) : (
+                <>
+                  Versão atual: <strong>{updateInfo.currentVersion}</strong>
+                  {" — "}
+                  Nova versão: <strong>{updateInfo.latestVersion}</strong>
+                </>
+              )}
             </Typography>
-            {updateInfo.pendingCommits?.length > 0 && (
-              <List dense>
-                {updateInfo.pendingCommits.map((commit) => (
-                  <ListItem key={commit} disableGutters>
-                    <ListItemText primary={commit} />
-                  </ListItem>
-                ))}
-              </List>
+            {updateInfo.changes?.length > 0 && (
+              <>
+                <Typography
+                  variant="caption"
+                  color="textSecondary"
+                  style={{ display: "block", marginTop: 8 }}
+                >
+                  O que vai mudar:
+                </Typography>
+                <List dense>
+                  {updateInfo.changes.map((change) => (
+                    <ListItem key={change} disableGutters>
+                      <ListItemText primary={change} />
+                    </ListItem>
+                  ))}
+                </List>
+              </>
             )}
           </Box>
         )}
@@ -185,7 +200,7 @@ const SystemUpdate = () => {
         onClose={setConfirmOpen}
         onConfirm={handleApply}
       >
-        Isso vai baixar a versão mais recente do GitHub, reinstalar
+        Isso vai instalar a versão {updateInfo?.latestVersion}, reinstalar
         dependências, recompilar o backend e o frontend e reiniciar os
         serviços. O sistema pode ficar indisponível por alguns minutos.
         Deseja continuar?
