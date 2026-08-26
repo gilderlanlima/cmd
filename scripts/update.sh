@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Executado pelo backend (SystemUpdateController) para atualizar o CRM a
-# partir do GitHub. Assume um checkout git na VPS (não Docker) gerenciado
-# via pm2. Uso: update.sh <logfile> <statusfile>
+# partir do GitHub. Assume um checkout git na VPS (não Docker), backend
+# gerenciado via systemd e frontend servido como arquivos estáticos.
+# Uso: update.sh <logfile> <statusfile>
 
 LOGFILE="$1"
 STATUSFILE="$2"
@@ -25,12 +26,18 @@ printf '{"running":true,"startedAt":"%s","finishedAt":null,"exitCode":null}\n' "
   echo "--- frontend: instalando dependências e buildando ---" &&
   (cd frontend && npm install --legacy-peer-deps && npm run build) &&
 
-  echo "--- reiniciando processos ---" &&
-  if command -v pm2 >/dev/null 2>&1; then
-    pm2 restart "${PM2_BACKEND_NAME:-backend}"
-    pm2 restart "${PM2_FRONTEND_NAME:-frontend}"
+  echo "--- reiniciando backend (systemd) ---" &&
+  if [ -n "$SYSTEMD_BACKEND_SERVICE" ]; then
+    sudo -n systemctl restart "$SYSTEMD_BACKEND_SERVICE"
   else
-    echo "AVISO: pm2 não encontrado - reinicie os processos manualmente."
+    echo "AVISO: SYSTEMD_BACKEND_SERVICE não definido - reinicie o backend manualmente."
+  fi &&
+
+  echo "--- publicando build do frontend ---" &&
+  if [ -n "$FRONTEND_SYNC_SCRIPT" ] && [ -x "$FRONTEND_SYNC_SCRIPT" ]; then
+    sudo -n "$FRONTEND_SYNC_SCRIPT"
+  else
+    echo "AVISO: FRONTEND_SYNC_SCRIPT não definido - publique o build do frontend manualmente."
   fi
 } >> "$LOGFILE" 2>&1
 
