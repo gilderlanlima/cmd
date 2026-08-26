@@ -2,6 +2,15 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.15
+
+- `f209580` - `fix: remove position:fixed indevido do MessageInput em telas estreitas`
+
+Corrige o corte visual (barra escura/conteudo cortado do lado esquerdo) que aparecia no
+banner "Ticket Aguardando" e na caixa de mensagem em telas mais estreitas: o wrapper usava
+`position:fixed; left:0; right:0` abaixo do breakpoint "sm", o que ancorava o elemento na
+viewport inteira em vez da coluna do chat, fazendo-o renderizar por baixo do menu lateral.
+
 ## 3.3.14
 
 - `f67f748` - `fix: corrige overflow horizontal especifico do Firefox (botoes de acao e input de mensagem)`
