@@ -218,10 +218,18 @@ const useStyles = makeStyles((theme) => ({
 
   appBarSpacer: {
     minHeight: "48px",
+    flexShrink: 0,
   },
 
   content: {
     flex: 1,
+    // display:flex column faz o appBarSpacer (altura fixa) e o conteudo da
+    // pagina dividirem a altura corretamente - sem isso (block puro), uma
+    // pagina com height:"100%" (ex.: Tickets) ignora o espaco que o spacer
+    // ja ocupou e fica 48px mais alta que o disponivel, forcando scroll na
+    // pagina inteira em vez de so no que precisa rolar internamente.
+    display: "flex",
+    flexDirection: "column",
     overflow: "auto",
     overflowX: "hidden",
     padding: 0,
@@ -591,12 +599,14 @@ const LoggedInLayout = ({ children, themeToggle, hideMenu = false }) => {
     if (companyId) {
       const buildProfileUrl = () => {
         const savedProfileImage = localStorage.getItem("profileImage");
-        const currentProfileImage = savedProfileImage || user.profileImage;
+        const currentProfileImage =
+          (savedProfileImage && savedProfileImage !== "null" && savedProfileImage) ||
+          user.profileImage;
 
         if (currentProfileImage) {
           return `${backendUrl}/public/company${companyId}/user/${currentProfileImage}`;
         }
-        return `${backendUrl}/public/app/noimage.png`;
+        return "/nopicture.png";
       };
 
       setProfileUrl(buildProfileUrl());
