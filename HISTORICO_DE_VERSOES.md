@@ -2,6 +2,10 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.18
+
+- `53e062e` - `fix: automatiza correcao do bug ajv-keywords no update.sh`
+
 ## 3.3.17
 
 - `7ae5795` - `feat: troca atualizacao automatica de pm2 para systemd + corrige charset do HTML`
