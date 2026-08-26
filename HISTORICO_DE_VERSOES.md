@@ -2,6 +2,11 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.12
+
+- `d807cd0` - `fix: remove uso de 100vw na AppBar principal (corta conteudo com scrollbar)`
+- `e7536ae` - `chore: bump version to 3.3.12`
+
 ## 3.3.11
 
 - `eee7861` - `fix: corrige causa raiz do scroll lateral - deteccao de largura de tela`
