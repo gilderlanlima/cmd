@@ -2,6 +2,12 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.1.8
+
+- `db9a042` - `feat: adiciona atualizacao automatica do sistema via GitHub`
+- `c0b27b5` - `fix: corrige exclusao de conexoes e fecha multiplas falhas de seguranca`
+- `0139137` - `chore: bump version to 3.1.8`
+
 ## 3.0.0
 
 - `24c63aa` - `feat: reorganiza tickets por tags e expande gestao operacional`
