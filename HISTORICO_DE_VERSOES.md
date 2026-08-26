@@ -2,10 +2,13 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
-## 3.3.13
+## 3.3.14
 
 - `f67f748` - `fix: corrige overflow horizontal especifico do Firefox (botoes de acao e input de mensagem)`
-- `d29cd78` - `chore: bump version to 3.3.13`
+- `2331ecd` - `fix: corrige conteudo invisivel por overflow em 33 paginas com tabela/lista`
+- `f040e3e` - `chore: bump version to 3.3.14`
+
+Observacao: a v3.3.13 foi publicada e depois removida (tag e release apagadas do GitHub) a pedido do usuario, que pediu para nunca usar o numero 13 em versionamento deste ou de qualquer outro projeto. O commit de correcao (f67f748) segue valido e faz parte da 3.3.14.
 
 ## 3.3.12
 
