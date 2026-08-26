@@ -43,18 +43,26 @@ printf '{"running":true,"startedAt":"%s","finishedAt":null,"exitCode":null}\n' "
     npm run build
   ) &&
 
-  echo "--- reiniciando backend (systemd) ---" &&
-  if [ -n "$SYSTEMD_BACKEND_SERVICE" ]; then
-    sudo -n systemctl restart "$SYSTEMD_BACKEND_SERVICE"
-  else
-    echo "AVISO: SYSTEMD_BACKEND_SERVICE não definido - reinicie o backend manualmente."
-  fi &&
-
   echo "--- publicando build do frontend ---" &&
   if [ -n "$FRONTEND_SYNC_SCRIPT" ] && [ -x "$FRONTEND_SYNC_SCRIPT" ]; then
     sudo -n "$FRONTEND_SYNC_SCRIPT"
   else
     echo "AVISO: FRONTEND_SYNC_SCRIPT não definido - publique o build do frontend manualmente."
+  fi &&
+
+  echo "--- reiniciando backend (systemd) ---" &&
+  if [ -n "$SYSTEMD_BACKEND_SERVICE" ]; then
+    # Este script roda dentro do proprio cgroup do servico do backend (foi
+    # spawnado pelo processo Node gerenciado por esse mesmo servico). Um
+    # "systemctl restart" direto mata o cgroup inteiro - incluindo este
+    # script - antes dele terminar, deixando o status travado em
+    # "running" e nunca finalizando o log. "systemd-run" pede pro systemd
+    # (PID 1) rodar o restart numa unit transiente separada, fora do
+    # cgroup atual, entao o restart do backend nao mata quem o disparou.
+    sudo -n systemd-run --unit="crm-backend-restart-$(date +%s)" --collect \
+      /usr/bin/systemctl restart "$SYSTEMD_BACKEND_SERVICE"
+  else
+    echo "AVISO: SYSTEMD_BACKEND_SERVICE não definido - reinicie o backend manualmente."
   fi
 } >> "$LOGFILE" 2>&1
 

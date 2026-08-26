@@ -75,13 +75,26 @@ Isso é resolvido com um sudoers escopado (`/etc/sudoers.d/crm-deploy`,
 só nessa VPS, não versionado) liberando, sem senha, apenas:
 
 ```
-crmideia ALL=(root) NOPASSWD: /usr/bin/systemctl restart crm-backend.service
+crmideia ALL=(root) NOPASSWD: /usr/bin/systemd-run --unit=crm-backend-restart-* --collect /usr/bin/systemctl restart crm-backend.service
 crmideia ALL=(root) NOPASSWD: /usr/local/bin/crm-sync-frontend.sh
 ```
 
 `/usr/local/bin/crm-sync-frontend.sh` (root:root, 700, caminhos
 hardcoded, sem argumentos) faz o rsync do build para o htdocs do
 `crmideiafront` e corrige o dono dos arquivos.
+
+**Gotcha (self-kill no restart)**: `update.sh` roda dentro do cgroup do
+próprio `crm-backend.service` (foi spawnado pelo processo Node que esse
+serviço gerencia). Um `sudo systemctl restart crm-backend.service`
+direto mata o cgroup inteiro — incluindo o próprio `update.sh` — antes
+dele conseguir publicar o frontend e finalizar o status, deixando o
+painel travado em "atualizando" para sempre. Por isso o restart é feito
+via `systemd-run`, que pede pro systemd (PID 1) rodar numa unit
+transiente separada, fora do cgroup atual — e a publicação do frontend
+acontece *antes* do restart no script, não depois, para não depender
+dele. **Se a regra de sudoers antiga (`systemctl restart` direto) ainda
+estiver na VPS, ela precisa ser trocada pela de `systemd-run` acima
+antes desta versão do `update.sh` funcionar em produção.**
 
 `backend/.env` nesta VPS define:
 
