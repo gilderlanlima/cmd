@@ -32,9 +32,6 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.paper,
   },
   mainPaper: {
-    ...theme.scrollbarStyles,
-    overflowY: "scroll",
-    overflowX: "auto",
     flex: 1,
   },
   tab: {
@@ -42,8 +39,6 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 4,
   },
   paper: {
-    ...theme.scrollbarStyles,
-    overflowY: "scroll",
     padding: theme.spacing(2),
     display: "flex",
     alignItems: "center",
