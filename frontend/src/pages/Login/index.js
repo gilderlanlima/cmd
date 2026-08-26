@@ -9,12 +9,15 @@ import IconButton from "@material-ui/core/IconButton";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
+import LockIcon from "@material-ui/icons/Lock";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import ColorModeContext from "../../layout/themeContext";
 import useSettings from "../../hooks/useSettings";
 import { getBackendUrl } from "../../config";
 import logo from "../../assets/logo.png";
+
+const packageVersion = require("../../../package.json").version;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -75,14 +78,15 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     color: "#0f346d",
     fontWeight: 600,
-    fontSize: 18,
+    fontSize: 17,
   },
-  cnpj: {
+  companyInfo: {
     textAlign: "center",
-    color: "#50638a",
+    color: "#9aa8c2",
     fontWeight: 500,
-    fontSize: 14,
-    marginBottom: 8,
+    fontSize: 11,
+    lineHeight: 1.5,
+    marginTop: 4,
   },
   formBox: {
     width: "100%",
@@ -90,49 +94,73 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 18,
     boxShadow: "0 12px 32px rgba(10, 47, 102, 0.10)",
     border: "1px solid #dce4f2",
-    padding: "28px 22px",
-    minHeight: 350,
+    padding: "26px 24px",
   },
   form: {
     width: "100%",
     display: "flex",
     flexDirection: "column",
-    gap: 16,
+    gap: 18,
   },
   textField: {
     "& .MuiOutlinedInput-root": {
-      borderRadius: 12,
+      borderRadius: 10,
       backgroundColor: "#f8fafe",
+      fontSize: 15,
+    },
+    "& .MuiOutlinedInput-input": {
+      padding: "14px 14px",
+    },
+    "& .MuiInputLabel-outlined": {
+      fontSize: 15,
     },
     "& .MuiInputLabel-root": {
       fontWeight: 600,
       color: "#294370",
-      letterSpacing: "0.02em",
+      letterSpacing: "0.01em",
     },
   },
-  submitWrap: {
-    width: "100%",
-    display: "flex",
-    justifyContent: "center",
-    marginTop: 4,
-  },
   submitBtn: {
-    minWidth: 180,
-    borderRadius: 12,
-    padding: "10px 24px",
+    width: "100%",
+    borderRadius: 10,
+    padding: "11px 24px",
     background: "linear-gradient(90deg, #1d5bcc 0%, #18a6e6 100%)",
     color: "#fff",
-    fontWeight: 700,
+    fontWeight: 600,
     textTransform: "none",
-    fontSize: 22,
+    fontSize: 15.5,
+    letterSpacing: "0.01em",
+    boxShadow: "0 6px 16px rgba(29, 91, 204, 0.25)",
     "&:hover": {
       background: "linear-gradient(90deg, #1548ac 0%, #0e8fca 100%)",
     },
+  },
+  securitySeal: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    color: "#7b8aa8",
+    fontSize: 11.5,
+    fontWeight: 500,
+    marginTop: 2,
+  },
+  sealIcon: {
+    fontSize: 14,
+    color: "#2a9d5c",
+  },
+  version: {
+    color: "#9aa8c2",
+    fontSize: 11,
+    fontWeight: 500,
+    marginTop: 2,
   },
 }));
 
 const Login = () => {
   const classes = useStyles();
+  const isSecureConnection =
+    typeof window !== "undefined" && window.location.protocol === "https:";
   const { handleLogin } = useContext(AuthContext);
   const { getPublicSetting } = useSettings();
   const colorModeContext = useContext(ColorModeContext);
@@ -261,10 +289,7 @@ const Login = () => {
               onError={() => setLogoSrc(logo)}
             />
             <Typography className={classes.subHeading}>
-              Bem-vindo ao CRM Ideia no Bolso!
-            </Typography>
-            <Typography className={classes.cnpj}>
-              CNPJ: 64.016.500/0001-02
+              Bem-vindo ao {dynamicAppName}!
             </Typography>
 
             <div className={classes.formBox}>
@@ -310,13 +335,26 @@ const Login = () => {
                   }}
                 />
 
-                <div className={classes.submitWrap}>
-                  <Button type="submit" variant="contained" className={classes.submitBtn}>
-                    Entrar
-                  </Button>
-                </div>
+                <Button type="submit" variant="contained" className={classes.submitBtn}>
+                  Entrar
+                </Button>
               </form>
             </div>
+
+            {isSecureConnection && (
+              <div className={classes.securitySeal}>
+                <LockIcon className={classes.sealIcon} />
+                <span>Conexão segura e criptografada (HTTPS/TLS)</span>
+              </div>
+            )}
+            <Typography className={classes.version}>
+              Versão {packageVersion}
+            </Typography>
+            <Typography className={classes.companyInfo}>
+              IDEIA NO BOLSO LTDA — CNPJ: 64.016.500/0001-02
+              <br />
+              R. Comendador Torlogo Dauntre, 74, Sala 1207 — Cambuí — Campinas/SP
+            </Typography>
           </Container>
         </div>
       </div>

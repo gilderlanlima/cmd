@@ -29,7 +29,8 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     whiteSpace: "nowrap",
-    maxWidth: "94vw",
+    width: "max-content",
+    maxWidth: "min(94vw, 360px)",
     fontSize: 13,
   },
   dot: {
