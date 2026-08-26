@@ -2,6 +2,16 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.16
+
+- `b07eed4` - `style: torna notificacao de versao mais discreta e remove referencias a GitHub/commit`
+- `c2a91a1` - `fix: corrige banner de versao esticado no Firefox e reformula tela de login`
+
+Notificacao de nova versao agora e um selo discreto de uma linha (sem mencionar GitHub/commit,
+com descricao do que muda e para qual versao); corrigido bug de Firefox que esticava esse selo
+quase full-width; tela de login com tipografia/inputs revisados, botao "Entrar" no tamanho certo,
+selo de conexao segura HTTPS/TLS real, numero da versao e rodape com razao social/CNPJ/endereco.
+
 ## 3.3.15
 
 - `f209580` - `fix: remove position:fixed indevido do MessageInput em telas estreitas`
