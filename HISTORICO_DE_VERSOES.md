@@ -2,6 +2,10 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.19
+
+- `9c55862` - `fix: evita que NODE_ENV=production do backend quebre o build do update.sh`
+
 ## 3.3.18
 
 - `53e062e` - `fix: automatiza correcao do bug ajv-keywords no update.sh`
