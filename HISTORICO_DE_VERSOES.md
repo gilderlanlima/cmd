@@ -2,6 +2,11 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.10
+
+- `afd61d2` - `fix: corrige scroll lateral real na lista de mensagens do ticket`
+- `ee4312c` - `chore: bump version to 3.3.10`
+
 ## 3.3.9
 
 - `19ca310` - `fix: corrige scroll lateral na conversa do ticket e crash no login`
