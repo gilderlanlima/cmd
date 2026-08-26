@@ -117,7 +117,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 20,
     marginTop: 2,
     minWidth: 100,
-    maxWidth: 600,
+    maxWidth: "min(600px, 100%)",
     height: "auto",
     display: "block",
     position: "relative",
@@ -154,7 +154,7 @@ const useStyles = makeStyles((theme) => ({
 
   quotedMsg: {
     padding: 10,
-    maxWidth: 300,
+    maxWidth: "min(300px, 100%)",
     height: "auto",
     display: "block",
     whiteSpace: "pre-wrap",
@@ -171,7 +171,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 20,
     marginTop: 2,
     minWidth: 100,
-    maxWidth: 600,
+    maxWidth: "min(600px, 100%)",
     height: "auto",
     display: "block",
     position: "relative",
@@ -200,7 +200,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 20,
     marginTop: 2,
     minWidth: 100,
-    maxWidth: 600,
+    maxWidth: "min(600px, 100%)",
     height: "auto",
     display: "block",
     position: "relative",
@@ -227,7 +227,7 @@ const useStyles = makeStyles((theme) => ({
 
   quotedContainerRight: {
     margin: "-3px -80px 6px -6px",
-    overflowY: "hidden",
+    overflow: "hidden",
     backgroundColor: theme.mode === 'light' ? "#cfe9ba" : "#025144",
     borderRadius: "7.5px",
     display: "flex",
@@ -236,7 +236,7 @@ const useStyles = makeStyles((theme) => ({
 
   quotedMsgRight: {
     padding: 10,
-    maxWidth: 300,
+    maxWidth: "min(300px, 100%)",
     height: "auto",
     whiteSpace: "pre-wrap",
   },
@@ -265,6 +265,7 @@ const useStyles = makeStyles((theme) => ({
 
   textContentItem: {
     overflowWrap: "break-word",
+    wordBreak: "break-word",
     padding: "3px 80px 6px 6px",
   },
 
@@ -272,6 +273,7 @@ const useStyles = makeStyles((theme) => ({
     fontStyle: "italic",
     color: "rgba(0, 0, 0, 0.36)",
     overflowWrap: "break-word",
+    wordBreak: "break-word",
     padding: "3px 80px 6px 6px",
   },
 
