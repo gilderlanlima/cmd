@@ -34,6 +34,7 @@ const useStyles = makeStyles((theme) => ({
   mainPaper: {
     ...theme.scrollbarStyles,
     overflowY: "scroll",
+    overflowX: "auto",
     flex: 1,
   },
   tab: {

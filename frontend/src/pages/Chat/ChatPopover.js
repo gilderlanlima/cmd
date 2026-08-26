@@ -43,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: 500,
     padding: theme.spacing(1),
     overflowY: "scroll",
+    overflowX: "auto",
     ...theme.scrollbarStyles,
   },
 }));

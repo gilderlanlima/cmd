@@ -12,6 +12,7 @@ const useStyles = makeStyles(theme => ({
         padding: 1,
         borderRadius: 0,
         overflowY: "scroll",
+    overflowX: "auto",
         padding: 1,
         ...theme.scrollbarStylesSoftBig
     },

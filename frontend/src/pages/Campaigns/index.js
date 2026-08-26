@@ -97,6 +97,7 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
     padding: theme.padding,
     overflowY: "scroll",
+    overflowX: "auto",
     ...theme.scrollbarStyles,
   },
   recurringChip: {

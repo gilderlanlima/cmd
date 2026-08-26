@@ -88,6 +88,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 12,
     padding: theme.spacing(1),
     overflowY: "scroll",
+    overflowX: "auto",
     ...theme.scrollbarStyles,
   },
   whatsappChip: {

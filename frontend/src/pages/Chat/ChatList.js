@@ -56,6 +56,7 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
     flex: 1,
     overflowY: "scroll",
+    overflowX: "auto",
     ...theme.scrollbarStyles,
   },
   listItemActive: {

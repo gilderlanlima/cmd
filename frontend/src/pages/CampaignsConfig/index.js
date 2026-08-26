@@ -34,6 +34,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1),
     // padding: theme.padding,
     overflowY: "scroll",
+    overflowX: "auto",
     ...theme.scrollbarStyles,
   },
   textRight: {

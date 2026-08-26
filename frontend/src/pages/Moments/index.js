@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     padding: theme.spacing(1),
     overflowY: "scroll",
+    overflowX: "auto",
     ...theme.scrollbarStyles,
     alignItems: "center",
   },
