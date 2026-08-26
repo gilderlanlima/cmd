@@ -263,7 +263,7 @@ export default function ChatPopover(volume) {
         color={invisible ? "default" : "inherit"}
         onClick={handleClick}
         style={{ color: "white" }}
-        size="large"
+        size="medium"
       >
         <Badge color="secondary" variant="dot" invisible={invisible}>
           <MdOutlineForum size={18} />

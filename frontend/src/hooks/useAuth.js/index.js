@@ -191,7 +191,11 @@ const useAuth = () => {
         }
       }
       
-      localStorage.setItem("profileImage", data.user.profileImage);
+      if (data.user.profileImage) {
+        localStorage.setItem("profileImage", data.user.profileImage);
+      } else {
+        localStorage.removeItem("profileImage");
+      }
 
       moment.locale("pt-br");
       let dueDate;

@@ -1002,7 +1002,7 @@ export default function ChatMessages({
                   fontSize="large"
                   disabled={loading}
                   onClick={handleCancelAudio}
-                  size="large"
+                  size="medium"
                 >
                   <HighlightOffIcon className={classes.cancelAudioIcon} />
                 </IconButton>
@@ -1019,7 +1019,7 @@ export default function ChatMessages({
                   component="span"
                   onClick={handleUploadAudio}
                   disabled={loading}
-                  size="large"
+                  size="medium"
                 >
                   <CheckCircleOutlineIcon className={classes.sendAudioIcon} />
                 </IconButton>
@@ -1037,7 +1037,7 @@ export default function ChatMessages({
                         aria-label="cancel-upload"
                         component="span"
                         onClick={(e) => setMedias([])}
-                        size="large"
+                        size="medium"
                       >
                         <CancelIcon className={classes.sendMessageIcons} />
                       </IconButton>
@@ -1054,7 +1054,7 @@ export default function ChatMessages({
                         component="span"
                         onClick={handleSendMedia}
                         disabled={loading}
-                        size="large"
+                        size="medium"
                       >
                         <SendIcon className={classes.sendMessageIcons} />
                       </IconButton>
@@ -1109,7 +1109,7 @@ export default function ChatMessages({
                             <IconButton
                               onClick={handleSendClick}
                               className={classes.buttonSend}
-                              size="large"
+                              size="medium"
                             >
                               <SendIcon />
                             </IconButton>
@@ -1119,7 +1119,7 @@ export default function ChatMessages({
                               component="span"
                               disabled={loading}
                               onClick={handleStartRecording}
-                              size="large"
+                              size="medium"
                             >
                               <MicIcon className={classes.sendMessageIcons} />
                             </IconButton>
@@ -1162,7 +1162,7 @@ const FileInput = (props) => {
           aria-label="upload"
           component="span"
           disabled={disableOption}
-          size="large"
+          size="medium"
         >
           <AttachFileIcon className={classes.sendMessageIcons} />
         </IconButton>

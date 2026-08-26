@@ -62,7 +62,7 @@ const AvatarUploader = ({ setAvatar, avatar, companyId }) => {
   const getImageSrc = () => {
     if (previewImage) return previewImage;
     if (avatar && companyId) return `${backendUrl}/public/company${companyId}/user/${avatar}`;
-    return `${backendUrl}/public/app/noimage.png`;
+    return "/nopicture.png";
   };
 
   return (
@@ -74,7 +74,7 @@ const AvatarUploader = ({ setAvatar, avatar, companyId }) => {
         onClick={() => document.getElementById('avatar-upload').click()}
         onError={(e) => {
           // Fallback para imagem padrão em caso de erro
-          e.target.src = `${backendUrl}/public/app/noimage.png`;
+          e.target.src = "/nopicture.png";
         }}
       />
 
