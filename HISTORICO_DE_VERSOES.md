@@ -2,6 +2,11 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.9
+
+- `19ca310` - `fix: corrige scroll lateral na conversa do ticket e crash no login`
+- `a956c4e` - `chore: bump version to 3.3.9`
+
 ## 3.1.8
 
 - `db9a042` - `feat: adiciona atualizacao automatica do sistema via GitHub`
