@@ -107,7 +107,10 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("sm")]: {
       position: "fixed",
       bottom: 0,
-      width: "100%",
+      left: 0,
+      right: 0,
+      width: "auto",
+      maxWidth: "100%",
     },
   },
   "@keyframes pulse": {

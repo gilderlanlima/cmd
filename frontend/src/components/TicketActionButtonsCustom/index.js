@@ -61,11 +61,13 @@ const useStyles = makeStyles((theme) => ({
   actionButtons: {
     marginRight: 6,
     maxWidth: "100%",
-    flex: "none",
+    minWidth: 0,
+    flex: "0 1 auto",
     alignSelf: "center",
     marginLeft: "auto",
-    // flexBasis: "50%",
     display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "flex-end",
     gap: 4,
     "& > *": {
       margin: 0,
