@@ -24,7 +24,19 @@ printf '{"running":true,"startedAt":"%s","finishedAt":null,"exitCode":null}\n' "
   (cd backend && npm install --legacy-peer-deps && npm run build) &&
 
   echo "--- frontend: instalando dependências e buildando ---" &&
-  (cd frontend && npm install --legacy-peer-deps && npm run build) &&
+  (
+    cd frontend &&
+    npm install --legacy-peer-deps &&
+    # ajv-keywords e schema-utils podem instalar versões incompatíveis do
+    # ajv (quebra o build com "Cannot find module 'ajv/dist/compile/codegen'").
+    # Best-effort: se schema-utils trouxe uma versão própria do ajv, usa a
+    # mesma para ajv-keywords. Ver docs/deploy-vps.md.
+    if [ -d node_modules/schema-utils/node_modules/ajv ]; then
+      mkdir -p node_modules/ajv-keywords/node_modules &&
+      cp -r node_modules/schema-utils/node_modules/ajv node_modules/ajv-keywords/node_modules/ajv
+    fi &&
+    npm run build
+  ) &&
 
   echo "--- reiniciando backend (systemd) ---" &&
   if [ -n "$SYSTEMD_BACKEND_SERVICE" ]; then

@@ -61,19 +61,18 @@ FRONTEND_SYNC_SCRIPT=/usr/local/bin/crm-sync-frontend.sh
 
 ## Gotcha conhecido: ajv-keywords x ajv
 
-`npm install` no frontend quebra o build (`Cannot find module
+`npm install` no frontend pode quebrar o build (`Cannot find module
 'ajv/dist/compile/codegen'`) por incompatibilidade entre a versão do
 `ajv` que `ajv-keywords` espera e a que o `schema-utils` instala. Não
 depender de `overrides` no `package.json` (trava o install por 40+
-minutos nesse ambiente) — em vez disso, depois do `npm install`, copiar
-a versão compatível manualmente:
+minutos nesse ambiente). `update.sh` já automatiza a correção (copia a
+versão do `ajv` que o `schema-utils` trouxe para dentro de
+`ajv-keywords/node_modules`) — se mesmo assim o build falhar com esse
+erro, repetir manualmente:
 
 ```bash
 cp -r node_modules/schema-utils/node_modules/ajv node_modules/ajv-keywords/node_modules/ajv
 ```
-
-`update.sh` ainda não automatiza esse passo — se uma atualização futura
-falhar no build do frontend com esse erro, repetir o comando acima.
 
 ## Credenciais e segredos
 
