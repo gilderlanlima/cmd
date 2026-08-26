@@ -2,6 +2,15 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.21
+
+- `d36b444` - `fix: remove checagem -x incorreta que pulava a publicacao do frontend`
+
+Corrige a causa raiz do frontend em producao ficar desatualizado apos uma atualizacao:
+o update.sh checava permissao de execucao direta num script que e 700 (root:root)
+de proposito, entao a checagem sempre falhava e a publicacao do frontend era pulada
+silenciosamente. Aplicado e validado em producao (wp.ideianobolso.com / wp-bk.ideianobolso.com).
+
 ## 3.3.20
 
 - `5443206` - `fix: corrige erros de console no ambiente local`
