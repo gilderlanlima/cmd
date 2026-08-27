@@ -2,12 +2,13 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from "re
 import { toast } from "react-toastify";
 import {
   Avatar,
+  Box,
   Button,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
+  Divider,
   FormControl,
   Grid,
   IconButton,
@@ -27,7 +28,10 @@ import {
 } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
-import AlarmOnIcon from "@material-ui/icons/AlarmOn";
+import AlarmOnOutlinedIcon from "@material-ui/icons/AlarmOnOutlined";
+import PersonOutlineOutlinedIcon from "@material-ui/icons/PersonOutlineOutlined";
+import NotificationsActiveOutlinedIcon from "@material-ui/icons/NotificationsActiveOutlined";
+import EventNoteOutlinedIcon from "@material-ui/icons/EventNoteOutlined";
 
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
@@ -93,23 +97,102 @@ const useStyles = makeStyles((theme) => ({
   },
   dialogContent: {
     overflowX: "hidden",
+    padding: theme.spacing(3),
+  },
+  dialogHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(2),
+    padding: theme.spacing(2.5, 3),
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
+  dialogHeaderIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 14,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.palette.type === "dark" ? "rgba(99,102,241,0.18)" : "rgba(79,70,229,0.1)",
+    color: theme.palette.primary.main,
+    flexShrink: 0,
+  },
+  dialogHeaderTitle: {
+    fontWeight: 800,
+    lineHeight: 1.3,
+  },
+  dialogHeaderSubtitle: {
+    marginTop: 2,
+  },
+  sectionCard: {
+    padding: theme.spacing(2.5),
+    borderRadius: 16,
+    border: `1px solid ${theme.palette.divider}`,
+    marginBottom: theme.spacing(2.5),
+  },
+  sectionHeading: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(1),
+    fontWeight: 700,
+    marginBottom: theme.spacing(2),
+  },
+  toggleCard: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(2),
+    padding: theme.spacing(2),
+    borderRadius: 14,
+    background: theme.palette.type === "dark" ? "rgba(99,102,241,0.1)" : "rgba(79,70,229,0.06)",
+    border: `1px solid ${theme.palette.type === "dark" ? "rgba(99,102,241,0.25)" : "rgba(79,70,229,0.15)"}`,
+  },
+  toggleCardIcon: {
+    color: theme.palette.primary.main,
+    display: "flex",
+  },
+  toggleCardText: {
+    flex: 1,
+  },
+  daysCountChip: {
+    fontWeight: 600,
   },
   scheduleRow: {
-    marginBottom: theme.spacing(1),
-    padding: theme.spacing(1.25),
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: theme.spacing(2),
+    marginBottom: theme.spacing(1.25),
+    padding: theme.spacing(1.5, 2),
     borderRadius: 14,
     border: `1px solid ${theme.palette.divider}`,
     background: theme.palette.type === "dark" ? "#132238" : "#F8FBFF",
+    transition: "opacity 0.15s ease",
+    "&:last-child": {
+      marginBottom: 0,
+    },
+  },
+  scheduleRowDisabled: {
+    opacity: 0.55,
+  },
+  scheduleDayLabel: {
+    display: "flex",
+    alignItems: "center",
+    minWidth: 190,
+    flexShrink: 0,
   },
   scheduleLabel: {
     fontWeight: 700,
   },
-  helperBox: {
-    marginTop: theme.spacing(1),
-    padding: theme.spacing(1.5),
-    borderRadius: 12,
-    background: theme.palette.type === "dark" ? "#102038" : "#F5F8FD",
-    border: `1px solid ${theme.palette.divider}`,
+  scheduleTimes: {
+    display: "flex",
+    flex: 1,
+    gap: theme.spacing(2),
+    flexWrap: "wrap",
+    minWidth: 240,
+  },
+  scheduleTimeField: {
+    flex: 1,
+    minWidth: 130,
   },
 }));
 
@@ -226,135 +309,172 @@ const OnCallSettingModal = ({
     }
   };
 
+  const activeDaysCount = Object.values(form.schedules).filter((s) => s.enabled).length;
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper">
-      <DialogTitle>{setting?.id ? "Editar plantão" : "Adicionar plantonista"}</DialogTitle>
-      <DialogContent dividers className={classes.dialogContent}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <FormControl variant="outlined" fullWidth>
-              <InputLabel>Usuário</InputLabel>
-              <Select
-                label="Usuário"
-                value={form.userId}
+      <div className={classes.dialogHeader}>
+        <div className={classes.dialogHeaderIcon}>
+          <AlarmOnOutlinedIcon />
+        </div>
+        <div>
+          <Typography variant="h6" className={classes.dialogHeaderTitle}>
+            {setting?.id ? "Editar plantão" : "Adicionar plantonista"}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            className={classes.dialogHeaderSubtitle}
+          >
+            Configure quem recebe notificações e em quais horários o plantão fica ativo.
+          </Typography>
+        </div>
+      </div>
+      <DialogContent className={classes.dialogContent}>
+        <div className={classes.sectionCard}>
+          <Typography variant="subtitle1" className={classes.sectionHeading}>
+            <PersonOutlineOutlinedIcon fontSize="small" color="primary" />
+            Dados do plantonista
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={4}>
+              <FormControl variant="outlined" fullWidth>
+                <InputLabel>Usuário</InputLabel>
+                <Select
+                  label="Usuário"
+                  value={form.userId}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, userId: event.target.value }))
+                  }
+                >
+                  {users.map((user) => (
+                    <MenuItem key={user.id} value={user.id}>
+                      {user.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                variant="outlined"
+                label="Telefone"
+                value={form.phone}
                 onChange={(event) =>
-                  setForm((prev) => ({ ...prev, userId: event.target.value }))
+                  setForm((prev) => ({ ...prev, phone: event.target.value }))
                 }
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                variant="outlined"
+                label="Intervalo entre notificações (min)"
+                type="number"
+                inputProps={{ min: 1, max: 1440 }}
+                value={form.intervalMinutes}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    intervalMinutes: event.target.value,
+                  }))
+                }
+                fullWidth
+              />
+            </Grid>
+          </Grid>
+
+          <Box mt={2.5}>
+            <div className={classes.toggleCard}>
+              <div className={classes.toggleCardIcon}>
+                <NotificationsActiveOutlinedIcon />
+              </div>
+              <div className={classes.toggleCardText}>
+                <Typography variant="body2" style={{ fontWeight: 700 }}>
+                  Plantão ativo
+                </Typography>
+                <Typography variant="caption" color="textSecondary">
+                  Envia notificações ao número configurado quando novas conversas chegarem.
+                </Typography>
+              </div>
+              <Switch
+                checked={form.active}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, active: event.target.checked }))
+                }
+                color="primary"
+              />
+            </div>
+          </Box>
+        </div>
+
+        <div className={classes.sectionCard}>
+          <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+            <Typography variant="subtitle1" className={classes.sectionHeading} style={{ marginBottom: 0 }}>
+              <EventNoteOutlinedIcon fontSize="small" color="primary" />
+              Dias da semana
+            </Typography>
+            <Typography variant="caption" color="textSecondary" className={classes.daysCountChip}>
+              {activeDaysCount} de {DAYS.length} dias ativos
+            </Typography>
+          </Box>
+
+          {DAYS.map((day) => {
+            const daySchedule = form.schedules[day.key];
+            return (
+              <div
+                key={day.key}
+                className={`${classes.scheduleRow} ${
+                  !daySchedule.enabled ? classes.scheduleRowDisabled : ""
+                }`}
               >
-                {users.map((user) => (
-                  <MenuItem key={user.id} value={user.id}>
-                    {user.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField
-              variant="outlined"
-              label="Telefone"
-              value={form.phone}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, phone: event.target.value }))
-              }
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField
-              variant="outlined"
-              label="Intervalo entre notificações (min)"
-              type="number"
-              inputProps={{ min: 1, max: 1440 }}
-              value={form.intervalMinutes}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  intervalMinutes: event.target.value,
-                }))
-              }
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <div className={classes.helperBox}>
-              <Grid container alignItems="center" spacing={1}>
-                <Grid item>
+                <div className={classes.scheduleDayLabel}>
                   <Switch
-                    checked={form.active}
+                    checked={daySchedule.enabled}
                     onChange={(event) =>
-                      setForm((prev) => ({ ...prev, active: event.target.checked }))
+                      handleScheduleChange(day.key, "enabled", event.target.checked)
                     }
                     color="primary"
                   />
-                </Grid>
-                <Grid item>
-                  <Typography variant="body2">
-                    Ativar plantão para enviar notificações ao número configurado
-                    quando novas conversas chegarem na plataforma.
+                  <Typography variant="body2" className={classes.scheduleLabel}>
+                    {day.label}
                   </Typography>
-                </Grid>
-              </Grid>
-            </div>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="subtitle1" className={classes.scheduleLabel}>
-              Dias da semana
-            </Typography>
-          </Grid>
-          {DAYS.map((day) => (
-            <Grid item xs={12} key={day.key}>
-              <Grid container spacing={2} alignItems="center" className={classes.scheduleRow}>
-                <Grid item xs={12} md={4}>
-                  <Grid container alignItems="center" spacing={1}>
-                    <Grid item>
-                      <Switch
-                        checked={form.schedules[day.key].enabled}
-                        onChange={(event) =>
-                          handleScheduleChange(day.key, "enabled", event.target.checked)
-                        }
-                        color="primary"
-                      />
-                    </Grid>
-                    <Grid item>
-                      <Typography variant="body2">{day.label}</Typography>
-                    </Grid>
-                  </Grid>
-                </Grid>
-                <Grid item xs={12} md={4}>
+                </div>
+                <div className={classes.scheduleTimes}>
                   <TextField
                     variant="outlined"
-                    label="Início do plantão"
+                    label="Início"
                     type="time"
-                    fullWidth
+                    size="small"
+                    className={classes.scheduleTimeField}
                     InputLabelProps={{ shrink: true }}
-                    value={form.schedules[day.key].start}
+                    value={daySchedule.start}
                     onChange={(event) =>
                       handleScheduleChange(day.key, "start", event.target.value)
                     }
-                    disabled={!form.schedules[day.key].enabled}
+                    disabled={!daySchedule.enabled}
                   />
-                </Grid>
-                <Grid item xs={12} md={4}>
                   <TextField
                     variant="outlined"
-                    label="Fim do plantão"
+                    label="Fim"
                     type="time"
-                    fullWidth
+                    size="small"
+                    className={classes.scheduleTimeField}
                     InputLabelProps={{ shrink: true }}
-                    value={form.schedules[day.key].end}
+                    value={daySchedule.end}
                     onChange={(event) =>
                       handleScheduleChange(day.key, "end", event.target.value)
                     }
-                    disabled={!form.schedules[day.key].enabled}
+                    disabled={!daySchedule.enabled}
                   />
-                </Grid>
-              </Grid>
-            </Grid>
-          ))}
-        </Grid>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </DialogContent>
-      <DialogActions>
+      <Divider />
+      <DialogActions style={{ padding: 16 }}>
         <Button onClick={onClose} color="secondary" variant="outlined" disabled={saving}>
           Cancelar
         </Button>
@@ -363,7 +483,7 @@ const OnCallSettingModal = ({
           color="primary"
           variant="contained"
           disabled={saving}
-          startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <AlarmOnIcon />}
+          startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <AlarmOnOutlinedIcon />}
         >
           {setting?.id ? "Salvar" : "Adicionar"}
         </Button>

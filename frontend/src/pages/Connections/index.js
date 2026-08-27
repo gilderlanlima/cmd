@@ -10,12 +10,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { green } from "@material-ui/core/colors";
 import {
   Button,
-  TableBody,
-  TableRow,
-  TableCell,
   IconButton,
-  Table,
-  TableHead,
   Paper,
   Tooltip,
   Typography,
@@ -53,7 +48,7 @@ import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
 import Title from "../../components/Title";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
+import Skeleton from "@material-ui/lab/Skeleton";
 
 import api from "../../services/api";
 import WhatsAppModal from "../../components/WhatsAppModal";
@@ -74,16 +69,111 @@ import { getChannelMeta } from "../../utils/channelCatalog";
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
-    // padding: theme.spacing(1),
-    padding: theme.padding,
-    overflowY: "scroll",
-    overflowX: "auto",
+    padding: theme.spacing(1),
+    overflowY: "auto",
+    overflowX: "hidden",
     ...theme.scrollbarStyles,
   },
   customTableCell: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+  },
+  connectionsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+    gap: theme.spacing(2),
+    padding: theme.spacing(1),
+  },
+  connectionCard: {
+    display: "flex",
+    flexDirection: "column",
+    borderRadius: 14,
+    overflow: "hidden",
+    border: theme.mode === "light" ? "1px solid #edeff5" : "1px solid #333",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+    transition: "box-shadow 0.2s ease, transform 0.2s ease",
+    "&:hover": {
+      boxShadow: "0 8px 20px rgba(0,0,0,0.10)",
+      transform: "translateY(-2px)",
+    },
+  },
+  connectionCardColorBar: {
+    height: 4,
+    width: "100%",
+  },
+  connectionCardContent: {
+    display: "flex",
+    flexDirection: "column",
+    gap: theme.spacing(1.25),
+    padding: theme.spacing(2),
+    flex: 1,
+  },
+  connectionCardHeader: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: theme.spacing(1.25),
+  },
+  connectionChannelIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: theme.mode === "light" ? "#f5f6fa" : "#2a2a2a",
+    flexShrink: 0,
+  },
+  connectionTitleGroup: {
+    flex: 1,
+    minWidth: 0,
+  },
+  connectionName: {
+    fontWeight: 700,
+    fontSize: "0.95rem",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  connectionNumber: {
+    fontSize: "0.8rem",
+    color: theme.mode === "light" ? "#8b8f9d" : "#aaa",
+    marginTop: 2,
+  },
+  connectionStatusRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(1),
+    fontSize: "0.82rem",
+    fontWeight: 600,
+  },
+  connectionActionsRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: theme.spacing(1),
+    marginTop: "auto",
+  },
+  connectionCardFooter: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: theme.spacing(1, 2),
+    borderTop: theme.mode === "light" ? "1px solid #f1f2f7" : "1px solid #333",
+    backgroundColor: theme.mode === "light" ? "#fafbfd" : "#242424",
+  },
+  connectionUpdatedAt: {
+    fontSize: "0.72rem",
+    color: theme.mode === "light" ? "#a1a5b7" : "#888",
+  },
+  connectionIconActions: {
+    display: "flex",
+    alignItems: "center",
+  },
+  connectionEmptyState: {
+    gridColumn: "1 / -1",
+    textAlign: "center",
+    padding: theme.spacing(6),
+    color: theme.mode === "light" ? "#9aa0b4" : "#888",
   },
   tooltip: {
     backgroundColor: "#f5f5f9",
@@ -579,6 +669,18 @@ const Connections = () => {
     );
   };
 
+  const getStatusLabel = (whatsApp) => {
+    const labels = {
+      DISCONNECTED: { text: i18n.t("connections.toolTips.disconnected.title"), color: "#e74c3c" },
+      OPENING: { text: i18n.t("connections.buttons.connecting"), color: "#8b8f9d" },
+      qrcode: { text: i18n.t("connections.toolTips.qrcode.title"), color: "#f5a623" },
+      CONNECTED: { text: i18n.t("connections.toolTips.connected.title"), color: "#22a860" },
+      TIMEOUT: { text: i18n.t("connections.toolTips.timeout.title"), color: "#e74c3c" },
+      PAIRING: { text: i18n.t("connections.toolTips.timeout.title"), color: "#e74c3c" },
+    };
+    return labels[whatsApp.status] || { text: whatsApp.status, color: "#8b8f9d" };
+  };
+
   const restartWhatsapps = async () => {
 
     try {
@@ -1022,124 +1124,130 @@ const Connections = () => {
           }
 
           <Paper className={classes.mainPaper} variant="outlined">
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center">Channel</TableCell>
-                  <TableCell align="center">{i18n.t("connections.table.color")}</TableCell>
-                  <TableCell align="center">{i18n.t("connections.table.name")}</TableCell>
-                  <TableCell align="center">{i18n.t("connections.table.number")}</TableCell>
-                  <TableCell align="center">{i18n.t("connections.table.status")}</TableCell>
-                  <TableCell align="center">{i18n.t("connections.table.session")}</TableCell>
-                  <TableCell align="center">{i18n.t("connections.table.lastUpdate")}</TableCell>
-                  <TableCell align="center">{i18n.t("connections.table.default")}</TableCell>
-                  <Can
-                    role={user.profile === "user" && user.allowConnections === "enabled" ? "admin" : user.profile}
-                    perform="connections-page:addConnection"
-                    yes={() => (
-                      <TableCell align="center">{i18n.t("connections.table.actions")}</TableCell>
-                    )}
-                  />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {loading ? (
-                  <TableRowSkeleton />
-                ) : (
-                  <>
-                    {whatsApps?.length > 0 &&
-                      whatsApps.map((whatsApp) => (
-                        <TableRow key={whatsApp.id}>
-                          <TableCell align="center">
-                            <Tooltip title={getChannelMeta(whatsApp.channel).label}>
-                              <span>{getChannelMeta(whatsApp.channel).render({ size: 18, fontSize: "small" })}</span>
-                            </Tooltip>
-                          </TableCell>
-                          <TableCell align="center">
-                            <div className={classes.customTableCell}>
-                              <span
-                                style={{
-                                  backgroundColor: whatsApp.color,
-                                  width: 60,
-                                  height: 20,
-                                  alignSelf: "center",
-                                }}
-                              />
-                            </div>
-                          </TableCell>
-                          <TableCell align="center">{whatsApp.name}</TableCell>
-                          <TableCell align="center">
-                            {whatsApp.channel === 'whatsapp' && whatsApp.number
-                              ? <>{formatSerializedId(whatsApp.number)}</>
-                              : whatsApp.channel === 'whatsapp_oficial' && whatsApp.phone_number
-                                  ? <>{formatSerializedId(whatsApp.phone_number)}</>
-                                  : "-"}
-                          </TableCell>
-                          <TableCell align="center">{renderStatusToolTips(whatsApp)}</TableCell>
-                          <TableCell align="center">{renderActionButtons(whatsApp)}</TableCell>
-                          <TableCell align="center">{format(parseISO(whatsApp.updatedAt), "dd/MM/yy HH:mm")}</TableCell>
-                          <TableCell align="center">
-                            {whatsApp.isDefault && (
-                              <div className={classes.customTableCell}>
-                                <CheckCircle style={{ color: green[500] }} />
-                              </div>
-                            )}
-                          </TableCell>
-                          <Can
-                            role={user.profile}
-                            perform="connections-page:addConnection"
-                            yes={() => (
-                              <TableCell align="center">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => handleEditWhatsApp(whatsApp)}
-                                >
-                                  <Edit />
-                                </IconButton>
+            {loading ? (
+              <div className={classes.connectionsGrid}>
+                {[1, 2, 3].map((n) => (
+                  <div key={n} className={classes.connectionCard} style={{ minHeight: 180, padding: 16 }}>
+                    <Skeleton animation="wave" variant="circle" width={40} height={40} style={{ marginBottom: 12 }} />
+                    <Skeleton animation="wave" height={24} width="70%" style={{ marginBottom: 8 }} />
+                    <Skeleton animation="wave" height={18} width="45%" style={{ marginBottom: 16 }} />
+                    <Skeleton animation="wave" height={32} width="60%" />
+                  </div>
+                ))}
+              </div>
+            ) : whatsApps?.length > 0 ? (
+              <div className={classes.connectionsGrid}>
+                {whatsApps.map((whatsApp) => {
+                  const status = getStatusLabel(whatsApp);
+                  const number =
+                    whatsApp.channel === "whatsapp" && whatsApp.number
+                      ? formatSerializedId(whatsApp.number)
+                      : whatsApp.channel === "whatsapp_oficial" && whatsApp.phone_number
+                        ? formatSerializedId(whatsApp.phone_number)
+                        : null;
 
-                                <IconButton
-                                  size="small"
-                                  onClick={(e) => {
-                                    handleOpenPreDeleteModal(whatsApp.id);
-                                  }}
-                                >
-                                  <DeleteOutline />
-                                </IconButton>
-                                {whatsApp.channel === "whatsapp_oficial" && (
-                                  <>
-                                    <Tooltip title="Sincronizar templates">
-                                      <IconButton
-                                        size="small"
-                                        aria-label="sync-templates"
-                                        onClick={(e) => {
-                                          handleSyncTemplates(whatsApp.id);
-                                        }}
-                                      >
-                                        <Sync />
-                                      </IconButton>
-                                    </Tooltip>
-                                    <Tooltip title="Copiar webhook para Meta">
-                                      <IconButton
-                                        size="small"
-                                        aria-label="copy-webhook"
-                                        onClick={(e) => {
-                                          handleCopyWebhook(whatsApp.waba_webhook);
-                                        }}
-                                      >
-                                        <WebhookIcon />
-                                      </IconButton>
-                                    </Tooltip>
-                                  </>
-                                )}
-                              </TableCell>
-                            )}
-                          />
-                        </TableRow>
-                      ))}
-                  </>
-                )}
-              </TableBody>
-            </Table>
+                  return (
+                    <Card key={whatsApp.id} className={classes.connectionCard} variant="outlined">
+                      <div
+                        className={classes.connectionCardColorBar}
+                        style={{ backgroundColor: whatsApp.color || "#ddd" }}
+                      />
+                      <CardContent className={classes.connectionCardContent}>
+                        <div className={classes.connectionCardHeader}>
+                          <Tooltip title={getChannelMeta(whatsApp.channel).label}>
+                            <div className={classes.connectionChannelIcon}>
+                              {getChannelMeta(whatsApp.channel).render({ size: 20, fontSize: "small" })}
+                            </div>
+                          </Tooltip>
+                          <div className={classes.connectionTitleGroup}>
+                            <Typography className={classes.connectionName} title={whatsApp.name}>
+                              {whatsApp.name}
+                            </Typography>
+                            <Typography className={classes.connectionNumber}>
+                              {number || "—"}
+                            </Typography>
+                          </div>
+                          {whatsApp.isDefault && (
+                            <Chip
+                              size="small"
+                              label={i18n.t("connections.table.default")}
+                              style={{ backgroundColor: "#E2F7E8", color: "#166534", fontWeight: 700 }}
+                            />
+                          )}
+                        </div>
+
+                        <div className={classes.connectionStatusRow}>
+                          {renderStatusToolTips(whatsApp)}
+                          <span style={{ color: status.color }}>{status.text}</span>
+                        </div>
+
+                        <div className={classes.connectionActionsRow}>
+                          {renderActionButtons(whatsApp)}
+                        </div>
+                      </CardContent>
+
+                      <div className={classes.connectionCardFooter}>
+                        <Typography className={classes.connectionUpdatedAt}>
+                          {format(parseISO(whatsApp.updatedAt), "dd/MM/yy HH:mm")}
+                        </Typography>
+                        <Can
+                          role={user.profile}
+                          perform="connections-page:addConnection"
+                          yes={() => (
+                            <div className={classes.connectionIconActions}>
+                              <IconButton
+                                size="small"
+                                onClick={() => handleEditWhatsApp(whatsApp)}
+                              >
+                                <Edit fontSize="small" />
+                              </IconButton>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  handleOpenPreDeleteModal(whatsApp.id);
+                                }}
+                              >
+                                <DeleteOutline fontSize="small" />
+                              </IconButton>
+                              {whatsApp.channel === "whatsapp_oficial" && (
+                                <>
+                                  <Tooltip title="Sincronizar templates">
+                                    <IconButton
+                                      size="small"
+                                      aria-label="sync-templates"
+                                      onClick={(e) => {
+                                        handleSyncTemplates(whatsApp.id);
+                                      }}
+                                    >
+                                      <Sync fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title="Copiar webhook para Meta">
+                                    <IconButton
+                                      size="small"
+                                      aria-label="copy-webhook"
+                                      onClick={(e) => {
+                                        handleCopyWebhook(whatsApp.waba_webhook);
+                                      }}
+                                    >
+                                      <WebhookIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                </>
+                              )}
+                            </div>
+                          )}
+                        />
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className={classes.connectionEmptyState}>
+                <Typography>{i18n.t("connections.title")}</Typography>
+              </div>
+            )}
           </Paper>
         </>
       }

@@ -47,7 +47,6 @@ import { i18n } from "../../translate/i18n";
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
-import MainContainer from "../../components/MainContainer";
 import toastError from "../../errors/toastError";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
@@ -124,11 +123,30 @@ const reducer = (state, action) => {
 };
 
 const useStyles = makeStyles((theme) => ({
+  // Layout proprio (nao usa MainContainer) para o cabecalho de filtros/
+  // busca/importar-exportar/adicionar ficar fixo e so o grid de baixo
+  // rolar internamente - mesmo espacamento de borda usado na tela de
+  // Tickets (8px em todas as direcoes).
+  pageRoot: {
+    height: "100%",
+    minHeight: 0,
+    display: "flex",
+    flexDirection: "column",
+    gap: theme.spacing(1),
+    padding: theme.spacing(1),
+    boxSizing: "border-box",
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(0.5),
+    },
+  },
   mainPaper: {
     flex: 1,
+    minHeight: 0,
     padding: theme.spacing(1),
-    overflowY: "scroll",
-    overflowX: "auto",
+    overflowY: "auto",
+    overflowX: "hidden",
+    borderRadius: 14,
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)",
     ...theme.scrollbarStyles,
   },
   avatarCell: {
@@ -602,7 +620,7 @@ const Contacts = () => {
   const checkboxStatus = selectAllCheckboxStatus();
 
   return (
-    <MainContainer className={classes.mainContainer}>
+    <div className={classes.pageRoot}>
       <NewTicketModal
         modalOpen={newTicketModalOpen}
         initialContact={contactTicket}
@@ -1044,7 +1062,7 @@ const Contacts = () => {
           </TableBody>
         </Table>
       </Paper>
-    </MainContainer>
+    </div>
   );
 };
 

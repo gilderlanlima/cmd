@@ -347,7 +347,71 @@ const App = () => {
               root: {
                 boxShadow: 'none',
               }
-            }
+            },
+
+            // Chips (tags de status como "ATENDIMENTO") mais refinados
+            MuiChip: {
+              root: {
+                borderRadius: 6,
+                fontWeight: 600,
+                fontSize: '0.72rem',
+                letterSpacing: '0.02em',
+              }
+            },
+
+            // Tabelas com hover sutil e mais respiro
+            MuiTableCell: {
+              root: {
+                borderBottom: mode === "light"
+                  ? "1px solid #eef0f5"
+                  : "1px solid #333",
+              },
+              head: {
+                fontWeight: 700,
+                fontSize: '0.78rem',
+                letterSpacing: '0.03em',
+                textTransform: 'uppercase',
+                color: mode === "light" ? "#6b7280" : "#9ca3af",
+              },
+            },
+            MuiTableRow: {
+              root: {
+                transition: 'background-color 0.15s ease',
+              },
+            },
+
+            // Cards com sombra suave consistente com o resto do painel
+            MuiCard: {
+              root: {
+                borderRadius: 12,
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
+                transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+              }
+            },
+
+            // Modais com sombra mais suave e elegante
+            MuiDialog: {
+              paper: {
+                boxShadow: '0 12px 40px rgba(15, 23, 42, 0.18)',
+              }
+            },
+
+            // Fundo do modal com leve tom da cor da marca em vez de preto puro
+            MuiBackdrop: {
+              root: {
+                backgroundColor: 'rgba(15, 23, 42, 0.55)',
+              }
+            },
+
+            // Tooltips mais discretos e elegantes
+            MuiTooltip: {
+              tooltip: {
+                borderRadius: 6,
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                letterSpacing: '0.02em',
+              }
+            },
           },
 
           mode,

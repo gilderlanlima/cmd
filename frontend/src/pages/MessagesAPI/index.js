@@ -24,7 +24,6 @@ import { toast } from "react-toastify";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import MainContainer from "../../components/MainContainer";
-import Title from "../../components/Title";
 import usePlans from "../../hooks/usePlans";
 import toastError from "../../errors/toastError";
 
@@ -36,9 +35,16 @@ const useStyles = makeStyles((theme) => ({
   },
   hero: {
     padding: theme.spacing(4),
-    borderRadius: 24,
-    background: "linear-gradient(135deg, #0f172a 0%, #1d4ed8 62%, #38bdf8 100%)",
+    borderRadius: 20,
+    background: "linear-gradient(135deg, #1e1b4b 0%, #4f46e5 60%, #06b6d4 100%)",
     color: "#fff",
+  },
+  endpointBox: {
+    minWidth: 260,
+    padding: theme.spacing(1.5, 2),
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.12)",
   },
   heroHeader: {
     display: "flex",
@@ -84,6 +90,8 @@ const useStyles = makeStyles((theme) => ({
     background: "#0f172a",
     color: "#e2e8f0",
     overflowX: "auto",
+    whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
     fontSize: "0.9rem",
     lineHeight: 1.7,
   },
@@ -125,6 +133,17 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "flex-end",
     marginTop: theme.spacing(2),
+  },
+  fileInputRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(1.5),
+    marginTop: theme.spacing(0.5),
+  },
+  fileInputName: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
 }));
 
@@ -313,8 +332,26 @@ const MessagesAPI = () => {
                     name="medias"
                     id="messages-api-media"
                     required
+                    hidden
                     onChange={(e) => setFile(e.target.files)}
                   />
+                  <div className={classes.fileInputRow}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      component="label"
+                      htmlFor="messages-api-media"
+                    >
+                      Selecionar arquivo
+                    </Button>
+                    <Typography
+                      variant="body2"
+                      color="textSecondary"
+                      className={classes.fileInputName}
+                    >
+                      {file[0]?.name || "Nenhum arquivo selecionado"}
+                    </Typography>
+                  </div>
                 </Grid>
               )}
             </Grid>
@@ -348,12 +385,11 @@ const MessagesAPI = () => {
                 Envie mensagens de texto e mídia a partir do CRM usando um endpoint único. Esta página foi redesenhada para que a equipe DEV tenha uma visão mais próxima de uma documentação de framework: endpoint, payload, headers, exemplos e playground técnico em um só lugar.
               </Typography>
             </div>
-            <Box textAlign="right">
-              <Title>API</Title>
-              <Typography variant="body2" style={{ color: "rgba(255,255,255,0.82)" }}>
+            <Box textAlign="right" className={classes.endpointBox}>
+              <Typography variant="body2" style={{ color: "rgba(255,255,255,0.72)" }}>
                 Endpoint principal
               </Typography>
-              <Typography variant="body1" style={{ fontWeight: 700 }}>
+              <Typography variant="body1" style={{ fontWeight: 700, color: "#fff", fontFamily: "'Roboto Mono', monospace", fontSize: "0.85rem" }}>
                 {endpoint}
               </Typography>
             </Box>
