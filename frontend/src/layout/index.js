@@ -26,10 +26,14 @@ import {
   ListItemAvatar,
   ListItemText,
 } from "@material-ui/core";
-import MenuIcon from "@material-ui/icons/Menu";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import NotificationsIcon from "@material-ui/icons/Notifications";
-import CachedIcon from "@material-ui/icons/Cached";
+import { LuMenu, LuChevronLeft, LuBell, LuRefreshCw } from "react-icons/lu";
+
+// Ícones da barra superior no set Lucide (traço fino) — nomes de variável
+// mantidos para não precisar tocar cada ponto de uso no JSX abaixo.
+const MenuIcon = (props) => <LuMenu size={22} {...props} />;
+const ChevronLeftIcon = (props) => <LuChevronLeft size={22} {...props} />;
+const NotificationsIcon = (props) => <LuBell size={22} {...props} />;
+const CachedIcon = (props) => <LuRefreshCw size={22} {...props} />;
 import api from "../services/api";
 import MainListItems from "./MainListItems";
 import NotificationsPopOver from "../components/NotificationsPopOver";
@@ -44,13 +48,14 @@ import BirthdayModal from "../components/BirthdayModal";
 import ChatPopover from "../pages/Chat/ChatPopover";
 import { useDate } from "../hooks/useDate";
 import ColorModeContext from "../layout/themeContext";
-import Brightness4Icon from "@material-ui/icons/Brightness4";
-import Brightness7Icon from "@material-ui/icons/Brightness7";
+import { LuMoon, LuSun } from "react-icons/lu";
+const Brightness4Icon = (props) => <LuMoon size={22} {...props} />;
+const Brightness7Icon = (props) => <LuSun size={22} {...props} />;
 import { getBackendUrl } from "../config";
 import useSettings from "../hooks/useSettings";
 import VersionControl from "../components/VersionControl";
 import useSocketListener from "../hooks/useSocketListener";
-import { FaGlobe } from "react-icons/fa";
+import { LuGlobe as FaGlobe } from "react-icons/lu";
 
 const backendUrl = getBackendUrl();
 const drawerWidth = 240;

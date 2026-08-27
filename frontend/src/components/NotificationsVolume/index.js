@@ -4,8 +4,9 @@ import Popover from "@material-ui/core/Popover";
 import IconButton from "@material-ui/core/IconButton";
 import List from "@material-ui/core/List";
 import { makeStyles } from "@material-ui/core/styles";
-import VolumeUpIcon from "@material-ui/icons/VolumeUp";
-import VolumeDownIcon from "@material-ui/icons/VolumeDown";
+import { LuVolume2, LuVolume1 } from "react-icons/lu";
+const VolumeUpIcon = (props) => <LuVolume2 size={20} {...props} />;
+const VolumeDownIcon = (props) => <LuVolume1 size={20} {...props} />;
 
 import { Grid, Slider } from "@material-ui/core";
 

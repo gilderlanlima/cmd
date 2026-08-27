@@ -8,7 +8,7 @@ import React, {
 import { makeStyles } from "@material-ui/core/styles";
 import toastError from "../../errors/toastError";
 import Popover from "@material-ui/core/Popover";
-import { MdOutlineForum } from "react-icons/md";
+import { LuMessagesSquare as MdOutlineForum } from "react-icons/lu";
 import {
   Badge,
   IconButton,

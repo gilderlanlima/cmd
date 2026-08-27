@@ -14,41 +14,84 @@ import List from "@material-ui/core/List";
 import Tooltip from "@material-ui/core/Tooltip";
 import Typography from "@material-ui/core/Typography";
 
-import DashboardOutlinedIcon from "@material-ui/icons/DashboardOutlined";
 import WhatsAppIcon from "@material-ui/icons/WhatsApp";
-import SyncAltIcon from "@material-ui/icons/SyncAlt";
-import SettingsOutlinedIcon from "@material-ui/icons/SettingsOutlined";
-import PeopleAltOutlinedIcon from "@material-ui/icons/PeopleAltOutlined";
-import ContactPhoneOutlinedIcon from "@material-ui/icons/ContactPhoneOutlined";
-import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
-import AccountTreeOutlinedIcon from "@material-ui/icons/AccountTreeOutlined";
-import FlashOnIcon from "@material-ui/icons/FlashOn";
-import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
-import CodeRoundedIcon from "@material-ui/icons/CodeRounded";
-import ViewKanban from "@mui/icons-material/ViewKanban";
-import Schedule from "@material-ui/icons/Schedule";
-import LocalOfferIcon from "@material-ui/icons/LocalOffer";
-import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
-import EventAvailableIcon from "@material-ui/icons/EventAvailable";
-import ExpandLessIcon from "@material-ui/icons/ExpandLess";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import CakeIcon from "@material-ui/icons/Cake";
-import PeopleIcon from "@material-ui/icons/People";
-import ListIcon from "@material-ui/icons/ListAlt";
-import AnnouncementIcon from "@material-ui/icons/Announcement";
-import ForumIcon from "@material-ui/icons/Forum";
-import LocalAtmIcon from "@material-ui/icons/LocalAtm";
-import BusinessIcon from "@material-ui/icons/Business";
-import AlarmOnIcon from "@material-ui/icons/AlarmOn";
 import {
-  AllInclusive,
-  AttachFile,
-  Dashboard,
-  Description,
-  DeviceHubOutlined,
-  GridOn,
-  PhonelinkSetup,
-} from "@material-ui/icons";
+  LuLayoutDashboard,
+  LuCable,
+  LuSettings,
+  LuUsers,
+  LuContact,
+  LuContact2,
+  LuWallet,
+  LuGitBranch,
+  LuZap,
+  LuHelpCircle,
+  LuCode2,
+  LuKanban,
+  LuCalendarClock,
+  LuTag,
+  LuHistory,
+  LuCalendarCheck,
+  LuChevronUp,
+  LuChevronDown,
+  LuCake,
+  LuClipboardList,
+  LuMegaphone,
+  LuMessagesSquare,
+  LuBanknote,
+  LuBuilding2,
+  LuAlarmClock,
+  LuInfinity,
+  LuPaperclip,
+  LuFileText,
+  LuWorkflow,
+  LuLayoutGrid,
+  LuServerCog,
+  LuSend,
+  LuSpline,
+  LuWebhook,
+} from "react-icons/lu";
+
+// Ícones do menu usam o set Lucide (traço fino, visual atual) via
+// react-icons — os nomes das variáveis abaixo são mantidos iguais aos
+// usados no JSX deste arquivo para não precisar tocar cada ponto de uso.
+const iconize = (Icon, size = 22) => (props) => <Icon size={size} {...props} />;
+
+const DashboardOutlinedIcon = iconize(LuLayoutDashboard);
+const SyncAltIcon = iconize(LuCable);
+const SettingsOutlinedIcon = iconize(LuSettings);
+const PeopleAltOutlinedIcon = iconize(LuUsers);
+const ContactPhoneOutlinedIcon = iconize(LuContact);
+const AccountBalanceWalletIcon = iconize(LuWallet);
+const AccountTreeOutlinedIcon = iconize(LuGitBranch);
+const FlashOnIcon = iconize(LuZap);
+const HelpOutlineIcon = iconize(LuHelpCircle);
+const CodeRoundedIcon = iconize(LuCode2);
+const ViewKanban = iconize(LuKanban);
+const Schedule = iconize(LuCalendarClock);
+const LocalOfferIcon = iconize(LuTag);
+const HistoryToggleOffIcon = iconize(LuHistory);
+const EventAvailableIcon = iconize(LuCalendarCheck);
+const ExpandLessIcon = iconize(LuChevronUp);
+const ExpandMoreIcon = iconize(LuChevronDown);
+const CakeIcon = iconize(LuCake);
+const PeopleIcon = iconize(LuContact2);
+const ListIcon = iconize(LuClipboardList);
+const AnnouncementIcon = iconize(LuMegaphone);
+const ForumIcon = iconize(LuMessagesSquare);
+const LocalAtmIcon = iconize(LuBanknote);
+const BusinessIcon = iconize(LuBuilding2);
+const AlarmOnIcon = iconize(LuAlarmClock);
+const AllInclusive = iconize(LuInfinity);
+const AttachFile = iconize(LuPaperclip);
+const Dashboard = iconize(LuLayoutDashboard);
+const Description = iconize(LuFileText);
+const DeviceHubOutlined = iconize(LuWorkflow);
+const GridOn = iconize(LuLayoutGrid);
+const PhonelinkSetup = iconize(LuServerCog);
+const Campaign = iconize(LuSend);
+const ShapeLine = iconize(LuSpline);
+const Webhook = iconize(LuWebhook);
 
 import { WhatsAppsContext } from "../context/WhatsApp/WhatsAppsContext";
 import { AuthContext } from "../context/Auth/AuthContext";
@@ -62,7 +105,6 @@ import toastError from "../errors/toastError";
 import usePlans from "../hooks/usePlans";
 import useVersion from "../hooks/useVersion";
 import { i18n } from "../translate/i18n";
-import { Campaign, ShapeLine, Webhook } from "@mui/icons-material";
 
 import useCompanySettings from "../hooks/useSettings/companySettings";
 
@@ -1117,6 +1159,14 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 />
               )}
             />
+            {user.super && (
+              <ListItemLink
+                to="/companies"
+                primary={i18n.t("mainDrawer.listItems.companies")}
+                icon={<BusinessIcon />}
+                tooltip={collapsed}
+              />
+            )}
             <Can
               role={user.profile}
               perform="dashboard:view"
@@ -1129,14 +1179,6 @@ const MainListItems = ({ collapsed, drawerClose }) => {
                 />
               )}
             />
-            {user.super && (
-              <ListItemLink
-                to="/companies"
-                primary={i18n.t("mainDrawer.listItems.companies")}
-                icon={<BusinessIcon />}
-                tooltip={collapsed}
-              />
-            )}
           </>
         )}
       />

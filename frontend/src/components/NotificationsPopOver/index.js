@@ -14,7 +14,8 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import { makeStyles } from "@material-ui/core/styles";
 import Badge from "@material-ui/core/Badge";
-import ChatIcon from "@material-ui/icons/Chat";
+import { LuMessageCircle } from "react-icons/lu";
+const ChatIcon = (props) => <LuMessageCircle size={22} {...props} />;
 
 import TicketListItem from "../TicketListItem";
 import useTickets from "../../hooks/useTickets";
