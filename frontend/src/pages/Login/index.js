@@ -24,33 +24,80 @@ const useStyles = makeStyles((theme) => ({
     minHeight: "100vh",
     width: "100%",
     display: "flex",
-    backgroundColor: "#f2f4f8",
+    backgroundColor: "#f5f6fc",
     overflow: "hidden",
+    fontFamily: "'Inter', sans-serif",
   },
   leftSide: {
     flex: 1,
-    background: "linear-gradient(145deg, #0b1f56 0%, #0a3da8 50%, #17a7e7 100%)",
+    background:
+      "linear-gradient(155deg, #150a35 0%, #3f1f8f 42%, #0891b2 100%)",
+    backgroundImage:
+      "radial-gradient(circle at 22px 22px, rgba(255,255,255,0.09) 2px, transparent 2px), " +
+      "linear-gradient(155deg, #150a35 0%, #3f1f8f 42%, #0891b2 100%)",
+    backgroundSize: "44px 44px, cover",
     position: "relative",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "48px",
+    padding: "56px",
+    overflow: "hidden",
     [theme.breakpoints.down("md")]: {
       display: "none",
     },
   },
-  leftOverlayText: {
+  leftGlow: {
+    position: "absolute",
+    width: 420,
+    height: 420,
+    borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(34,211,238,0.35) 0%, rgba(34,211,238,0) 70%)",
+    bottom: -140,
+    left: -100,
+    pointerEvents: "none",
+  },
+  leftContent: {
+    position: "relative",
+    zIndex: 1,
     maxWidth: 560,
+  },
+  leftEyebrow: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    color: "#67e8f9",
+    fontFamily: "'Roboto Mono', monospace",
+    fontSize: 12.5,
+    fontWeight: 500,
+    letterSpacing: "0.14em",
+    textTransform: "uppercase",
+    marginBottom: 20,
+    padding: "6px 12px",
+    borderRadius: 20,
+    border: "1px solid rgba(103, 232, 249, 0.35)",
+    backgroundColor: "rgba(103, 232, 249, 0.08)",
+  },
+  leftOverlayText: {
     color: "#ffffff",
+    fontFamily: "'Inter', sans-serif",
     fontWeight: 700,
-    lineHeight: 1.1,
-    fontSize: 52,
+    lineHeight: 1.15,
+    fontSize: 44,
     letterSpacing: "-0.02em",
+  },
+  leftSubtext: {
+    color: "rgba(226, 232, 255, 0.75)",
+    fontFamily: "'Inter', sans-serif",
+    fontWeight: 400,
+    fontSize: 16,
+    lineHeight: 1.6,
+    marginTop: 20,
+    maxWidth: 440,
   },
   rightSide: {
     width: 440,
     minWidth: 440,
-    backgroundColor: "#f2f4f8",
+    backgroundColor: "#f5f6fc",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -66,47 +113,60 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: 16,
+    gap: 20,
   },
   logo: {
     width: 250,
     maxWidth: "100%",
     height: "auto",
-    marginBottom: 6,
+    marginBottom: 4,
+  },
+  welcomeGroup: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 4,
   },
   subHeading: {
     textAlign: "center",
-    color: "#0f346d",
-    fontWeight: 600,
-    fontSize: 17,
+    color: "#1e1b4b",
+    fontFamily: "'Inter', sans-serif",
+    fontWeight: 700,
+    fontSize: 21,
+    letterSpacing: "-0.01em",
   },
-  companyInfo: {
+  subHeadingCaption: {
     textAlign: "center",
-    color: "#9aa8c2",
-    fontWeight: 500,
-    fontSize: 11,
-    lineHeight: 1.5,
-    marginTop: 4,
+    color: "#767a99",
+    fontFamily: "'Inter', sans-serif",
+    fontWeight: 400,
+    fontSize: 13.5,
   },
   formBox: {
     width: "100%",
     backgroundColor: "#ffffff",
-    borderRadius: 18,
-    boxShadow: "0 12px 32px rgba(10, 47, 102, 0.10)",
-    border: "1px solid #dce4f2",
-    padding: "26px 24px",
+    borderRadius: 20,
+    boxShadow: "0 20px 40px rgba(79, 70, 229, 0.12)",
+    border: "1px solid #e5e7f5",
+    padding: "30px 26px",
   },
   form: {
     width: "100%",
     display: "flex",
     flexDirection: "column",
-    gap: 18,
+    gap: 20,
   },
   textField: {
     "& .MuiOutlinedInput-root": {
-      borderRadius: 10,
-      backgroundColor: "#f8fafe",
+      borderRadius: 12,
+      backgroundColor: "#f8f8fd",
       fontSize: 15,
+      fontFamily: "'Inter', sans-serif",
+      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+        borderColor: "#4f46e5",
+        borderWidth: 2,
+      },
     },
     "& .MuiOutlinedInput-input": {
       padding: "14px 14px",
@@ -115,24 +175,33 @@ const useStyles = makeStyles((theme) => ({
       fontSize: 15,
     },
     "& .MuiInputLabel-root": {
+      fontFamily: "'Inter', sans-serif",
       fontWeight: 600,
-      color: "#294370",
+      color: "#3730a3",
       letterSpacing: "0.01em",
+      "&.Mui-focused": {
+        color: "#4f46e5",
+      },
     },
   },
   submitBtn: {
     width: "100%",
     borderRadius: 10,
-    padding: "11px 24px",
-    background: "linear-gradient(90deg, #1d5bcc 0%, #18a6e6 100%)",
+    padding: "9px 24px",
+    minHeight: "auto",
+    background: "linear-gradient(90deg, #4f46e5 0%, #06b6d4 100%)",
     color: "#fff",
+    fontFamily: "'Inter', sans-serif",
     fontWeight: 600,
     textTransform: "none",
-    fontSize: 15.5,
+    fontSize: 14.5,
     letterSpacing: "0.01em",
-    boxShadow: "0 6px 16px rgba(29, 91, 204, 0.25)",
+    boxShadow: "0 10px 24px rgba(79, 70, 229, 0.30)",
+    transition: "transform 0.15s ease, box-shadow 0.15s ease",
     "&:hover": {
-      background: "linear-gradient(90deg, #1548ac 0%, #0e8fca 100%)",
+      background: "linear-gradient(90deg, #4338ca 0%, #0891b2 100%)",
+      boxShadow: "0 12px 28px rgba(79, 70, 229, 0.38)",
+      transform: "translateY(-1px)",
     },
   },
   securitySeal: {
@@ -140,20 +209,23 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    color: "#7b8aa8",
-    fontSize: 11.5,
-    fontWeight: 500,
-    marginTop: 2,
+    color: "#8385a8",
+    fontFamily: "'Roboto Mono', monospace",
+    fontSize: 11,
+    fontWeight: 400,
+    marginTop: 4,
   },
   sealIcon: {
     fontSize: 14,
-    color: "#2a9d5c",
+    color: "#0d9488",
   },
   version: {
-    color: "#9aa8c2",
+    color: "#a3a6c2",
+    fontFamily: "'Roboto Mono', monospace",
     fontSize: 11,
-    fontWeight: 500,
-    marginTop: 2,
+    fontWeight: 400,
+    marginTop: 6,
+    letterSpacing: "0.02em",
   },
 }));
 
@@ -275,9 +347,20 @@ const Login = () => {
 
       <div className={classes.root}>
         <div className={classes.leftSide}>
-          <Typography className={classes.leftOverlayText}>
-            Atendimento, operacao e gestao comercial em um unico painel.
-          </Typography>
+          <div className={classes.leftGlow} />
+          <div className={classes.leftContent}>
+            <span className={classes.leftEyebrow}>
+              <LockIcon style={{ fontSize: 13 }} />
+              Plataforma inteligente de atendimento
+            </span>
+            <Typography className={classes.leftOverlayText}>
+              Atendimento, operação e gestão comercial em um único painel.
+            </Typography>
+            <Typography className={classes.leftSubtext}>
+              Automatize conversas, organize sua equipe e acompanhe resultados
+              em tempo real — tudo em uma única plataforma.
+            </Typography>
+          </div>
         </div>
 
         <div className={classes.rightSide}>
@@ -288,9 +371,14 @@ const Login = () => {
               className={classes.logo}
               onError={() => setLogoSrc(logo)}
             />
-            <Typography className={classes.subHeading}>
-              Bem-vindo ao {dynamicAppName}!
-            </Typography>
+            <div className={classes.welcomeGroup}>
+              <Typography className={classes.subHeading}>
+                Bem-vindo de volta
+              </Typography>
+              <Typography className={classes.subHeadingCaption}>
+                Entre com sua conta do {dynamicAppName}
+              </Typography>
+            </div>
 
             <div className={classes.formBox}>
               <form className={classes.form} noValidate onSubmit={handleSubmit}>
@@ -349,11 +437,6 @@ const Login = () => {
             )}
             <Typography className={classes.version}>
               Versão {packageVersion}
-            </Typography>
-            <Typography className={classes.companyInfo}>
-              IDEIA NO BOLSO LTDA — CNPJ: 64.016.500/0001-02
-              <br />
-              R. Comendador Torlogo Dauntre, 74, Sala 1207 — Cambuí — Campinas/SP
             </Typography>
           </Container>
         </div>
