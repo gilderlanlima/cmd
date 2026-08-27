@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import * as Yup from "yup";
 import { Formik, Form, Field } from "formik";
 import { toast } from "react-toastify";
 import { isNil } from "lodash";
-import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { green } from "@material-ui/core/colors";
@@ -120,11 +119,6 @@ const SessionSchema = Yup.object().shape({
 const WhatsAppModal = ({ open, onClose, whatsAppId, channel }) => {
   const classes = useStyles();
   const [autoToken, setAutoToken] = useState("");
-
-  const inputFileRef = useRef(null);
-
-  const [attachment, setAttachment] = useState(null);
-  const [attachmentName, setAttachmentName] = useState("");
 
   const initialState = {
     name: "",
@@ -384,7 +378,6 @@ const WhatsAppModal = ({ open, onClose, whatsAppId, channel }) => {
         }
 
         setWhatsApp(data);
-        setAttachmentName(data.greetingMediaAttachment);
         setAutoToken(data.token);
         data.promptId
           ? setSelectedPrompt(data.promptId)
@@ -526,21 +519,8 @@ const WhatsAppModal = ({ open, onClose, whatsAppId, channel }) => {
         }
 
         await api.put(`/whatsapp/${whatsAppId}`, whatsappData);
-        if (attachment != null) {
-          const formData = new FormData();
-          formData.append("file", attachment);
-          await api.post(`/whatsapp/${whatsAppId}/media-upload`, formData);
-        }
-        if (!attachmentName && whatsApp.greetingMediaAttachment !== null) {
-          await api.delete(`/whatsapp/${whatsAppId}/media-upload`);
-        }
       } else {
-        const { data } = await api.post("/whatsapp", whatsappData);
-        if (attachment != null) {
-          const formData = new FormData();
-          formData.append("file", attachment);
-          await api.post(`/whatsapp/${data.id}/media-upload`, formData);
-        }
+        await api.post("/whatsapp", whatsappData);
       }
       toast.success(i18n.t("whatsappModal.success"));
 
@@ -597,26 +577,11 @@ const WhatsAppModal = ({ open, onClose, whatsAppId, channel }) => {
     onClose();
     setWhatsApp(initialState);
     setEnableImportMessage(false);
-    // inputFileRef.current.value = null
-    setAttachment(null);
-    setAttachmentName("");
     setCopied(false);
   };
 
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
-  };
-
-  const handleFileUpload = () => {
-    const file = inputFileRef.current.files[0];
-    setAttachment(file);
-    setAttachmentName(file.name);
-    inputFileRef.current.value = null;
-  };
-
-  const handleDeleFile = () => {
-    setAttachment(null);
-    setAttachmentName(null);
   };
 
   return (
@@ -691,44 +656,6 @@ const WhatsAppModal = ({ open, onClose, whatsAppId, channel }) => {
                   name={"general"}
                 >
                   <DialogContent dividers>
-                    {attachmentName && (
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "row-reverse",
-                        }}
-                      >
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          endIcon={<DeleteOutlineIcon />}
-                          onClick={handleDeleFile}
-                        >
-                          {attachmentName}
-                        </Button>
-                      </div>
-                    )}
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column-reverse",
-                      }}
-                    >
-                      <input
-                        type="file"
-                        accept="video/*,image/*"
-                        ref={inputFileRef}
-                        style={{ display: "none" }}
-                        onChange={handleFileUpload}
-                      />
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => inputFileRef.current.click()}
-                      >
-                        {i18n.t("userModal.buttons.addImage")}
-                      </Button>
-                    </div>
                     {/* NOME E PADRAO */}
                     <div className={classes.multFieldLine}>
                       <Grid spacing={2} container>
