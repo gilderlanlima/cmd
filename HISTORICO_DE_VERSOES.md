@@ -2,6 +2,21 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.22
+
+- `7fb5c99` - `fix: horario dos tickets refletia rotina de fila, nao a ultima mensagem`
+- `bc9fd31` - `fix: exibe lastMessageAt (com fallback pra updatedAt) na lista de tickets`
+- `d6af452` - `style: redesenha tela de login com identidade tecnologica`
+- `0630f38` - `style: redesenha notificacoes (toasts) com visual mais profissional`
+- `55306cf` - `fix: update.sh nunca rodava migracoes de banco de dados`
+
+Corrige o horario exibido nos tickets (agora reflete a ultima mensagem real, nao rotinas
+administrativas que tocavam updatedAt). Redesenha a tela de login (gradiente indigo/ciano,
+tipografia Inter/Roboto Mono, botao proporcional) e as notificacoes do sistema (cantos
+arredondados, texto centralizado, visual mais profissional). Corrige o botao "Atualizar
+agora" para tambem rodar migracoes pendentes de banco de dados (esta e a primeira release
+desde essa correcao que inclui uma migracao real - add-last-message-at-to-tickets).
+
 ## 3.3.21
 
 - `d36b444` - `fix: remove checagem -x incorreta que pulava a publicacao do frontend`
