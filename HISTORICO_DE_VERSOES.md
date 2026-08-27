@@ -2,6 +2,24 @@
 
 Este arquivo registra as versoes publicadas do projeto e os commits relacionados a cada release.
 
+## 3.3.23
+
+- `193a347` - `style: substitui icones do menu e barra superior pelo set Lucide`
+- `400601f` - `style: pacote de customizacao visual (conexoes, contatos, API, plantao, tema)`
+- `05f6af7` - `feat: permite escolher upgrade ou downgrade na tela de Atualizacoes`
+- `4ef6734` - `fix: remove opcao de adicionar imagem no modal de conexoes`
+- `4462e16` - `fix: alinha selo do usuario responsavel na lista de tickets`
+
+Pacote grande de customizacao visual: icones do menu lateral e barra superior
+trocados para o set Lucide (traco fino, mais atual); conexoes viram grid de
+cards responsivo; contatos ganham cabecalho fixo com so o grid rolando;
+pagina da API redesenhada com a paleta da marca; modal de plantao
+reestruturado em secoes; pequenos ajustes de tema global (chips, tabelas,
+cards, modais, tooltips). Alem disso, a tela de Atualizacoes agora permite
+tambem reverter para uma das ultimas 3 releases, nao so atualizar para a
+mais nova. Remove o botao de adicionar imagem no modal de conexoes e
+corrige o alinhamento do selo do usuario responsavel na lista de tickets.
+
 ## 3.3.22
 
 - `7fb5c99` - `fix: horario dos tickets refletia rotina de fila, nao a ultima mensagem`
