@@ -28,6 +28,9 @@ printf '{"running":true,"startedAt":"%s","finishedAt":null,"exitCode":null}\n' "
   echo "--- backend: instalando dependências e buildando ---" &&
   (cd backend && npm install --legacy-peer-deps --include=dev && npm run build) &&
 
+  echo "--- rodando migrações do banco de dados ---" &&
+  (cd backend && npx sequelize db:migrate) &&
+
   echo "--- frontend: instalando dependências e buildando ---" &&
   (
     cd frontend &&

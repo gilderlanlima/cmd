@@ -105,6 +105,14 @@ SYSTEMD_BACKEND_SERVICE=crm-backend.service
 FRONTEND_SYNC_SCRIPT=/usr/local/bin/crm-sync-frontend.sh
 ```
 
+## Migrações de banco de dados
+
+`update.sh` roda `npx sequelize db:migrate` logo após buildar o backend
+(e antes do restart), então uma nova versão com migração pendente é
+aplicada automaticamente pelo botão "Atualizar agora". Antes da v3.3.22
+esse passo não existia — qualquer release com migração deployada por
+esse mecanismo teria deixado o schema do banco desatualizado.
+
 ## Gotcha conhecido: ajv-keywords x ajv
 
 `npm install` no frontend pode quebrar o build (`Cannot find module
