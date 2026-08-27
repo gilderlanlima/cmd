@@ -470,19 +470,19 @@ const TicketListItem = ({ ticket }) => {
                                 color="textSecondary"
                             >
                                 {isSameDay(
-                                    parseISO(ticket.updatedAt),
+                                    parseISO(ticket.lastMessageAt || ticket.updatedAt),
                                     new Date()
                                 ) ? (
                                     <>
                                         {format(
-                                            parseISO(ticket.updatedAt),
+                                            parseISO(ticket.lastMessageAt || ticket.updatedAt),
                                             "HH:mm"
                                         )}
                                     </>
                                 ) : (
                                     <>
                                         {format(
-                                            parseISO(ticket.updatedAt),
+                                            parseISO(ticket.lastMessageAt || ticket.updatedAt),
                                             "dd/MM/yyyy"
                                         )}
                                     </>

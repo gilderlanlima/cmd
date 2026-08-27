@@ -784,10 +784,10 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
                 component="span"
                 variant="body2"
               >
-                {isSameDay(parseISO(ticket.updatedAt), new Date()) ? (
-                  <>{format(parseISO(ticket.updatedAt), "HH:mm")}</>
+                {isSameDay(parseISO(ticket.lastMessageAt || ticket.updatedAt), new Date()) ? (
+                  <>{format(parseISO(ticket.lastMessageAt || ticket.updatedAt), "HH:mm")}</>
                 ) : (
-                  <>{format(parseISO(ticket.updatedAt), "dd/MM/yyyy")}</>
+                  <>{format(parseISO(ticket.lastMessageAt || ticket.updatedAt), "dd/MM/yyyy")}</>
                 )}
               </Typography>
 
