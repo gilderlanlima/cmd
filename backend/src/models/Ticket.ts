@@ -44,6 +44,12 @@ class Ticket extends Model<Ticket> {
   @Column
   lastMessage: string;
 
+  // Data da ultima mensagem real (independente de updatedAt, que tambem
+  // e tocado por rotinas administrativas como reatribuicao automatica de
+  // fila). Mantido pelo hook @AfterCreate em Message.
+  @Column
+  lastMessageAt: Date;
+
   @Default(false)
   @Column
   isGroup: boolean;

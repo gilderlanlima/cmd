@@ -8,7 +8,8 @@ import {
   PrimaryKey,
   Default,
   BelongsTo,
-  ForeignKey
+  ForeignKey,
+  AfterCreate
 } from "sequelize-typescript";
 import Contact from "./Contact";
 import Ticket from "./Ticket";
@@ -125,6 +126,20 @@ class Message extends Model<Message> {
   @Default(false)
   @Column
   isForwarded: boolean;
+
+  // Mantem Ticket.lastMessageAt = data desta mensagem, independente do
+  // canal (WhatsApp, Facebook, API oficial etc.) - ponto unico em vez de
+  // replicar em cada um dos ~40 lugares que atualizam ticket.lastMessage.
+  // silent:true evita tocar Ticket.updatedAt so por causa disso (updatedAt
+  // e usado por outras rotinas, como reatribuicao automatica de fila).
+  @AfterCreate
+  static async touchTicketLastMessageAt(message: Message): Promise<void> {
+    if (!message.ticketId) return;
+    await Ticket.update(
+      { lastMessageAt: message.createdAt || new Date() },
+      { where: { id: message.ticketId }, silent: true }
+    );
+  }
 }
 
 export default Message;
