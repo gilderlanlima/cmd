@@ -1,15 +1,23 @@
 #!/usr/bin/env bash
-# Executado pelo backend (SystemUpdateController) para atualizar o CRM a
-# partir do GitHub. Assume um checkout git na VPS (não Docker), backend
-# gerenciado via systemd e frontend servido como arquivos estáticos.
-# Uso: update.sh <logfile> <statusfile>
+# Executado pelo backend (SystemUpdateController) para atualizar (ou
+# reverter) o CRM a partir de uma tag de release do GitHub. Assume um
+# checkout git na VPS (não Docker), backend gerenciado via systemd e
+# frontend servido como arquivos estáticos.
+# Uso: update.sh <logfile> <statusfile> <target-tag>
 
 LOGFILE="$1"
 STATUSFILE="$2"
+TARGET_TAG="$3"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
 cd "$REPO_ROOT" || exit 1
+
+if [[ ! "$TARGET_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "ERRO: tag de destino ausente ou inválida: '$TARGET_TAG'" >> "$LOGFILE"
+  printf '{"running":false,"startedAt":null,"finishedAt":"%s","exitCode":1}\n' "$(date -Iseconds)" > "$STATUSFILE"
+  exit 1
+fi
 
 # NODE_ENV=production (herdado do processo do backend que dispara este
 # script) faz "npm install" pular devDependencies como typescript e
@@ -22,8 +30,15 @@ printf '{"running":true,"startedAt":"%s","finishedAt":null,"exitCode":null}\n' "
 {
   echo "=== $(date -Iseconds) - iniciando atualização ==="
 
-  echo "--- git pull ---"
-  git pull origin main &&
+  echo "--- git fetch (tags) ---"
+  git fetch origin main --tags --quiet &&
+
+  echo "--- checkout $TARGET_TAG ---"
+  # --force descarta qualquer alteração local em arquivos versionados (não
+  # deveria haver nenhuma num checkout de produção) para que tanto upgrade
+  # quanto downgrade entre tags sempre funcionem, mesmo vindo de um estado
+  # inesperado (ex.: uma atualização anterior interrompida no meio).
+  git checkout --force "$TARGET_TAG" &&
 
   echo "--- backend: instalando dependências e buildando ---" &&
   (cd backend && npm install --legacy-peer-deps --include=dev && npm run build) &&

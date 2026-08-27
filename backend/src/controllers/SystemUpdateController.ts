@@ -12,7 +12,8 @@ export const check = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const apply = async (req: Request, res: Response): Promise<Response> => {
-  const result = runSystemUpdate();
+  const { targetTag } = req.body;
+  const result = await runSystemUpdate(targetTag);
   return res.status(202).json(result);
 };
 

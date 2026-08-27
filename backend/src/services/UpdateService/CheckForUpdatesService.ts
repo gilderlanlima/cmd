@@ -4,11 +4,19 @@ import { REPO_ROOT, BRANCH } from "../../config/systemUpdate";
 
 const execFileAsync = promisify(execFile);
 
+interface VersionOption {
+  tag: string;
+  version: string;
+}
+
 interface UpdateCheckResult {
   currentVersion: string;
+  currentTag: string | null;
   latestVersion: string;
+  latestTag: string | null;
   upToDate: boolean;
   changes: string[];
+  downgradeOptions: VersionOption[];
 }
 
 const CONVENTIONAL_PREFIX = /^[a-z]+(\([^)]*\))?:\s*/i;
@@ -50,14 +58,25 @@ const isVersionNewer = (a: string, b: string): boolean => {
   return false;
 };
 
-const getLatestReleaseTag = async (): Promise<string | null> => {
+// Tags de release ordenadas da mais nova para a mais antiga (SemVer).
+export const listReleaseTags = async (limit = 10): Promise<string[]> => {
   const { stdout } = await execFileAsync(
     "git",
     ["tag", "--list", "v*", "--sort=-v:refname"],
     { cwd: REPO_ROOT }
   );
-  const [latest] = stdout.split("\n").filter(Boolean);
-  return latest || null;
+  return stdout.split("\n").filter(Boolean).slice(0, limit);
+};
+
+// Tag cujo package.json bate com a versão informada (usada para achar a tag
+// da versão atualmente rodando, que pode não ser exatamente o HEAD).
+const findTagForVersion = (
+  tags: string[],
+  versions: string[],
+  version: string
+): string | null => {
+  const index = versions.findIndex(v => v === version);
+  return index === -1 ? null : tags[index];
 };
 
 const CheckForUpdatesService = async (): Promise<UpdateCheckResult> => {
@@ -78,10 +97,13 @@ const CheckForUpdatesService = async (): Promise<UpdateCheckResult> => {
   // A versão "oficial" mais recente é a da última tag de release
   // (v0.0.0), não o HEAD cru do branch — main pode ter commits (docs,
   // ajustes de script etc.) ainda não publicados como release.
-  const latestTag = await getLatestReleaseTag();
-  const latestVersion = latestTag
-    ? await readVersionAt(latestTag)
-    : currentVersion;
+  const releaseTags = await listReleaseTags();
+  const releaseVersions = await Promise.all(
+    releaseTags.map(tag => readVersionAt(tag))
+  );
+
+  const latestTag = releaseTags[0] || null;
+  const latestVersion = latestTag ? releaseVersions[0] : currentVersion;
 
   const upToDate = !isVersionNewer(latestVersion, currentVersion);
 
@@ -99,11 +121,30 @@ const CheckForUpdatesService = async (): Promise<UpdateCheckResult> => {
       .filter((line): line is string => Boolean(line));
   }
 
+  const currentTag = findTagForVersion(releaseTags, releaseVersions, currentVersion);
+  const currentIndex = currentTag ? releaseTags.indexOf(currentTag) : -1;
+
+  // As até 3 releases anteriores à atualmente instalada, para permitir
+  // reverter (downgrade) direto pela tela de atualização.
+  const downgradeOptions: VersionOption[] = (
+    currentIndex === -1
+      ? releaseTags.filter(tag => tag !== latestTag)
+      : releaseTags.slice(currentIndex + 1)
+  )
+    .slice(0, 3)
+    .map(tag => ({
+      tag,
+      version: releaseVersions[releaseTags.indexOf(tag)]
+    }));
+
   return {
     currentVersion,
+    currentTag,
     latestVersion,
+    latestTag,
     upToDate,
-    changes
+    changes,
+    downgradeOptions
   };
 };
 

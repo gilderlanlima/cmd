@@ -105,6 +105,29 @@ SYSTEMD_BACKEND_SERVICE=crm-backend.service
 FRONTEND_SYNC_SCRIPT=/usr/local/bin/crm-sync-frontend.sh
 ```
 
+## Upgrade e downgrade por tag (tela de Atualizações)
+
+`update.sh` não faz mais `git pull origin main`. Ele recebe uma tag de
+release como terceiro argumento (`update.sh <logfile> <statusfile>
+<tag>`) e roda `git fetch --tags && git checkout --force <tag>` — o
+mesmo caminho de código serve tanto para "Atualizar agora" (tag mais
+nova) quanto para "Reverter para uma versão anterior" (uma das até 3
+tags anteriores à instalada, listadas em `downgradeOptions` pelo
+`CheckForUpdatesService`). O backend valida a tag recebida contra a
+lista real de tags do repositório antes de repassar ao script
+(`RunSystemUpdateService.ts`), então uma tag inexistente ou fora do
+formato `vX.Y.Z` é rejeitada com 400 antes de chegar no shell.
+
+O checkout fica em detached HEAD (é uma tag, não uma branch) — normal
+para um ambiente de produção que só é atualizado por esse mecanismo.
+
+**Downgrade não desfaz migrações de banco.** `db:migrate` só aplica
+migrações pendentes; reverter o código para uma tag mais antiga não
+roda `db:migrate:undo`. Se a versão que estava rodando adicionou uma
+migração, o schema continua com ela mesmo depois do downgrade — a UI
+avisa isso no modal de confirmação, mas não tenta reverter o banco
+automaticamente.
+
 ## Migrações de banco de dados
 
 `update.sh` roda `npx sequelize db:migrate` logo após buildar o backend

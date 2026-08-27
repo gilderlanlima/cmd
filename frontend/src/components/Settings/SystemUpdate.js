@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Chip,
+  Divider,
   List,
   ListItem,
   ListItemText,
@@ -11,7 +12,13 @@ import {
   Typography,
   makeStyles,
 } from "@material-ui/core";
-import { CloudDownload, CheckCircle, Refresh } from "@material-ui/icons";
+import {
+  CloudDownload,
+  CheckCircle,
+  Refresh,
+  History,
+  Warning,
+} from "@material-ui/icons";
 import { toast } from "react-toastify";
 
 import api from "../../services/api";
@@ -51,13 +58,43 @@ const useStyles = makeStyles((theme) => ({
     overflowY: "auto",
     borderRadius: theme.spacing(0.5),
   },
+  downgradeSection: {
+    marginTop: theme.spacing(3),
+  },
+  downgradeHeading: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(1),
+    fontWeight: 700,
+    marginBottom: theme.spacing(1.5),
+  },
+  downgradeRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: theme.spacing(2),
+    padding: theme.spacing(1.25, 1.5),
+    borderRadius: 12,
+    border: `1px solid ${theme.palette.divider}`,
+    marginBottom: theme.spacing(1),
+  },
+  warningBox: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: theme.spacing(1),
+    padding: theme.spacing(1.5),
+    borderRadius: 10,
+    backgroundColor: theme.palette.type === "dark" ? "rgba(245,158,11,0.12)" : "#FFF7E6",
+    border: `1px solid ${theme.palette.type === "dark" ? "rgba(245,158,11,0.3)" : "#FCE3A6"}`,
+    marginTop: theme.spacing(2),
+  },
 }));
 
 const SystemUpdate = () => {
   const classes = useStyles();
   const [loadingCheck, setLoadingCheck] = useState(false);
   const [updateInfo, setUpdateInfo] = useState(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingTarget, setPendingTarget] = useState(null);
   const [status, setStatus] = useState(null);
   const pollRef = useRef(null);
 
@@ -90,9 +127,11 @@ const SystemUpdate = () => {
   };
 
   const handleApply = async () => {
-    setConfirmOpen(false);
+    if (!pendingTarget) return;
+    const { tag } = pendingTarget;
+    setPendingTarget(null);
     try {
-      await api.post("/system-update/apply");
+      await api.post("/system-update/apply", { targetTag: tag });
       toast.success("Atualização iniciada. Isso pode reiniciar o sistema.");
       pollStatus();
     } catch (err) {
@@ -180,14 +219,51 @@ const SystemUpdate = () => {
             variant="contained"
             color="primary"
             startIcon={<CloudDownload />}
-            onClick={() => setConfirmOpen(true)}
+            onClick={() =>
+              setPendingTarget({
+                type: "upgrade",
+                tag: updateInfo.latestTag,
+                version: updateInfo.latestVersion,
+              })
+            }
             disabled={
-              !updateInfo || updateInfo.upToDate || status?.running
+              !updateInfo || !updateInfo.latestTag || updateInfo.upToDate || status?.running
             }
           >
             {status?.running ? "Atualizando..." : "Atualizar agora"}
           </Button>
         </Box>
+
+        {updateInfo?.downgradeOptions?.length > 0 && (
+          <Box className={classes.downgradeSection}>
+            <Divider style={{ marginBottom: 16 }} />
+            <Typography variant="subtitle2" className={classes.downgradeHeading}>
+              <History fontSize="small" color="action" />
+              Reverter para uma versão anterior
+            </Typography>
+            {updateInfo.downgradeOptions.map((option) => (
+              <div key={option.tag} className={classes.downgradeRow}>
+                <Typography variant="body2">
+                  Versão <strong>{option.version}</strong>
+                </Typography>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() =>
+                    setPendingTarget({
+                      type: "downgrade",
+                      tag: option.tag,
+                      version: option.version,
+                    })
+                  }
+                  disabled={status?.running}
+                >
+                  Reverter
+                </Button>
+              </div>
+            ))}
+          </Box>
+        )}
 
         {status && (status.running || status.log) && (
           <Box className={classes.log}>{status.log || "Aguardando log..."}</Box>
@@ -195,15 +271,37 @@ const SystemUpdate = () => {
       </Paper>
 
       <ConfirmationModal
-        title="Atualizar sistema"
-        open={confirmOpen}
-        onClose={setConfirmOpen}
+        title={
+          pendingTarget?.type === "downgrade"
+            ? `Reverter para a versão ${pendingTarget?.version}`
+            : "Atualizar sistema"
+        }
+        open={Boolean(pendingTarget)}
+        onClose={() => setPendingTarget(null)}
         onConfirm={handleApply}
       >
-        Isso vai instalar a versão {updateInfo?.latestVersion}, reinstalar
-        dependências, recompilar o backend e o frontend e reiniciar os
-        serviços. O sistema pode ficar indisponível por alguns minutos.
-        Deseja continuar?
+        {pendingTarget?.type === "downgrade" ? (
+          <>
+            Isso vai reinstalar dependências, recompilar o backend e o
+            frontend e reiniciar os serviços na versão {pendingTarget?.version}.
+            O sistema pode ficar indisponível por alguns minutos.
+            <Box className={classes.warningBox}>
+              <Warning fontSize="small" style={{ color: "#B45309" }} />
+              <Typography variant="body2">
+                Reverter o código não desfaz alterações já aplicadas no
+                banco de dados por versões mais novas. Se a versão atual
+                incluiu migrações de banco, elas continuarão em vigor.
+              </Typography>
+            </Box>
+          </>
+        ) : (
+          <>
+            Isso vai instalar a versão {pendingTarget?.version}, reinstalar
+            dependências, recompilar o backend e o frontend e reiniciar os
+            serviços. O sistema pode ficar indisponível por alguns minutos.
+            Deseja continuar?
+          </>
+        )}
       </ConfirmationModal>
     </Box>
   );

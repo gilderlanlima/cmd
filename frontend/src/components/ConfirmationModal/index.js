@@ -66,7 +66,7 @@ const ConfirmationModal = ({ title, children, open, onClose, onConfirm }) => {
 					{title}
 				</DialogTitle>
 				<DialogContent dividers style={{ padding: isMobile ? '16px' : '24px' }}>
-					<Typography>{children}</Typography>
+					<Typography component="div">{children}</Typography>
 				</DialogContent>
 				<DialogActions style={{ padding: isMobile ? '8px 16px' : '16px 24px' }}>
 					<Button
